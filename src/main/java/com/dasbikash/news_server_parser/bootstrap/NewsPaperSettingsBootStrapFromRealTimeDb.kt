@@ -13,7 +13,7 @@ import javax.ws.rs.core.Response
 
 object NewsPaperSettingsBootStrapFromRealTimeDb {
 
-    lateinit var realTimeDbEndPoints:RealTimeDbEndPoints
+    var realTimeDbEndPoints:RealTimeDbEndPoints
 
     val jerseyClient = ClientBuilder.newClient()
 
@@ -34,10 +34,6 @@ object NewsPaperSettingsBootStrapFromRealTimeDb {
                 .get()
         val responseText =  getResponse.readEntity(String::class.java)
         return Gson().fromJson(responseText,DefaultAppSettings::class.java)
-    }
-
-    private class Countries{
-        var countries:HashMap<String,CountrySetting>? = null
     }
 
     fun saveDefaultSettings(session:Session):Boolean{

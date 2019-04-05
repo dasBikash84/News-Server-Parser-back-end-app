@@ -6,10 +6,6 @@ import org.hibernate.cfg.Configuration;
 
 import java.io.File;
 
-/**
- * Hello world!
- *
- */
 public class BootstrapSettings {
 	public static void main(String[] args) {
 

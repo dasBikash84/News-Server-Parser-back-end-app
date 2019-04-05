@@ -1,3 +1,4 @@
 *.json
 *.sql
 !mysql_init.sql
+hibernate.cfg.xml

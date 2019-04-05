@@ -18,17 +18,5 @@ internal class NewspaperTest {
     fun tearDown() {
     }
 
-    @Test
-    fun getNewsPaperCount(){
-        val objectMapper = ObjectMapper()
-        val newsPapers =  objectMapper.readValue(File("src/main/resources/newspaper_data.json"),
-                NewsPapers::class.java)
-        println(newsPapers.newspapers?.size ?: 0)
-    }
-
-    private class NewsPapers{
-        var newspapers:List<Newspaper>? = null;
-    }
-
 
 }
