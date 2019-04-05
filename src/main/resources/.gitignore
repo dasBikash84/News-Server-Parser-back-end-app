@@ -1,0 +1,3 @@
+*.json
+*.sql
+!mysql_init.sql

@@ -1,7 +1,6 @@
-package front_end_app;
+package com.dasbikash.news_server_parser.front_end_app;
 
 import javafx.application.Application;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class ParserUiApp extends Application {
