@@ -44,6 +44,7 @@ internal class PreviewPageParserFactoryTest {
                         ?.forEach {
                             println("Article  ${it}")
                         }
+                Thread.sleep(500)
             }
         }
 
