@@ -16,21 +16,21 @@ package com.dasbikash.news_server_parser.model
 import javax.persistence.*
 
 @Entity
-@Table(name = "newspapers")
+@Table(name = DatabaseTableNames.NEWSPAPER_TABLE_NAME)
 data class Newspaper(
         @Id var id: String="",
         var name: String?=null,
 
-        @ManyToOne(targetEntity = Country::class,fetch = FetchType.EAGER)
+        @ManyToOne(targetEntity = Country::class,fetch = FetchType.LAZY)
         @JoinColumn(name="countryName")
         var country: Country?=null,
 
-        @ManyToOne(targetEntity = Language::class,fetch = FetchType.EAGER)
+        @ManyToOne(targetEntity = Language::class,fetch = FetchType.LAZY)
         @JoinColumn(name="languageId")
         var language: Language?=null,
 
         var active: Boolean=true,
 
-        @OneToMany(fetch = FetchType.EAGER,mappedBy = "newspaper",targetEntity = Page::class)
+        @OneToMany(fetch = FetchType.LAZY,mappedBy = "newspaper",targetEntity = Page::class)
         var pageList: List<Page>?=null
 )

@@ -11,15 +11,22 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_parser.model
+package com.dasbikash.news_server_parser.utils;
 
-import javax.persistence.*
+public class ToDoUtils {
+    public static void workToDo(String message){
+        throw new ToDoExp(message);
+    }
+    public static void workToDo(){
+        throw new ToDoExp();
+    }
 
-@Entity
-@Table(name = DatabaseTableNames.LANGUAGE_TABLE_NAME)
-data class Language (
-        @Id var id:String="",
-        var name: String?=null,
-        @OneToMany(targetEntity = Newspaper::class,mappedBy = "language",fetch = FetchType.LAZY)
-        var newsPapers:List<Newspaper>? = null
-)
+    private static class ToDoExp extends RuntimeException{
+        ToDoExp() {
+            super("Implementation pending.");
+        }
+        ToDoExp(String message) {
+            super(message);
+        }
+    }
+}

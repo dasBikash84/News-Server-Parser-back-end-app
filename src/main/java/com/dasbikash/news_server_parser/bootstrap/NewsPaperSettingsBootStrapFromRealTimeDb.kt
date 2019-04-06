@@ -76,7 +76,7 @@ object NewsPaperSettingsBootStrapFromRealTimeDb {
             }
 
             defaultAppSettings.pages!!.values.forEach { pageSetting->
-                val newPage = Page(id = pageSetting.id,parentPageId = pageSetting.id,name = pageSetting.name,
+                val newPage = Page(id = pageSetting.id,parentPageId = pageSetting.parentPageId,name = pageSetting.name,
                                     linkFormat = pageSetting.linkFormat,linkVariablePartFormat = pageSetting.linkVariablePartFormat,
                                     active = pageSetting.active,firstEditionDateString = pageSetting.firstEditionDateString,
                                     weekly = pageSetting.weekly,weeklyPublicationDay = pageSetting.weeklyPublicationDay)

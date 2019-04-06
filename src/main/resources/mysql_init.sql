@@ -44,9 +44,11 @@ CREATE TABLE `pages` (
 
 CREATE TABLE `articles` (
   `id` varchar(255) NOT NULL,
-  `lastModificationTS` bigint(20) DEFAULT NULL,
+  `modificationTS` datetime DEFAULT NULL,
+  `publicationTS` datetime DEFAULT NULL,
   `title` varchar(255) DEFAULT NULL,
   `articleText` text DEFAULT NULL,
+  `previewImageLink` text DEFAULT NULL,
   `pageId` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK6fptm12k5ef7w7fy26su0gvs1` (`pageId`),

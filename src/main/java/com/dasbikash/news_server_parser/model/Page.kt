@@ -16,12 +16,12 @@ package com.dasbikash.news_server_parser.model
 import javax.persistence.*
 
 @Entity
-@Table(name = "pages")
+@Table(name = DatabaseTableNames.PAGE_TABLE_NAME)
 data class Page(
         @Id
         var id: String="",
 
-        @ManyToOne(targetEntity = Newspaper::class,fetch = FetchType.EAGER)
+        @ManyToOne(targetEntity = Newspaper::class,fetch = FetchType.LAZY)
         @JoinColumn(name="newsPaperId")
         var newspaper: Newspaper?=null,
 
@@ -37,13 +37,22 @@ data class Page(
         var weeklyPublicationDay:Int? = 0,
         var active: Boolean = true,
 
-        @OneToMany(fetch = FetchType.EAGER,mappedBy = "page",targetEntity = Article::class)
+        @OneToMany(fetch = FetchType.LAZY,mappedBy = "page",targetEntity = Article::class)
         var articleList: List<Article>?=null
 
 ){
     companion object {
         @JvmField
         val TOP_LEVEL_PAGE_PARENT_ID = "PAGE_ID_0"
+    }
+
+    @Transient
+    fun isTopLevelPage():Boolean{
+        return parentPageId == TOP_LEVEL_PAGE_PARENT_ID
+    }
+    @Transient
+    fun isPaginated():Boolean{
+        return linkVariablePartFormat!=null
     }
 }
 

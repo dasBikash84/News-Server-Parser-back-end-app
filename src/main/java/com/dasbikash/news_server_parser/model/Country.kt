@@ -16,11 +16,11 @@ package com.dasbikash.news_server_parser.model
 import javax.persistence.*
 
 @Entity
-@Table(name = "countries")
+@Table(name = DatabaseTableNames.COUNTRY_TABLE_NAME)
 data class Country (
         @Id var name: String="",
         var countryCode: String?=null,
         var timeZone: String?=null,
-        @OneToMany(targetEntity = Newspaper::class,mappedBy = "country",fetch = FetchType.EAGER)
+        @OneToMany(targetEntity = Newspaper::class,mappedBy = "country",fetch = FetchType.LAZY)
         var newsPapers:List<Newspaper>? = null
 )

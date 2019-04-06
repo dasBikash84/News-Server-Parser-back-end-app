@@ -13,29 +13,38 @@
 
 package com.dasbikash.news_server_parser.model
 
+import java.util.*
 import javax.persistence.*
-import java.util.HashSet
-
 
 
 @Entity
-@Table(name = "articles")
-data class Article (
-    @Id
-    var id: String,
+@Table(name = DatabaseTableNames.ARTICLE_TABLE_NAME)
+data class Article(
+        @Id
+        var id: String,
 
-    @ManyToOne(targetEntity = Page::class,fetch = FetchType.EAGER)
-    @JoinColumn(name = "pageId")
-    var page: Page? =null,
+        @ManyToOne(targetEntity = Page::class, fetch = FetchType.LAZY)
+        @JoinColumn(name = "pageId")
+        var page: Page? = null,
 
-    var title: String?=null,
-    var lastModificationTS: Long?=null,
+        var title: String? = null,
+        var modificationTS: Date? = null,
+        var publicationTS: Date? = null,
 
-    @Column(name="articleText", columnDefinition="text")
-    var articleText:String?=null,
+        @Column(name = "articleText", columnDefinition = "text")
+        var articleText: String? = null,
 
-    @ElementCollection(targetClass = String::class)
-    @CollectionTable(name = "image_links", joinColumns = [JoinColumn(name = "articleId")])
-    @Column(name="imageLink", columnDefinition="text")
-    var imageLinkList: Set<String> = HashSet()
-)
+        @ElementCollection(targetClass = String::class)
+        @CollectionTable(name = "image_links", joinColumns = [JoinColumn(name = "articleId")])
+        @Column(name = "imageLink", columnDefinition = "text")
+
+        var imageLinkList: Set<String> = HashSet(),
+
+        @Column(columnDefinition = "text")
+        var previewImageLink: String? = null
+){
+        @Transient
+        fun isDownloaded():Boolean{
+                return articleText != null
+        }
+}
