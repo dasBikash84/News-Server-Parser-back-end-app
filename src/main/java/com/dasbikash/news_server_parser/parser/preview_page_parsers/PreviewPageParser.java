@@ -20,12 +20,25 @@ abstract public class PreviewPageParser {
 
     protected SimpleDateFormat mSimpleDateFormat = null;
 
-    public final List<Article> loadPreview(PreviewPageParseRequest previewPageParseRequest){
-//        ToDoUtils.workToDo();
+    public static List<Article> parsePreviewPage(Page page,int pageNumber){
 
+        if (page.getNewspaper() !=null){
 
-        mCurrentPage = previewPageParseRequest.getPage();
-        mCurrentPageNumber = previewPageParseRequest.getPageNumber();
+            PreviewPageParser previewPageParser =
+                    PreviewPageParserFactory.INSTANCE
+                    .getPreviewLoaderByNewsPaper(page.getNewspaper());
+
+            if (previewPageParser !=null){
+                return previewPageParser.loadPreview(page,pageNumber);
+            }
+        }
+        return null;
+    }
+
+    private List<Article> loadPreview(Page page, int pageNumber){
+
+        mCurrentPage = page;//previewPageParseRequest.getPage();
+        mCurrentPageNumber = pageNumber;//previewPageParseRequest.getPageNumber();
 
         System.out.println("mCurrentPage:"+mCurrentPage.getName());
         System.out.println("mCurrentPageNumber:"+mCurrentPageNumber);
@@ -154,11 +167,11 @@ abstract public class PreviewPageParser {
 
 
 
-    protected String getArticleModificationDateString(Element previewBlock){
+    private String getArticleModificationDateString(Element previewBlock){
         return null;
     }
 
-    protected Long getArticleModificationTimeStamp(Element previewBlock){
+    private Long getArticleModificationTimeStamp(Element previewBlock){
         return null;
     }
 

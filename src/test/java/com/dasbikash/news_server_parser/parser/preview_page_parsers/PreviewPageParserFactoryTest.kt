@@ -40,7 +40,7 @@ internal class PreviewPageParserFactoryTest {
             }?.get(3)
         }.map {
             it?.let {
-                PreviewPageParserFactory.getPreviewLoaderByNewsPaper(it?.newspaper!!)?.loadPreview(PreviewPageParseRequest(it,1))
+                PreviewPageParser.parsePreviewPage(it,1)
                         ?.forEach {
                             println("Article  ${it}")
                         }

@@ -4,6 +4,7 @@ import com.dasbikash.news_server_parser.model.EntityClassNames
 import com.dasbikash.news_server_parser.model.Newspaper
 import com.dasbikash.news_server_parser.parser.NEWS_PAPER_ID
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParseRequest
+import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParserFactory
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.the_gurdian.TheGurdianPreviewPageParser
 import com.dasbikash.news_server_parser.utils.DbSessionManager
@@ -40,7 +41,7 @@ internal class AnandoBazarPreviewPageParserTest {
             }?.first()
         }.map {
             it?.let {
-                PreviewPageParserFactory.getPreviewLoaderByNewsPaper(it?.newspaper!!)?.loadPreview(PreviewPageParseRequest(it,1))
+                PreviewPageParser.parsePreviewPage(it,1)
                         ?.forEach {
                             println("Article  ${it}")
                         }

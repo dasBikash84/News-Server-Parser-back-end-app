@@ -22,7 +22,7 @@ import com.dasbikash.news_server_parser.parser.preview_page_parsers.the_indian_e
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.the_times_of_india.TheTimesOfIndiaPreviewPageParser
 import com.dasbikash.news_server_parser.utils.ToDoUtils
 
-object PreviewPageParserFactory {
+internal object PreviewPageParserFactory {
 
     fun getPreviewLoaderByNewsPaper(newspaper: Newspaper): PreviewPageParser? {
 
