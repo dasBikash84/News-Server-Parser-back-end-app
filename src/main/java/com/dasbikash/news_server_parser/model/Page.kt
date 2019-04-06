@@ -31,7 +31,7 @@ data class Page(
         @Column(name="linkFormat", columnDefinition="text")
         var linkFormat:String? = null,
 
-        var linkVariablePartFormat:String? = "page_num",
+        var linkVariablePartFormat:String? = DEFAULT_LINK_TRAILING_FORMAT,
         var firstEditionDateString:String? = null,
         var weekly:Boolean = false,
         var weeklyPublicationDay:Int? = 0,
@@ -44,6 +44,8 @@ data class Page(
     companion object {
         @JvmField
         val TOP_LEVEL_PAGE_PARENT_ID = "PAGE_ID_0"
+        @JvmField
+        val DEFAULT_LINK_TRAILING_FORMAT = "page_num"
     }
 
     @Transient
@@ -54,6 +56,11 @@ data class Page(
     fun isPaginated():Boolean{
         return linkVariablePartFormat!=null
     }
+
+    override fun toString(): String {
+        return "Page(id='$id', newspaper=$newspaper, parentPageId=$parentPageId, name=$name, linkFormat=$linkFormat, linkVariablePartFormat=$linkVariablePartFormat, firstEditionDateString=$firstEditionDateString, weekly=$weekly, weeklyPublicationDay=$weeklyPublicationDay, active=$active)"
+    }
+
 }
 
 //is_weekly,weekly_pub_day,link_format,link_variable_part_format,first_edition_date_string

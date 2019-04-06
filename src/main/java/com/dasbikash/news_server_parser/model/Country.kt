@@ -23,4 +23,8 @@ data class Country (
         var timeZone: String?=null,
         @OneToMany(targetEntity = Newspaper::class,mappedBy = "country",fetch = FetchType.LAZY)
         var newsPapers:List<Newspaper>? = null
-)
+){
+        override fun toString(): String {
+                return "Country(name='$name', countryCode=$countryCode, timeZone=$timeZone)"
+        }
+}

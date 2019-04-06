@@ -41,10 +41,19 @@ data class Article(
         var imageLinkList: Set<String> = HashSet(),
 
         @Column(columnDefinition = "text")
-        var previewImageLink: String? = null
+        var previewImageLink: String? = null,
+
+        @Column(columnDefinition = "text")
+        var articleLink: String? = null
 ){
         @Transient
         fun isDownloaded():Boolean{
                 return articleText != null
         }
+
+        override fun toString(): String {
+                return "Article(id='$id', page=${page}, title=$title, modificationTS=$modificationTS, publicationTS=$publicationTS, articleText=$articleText, imageLinkList=$imageLinkList, previewImageLink=$previewImageLink, articleLink=$articleLink)"
+        }
+
+
 }

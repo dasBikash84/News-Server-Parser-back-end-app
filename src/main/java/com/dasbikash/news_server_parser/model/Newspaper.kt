@@ -33,4 +33,10 @@ data class Newspaper(
 
         @OneToMany(fetch = FetchType.LAZY,mappedBy = "newspaper",targetEntity = Page::class)
         var pageList: List<Page>?=null
-)
+
+
+) {
+        override fun toString(): String {
+                return "Newspaper(id='$id', name=$name, country=$country, language=$language, active=$active)"
+        }
+}

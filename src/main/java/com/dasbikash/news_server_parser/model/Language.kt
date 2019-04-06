@@ -22,4 +22,8 @@ data class Language (
         var name: String?=null,
         @OneToMany(targetEntity = Newspaper::class,mappedBy = "language",fetch = FetchType.LAZY)
         var newsPapers:List<Newspaper>? = null
-)
+){
+        override fun toString(): String {
+                return "Language(id='$id', name=$name)"
+        }
+}
