@@ -38,7 +38,10 @@ data class Page(
         var active: Boolean = true,
 
         @OneToMany(fetch = FetchType.LAZY,mappedBy = "page",targetEntity = Article::class)
-        var articleList: List<Article>?=null
+        var articleList: List<Article>?=null,
+
+        @OneToMany(fetch = FetchType.LAZY,mappedBy = "page",targetEntity = PageParsingHistory::class)
+        var pageParsingHistory: List<PageParsingHistory>?=null
 
 ){
     companion object {

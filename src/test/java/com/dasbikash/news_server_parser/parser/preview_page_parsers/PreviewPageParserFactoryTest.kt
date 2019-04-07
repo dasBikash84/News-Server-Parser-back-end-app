@@ -2,15 +2,9 @@ package com.dasbikash.news_server_parser.parser.preview_page_parsers
 
 import com.dasbikash.news_server_parser.model.EntityClassNames
 import com.dasbikash.news_server_parser.model.Newspaper
-import com.dasbikash.news_server_parser.parser.NEWS_PAPER_ID
-import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParseRequest
-import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParserFactory
-import com.dasbikash.news_server_parser.parser.preview_page_parsers.the_gurdian.TheGurdianPreviewPageParser
 import com.dasbikash.news_server_parser.utils.DbSessionManager
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 internal class PreviewPageParserFactoryTest {
@@ -40,7 +34,7 @@ internal class PreviewPageParserFactoryTest {
             }?.get(3)
         }.map {
             it?.let {
-                PreviewPageParser.parsePreviewPage(it,1)
+                PreviewPageParser.parsePreviewPageForArticles(it,1)
                         ?.forEach {
                             println("Article  ${it}")
                         }

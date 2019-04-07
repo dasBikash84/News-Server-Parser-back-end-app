@@ -80,7 +80,7 @@ abstract public class ArticleBodyParser {
         return LinkProcessUtils.processLink(linkText,siteBaseAddress);
     }
 
-    public static Article loadArticleBody(Article article){
+    public static Article getArticleBody(Article article){
 
         if (article.isDownloaded()){
             return article;

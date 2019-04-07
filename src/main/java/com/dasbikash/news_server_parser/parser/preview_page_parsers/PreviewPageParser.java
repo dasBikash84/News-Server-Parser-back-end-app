@@ -3,6 +3,7 @@ package com.dasbikash.news_server_parser.parser.preview_page_parsers;
 import com.dasbikash.news_server_parser.model.Article;
 import com.dasbikash.news_server_parser.model.Page;
 import com.dasbikash.news_server_parser.parser.JsoupConnector;
+import com.dasbikash.news_server_parser.utils.HashUtils;
 import com.dasbikash.news_server_parser.utils.LinkProcessUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -20,7 +21,15 @@ abstract public class PreviewPageParser {
 
     protected SimpleDateFormat mSimpleDateFormat = null;
 
-    public static List<Article> parsePreviewPage(Page page,int pageNumber){
+    protected abstract String getArticlePublicationDatetimeFormat();
+    protected abstract String getArticlePublicationDateString(Element previewBlock);
+    protected abstract String getArticleTitle(Element previewBlock);
+    protected abstract String getArticlePreviewImageLink(Element previewBlock);
+    protected abstract String getArticleLink(Element previewBlock);
+    protected abstract Elements getPreviewBlocks();
+    protected abstract String getSiteBaseAddress();
+
+    public static List<Article> parsePreviewPageForArticles(Page page, int pageNumber){
 
         if (page.getNewspaper() !=null){
 
@@ -29,13 +38,13 @@ abstract public class PreviewPageParser {
                     .getPreviewLoaderByNewsPaper(page.getNewspaper());
 
             if (previewPageParser !=null){
-                return previewPageParser.loadPreview(page,pageNumber);
+                return previewPageParser.getArticlePreviews(page,pageNumber);
             }
         }
         return null;
     }
 
-    private List<Article> loadPreview(Page page, int pageNumber){
+    private List<Article> getArticlePreviews(Page page, int pageNumber){
 
         mCurrentPage = page;//previewPageParseRequest.getPage();
         mCurrentPageNumber = pageNumber;//previewPageParseRequest.getPageNumber();
@@ -145,56 +154,13 @@ abstract public class PreviewPageParser {
 
             articles.add(
                     new Article(
-                            UUID.randomUUID().toString(),mCurrentPage,articleTitle,modificationDate,
+                            /*UUID.randomUUID().toString()*/HashUtils.INSTANCE.hash(articleLink).toString(),mCurrentPage,articleTitle,modificationDate,
                             publicationDate,null,new ArrayList<>(),previewImageLink,articleLink
                     )
             );
         }
         return articles;
     }
-
-    protected abstract String getArticlePublicationDatetimeFormat();
-
-    protected abstract String getArticlePublicationDateString(Element previewBlock);
-
-    protected abstract String getArticleTitle(Element previewBlock);
-
-    protected abstract String getArticlePreviewImageLink(Element previewBlock);
-
-    protected abstract String getArticleLink(Element previewBlock);
-
-    protected abstract Elements getPreviewBlocks();
-
-
-
-    private String getArticleModificationDateString(Element previewBlock){
-        return null;
-    }
-
-    private Long getArticleModificationTimeStamp(Element previewBlock){
-        return null;
-    }
-
-    protected Long getArticlePublicationTimeStamp(Element previewBlock){
-        return null;
-    }
-
-    protected String processArticlePreviewImageLink(String previewImageLink){
-        return processLink(previewImageLink);
-    }
-
-    protected String processArticleLink(String articleLink){
-        return processLink(articleLink);
-    }
-
-
-    private String processLink(String linkText){
-        if (linkText == null) return null;
-        return LinkProcessUtils.processLink(linkText,getSiteBaseAddress());
-    }
-
-    protected abstract String getSiteBaseAddress();
-
     @SuppressWarnings("MagicConstant")
     protected String getPageLink(){
 
@@ -243,5 +209,26 @@ abstract public class PreviewPageParser {
             );
         }
 
+    }
+
+    private String getArticleModificationDateString(Element previewBlock){
+        return null;
+    }
+    private Long getArticleModificationTimeStamp(Element previewBlock){
+        return null;
+    }
+    private String processLink(String linkText){
+        if (linkText == null) return null;
+        return LinkProcessUtils.processLink(linkText,getSiteBaseAddress());
+    }
+
+    protected Long getArticlePublicationTimeStamp(Element previewBlock){
+        return null;
+    }
+    protected String processArticlePreviewImageLink(String previewImageLink){
+        return processLink(previewImageLink);
+    }
+    protected String processArticleLink(String articleLink){
+        return processLink(articleLink);
     }
 }

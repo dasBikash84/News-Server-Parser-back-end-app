@@ -13,7 +13,7 @@
 
 package com.dasbikash.news_server_parser.model
 
-import java.util.HashMap
+import java.util.*
 
 class DefaultAppSettings {
 

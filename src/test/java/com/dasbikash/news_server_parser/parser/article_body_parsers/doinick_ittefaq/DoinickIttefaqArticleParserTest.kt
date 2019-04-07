@@ -9,7 +9,6 @@ import com.dasbikash.news_server_parser.utils.DbSessionManager
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 
@@ -43,7 +42,7 @@ internal class DoinickIttefaqArticleParserTest {
             }?.first()
         }.map {
             it?.let {
-                val articleList = PreviewPageParser.parsePreviewPage(it,1)
+                val articleList = PreviewPageParser.parsePreviewPageForArticles(it,1)
                 it.articleList = articleList
                 it.articleList
                         ?.forEach {
@@ -55,8 +54,8 @@ internal class DoinickIttefaqArticleParserTest {
         }.map {
             it?.let {
                 println("Article Data before parsing:"+it.articleList?.first())
-                println("Article Data after parsing:"+ ArticleBodyParser.loadArticleBody(it.articleList?.get(Random(it.articleList?.size!!).nextInt(it.articleList?.size!!))))
-//                println(ArticleBodyParser.loadArticleBody(it.articleList?.first()))
+                println("Article Data after parsing:"+ ArticleBodyParser.getArticleBody(it.articleList?.get(Random(it.articleList?.size!!).nextInt(it.articleList?.size!!))))
+//                println(ArticleBodyParser.getArticleBody(it.articleList?.first()))
             }
         }
 

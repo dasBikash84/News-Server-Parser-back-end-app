@@ -2,7 +2,6 @@ package com.dasbikash.news_server_parser.parser.preview_page_parsers.the_gurdian
 
 
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 

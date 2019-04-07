@@ -9,7 +9,6 @@ import com.dasbikash.news_server_parser.utils.DbSessionManager
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 internal class TheGurdianArticleParserTest {
@@ -42,7 +41,7 @@ internal class TheGurdianArticleParserTest {
             }?.first()
         }.map {
             it?.let {
-                val articleList = PreviewPageParser.parsePreviewPage(it,1)
+                val articleList = PreviewPageParser.parsePreviewPageForArticles(it,1)
                 it.articleList = articleList
                 it.articleList
                         ?.forEach {
@@ -54,8 +53,8 @@ internal class TheGurdianArticleParserTest {
         }.map {
             it?.let {
                 println("Article Data before parsing:"+it.articleList?.first())
-                println("Article Data after parsing:"+ArticleBodyParser.loadArticleBody(it.articleList?.first()))
-//                println(ArticleBodyParser.loadArticleBody(it.articleList?.first()))
+                println("Article Data after parsing:"+ArticleBodyParser.getArticleBody(it.articleList?.first()))
+//                println(ArticleBodyParser.getArticleBody(it.articleList?.first()))
             }
         }
 

@@ -7,78 +7,119 @@ drop table languages;
 
 CREATE TABLE `countries`
 (
-  `name`        varchar(255) NOT NULL,
-  `countryCode` varchar(255) DEFAULT NULL,
-  `timeZone`    varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`name`)
+    `name`        varchar(255) NOT NULL,
+    `countryCode` varchar(255) DEFAULT NULL,
+    `timeZone`    varchar(255) DEFAULT NULL,
+    `created`     DATETIME     DEFAULT CURRENT_TIMESTAMP,
+    `modified`    DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`name`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE `languages`
 (
-  `id`   varchar(255) NOT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+    `id`       varchar(255) NOT NULL,
+    `name`     varchar(255) DEFAULT NULL,
+    UNIQUE KEY `language_name_unique_key` (`name`),
+    `created`  DATETIME     DEFAULT CURRENT_TIMESTAMP,
+    `modified` DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
 # Table, Create Table
 CREATE TABLE `newspapers`
 (
-  `id`          varchar(255) NOT NULL,
-  `active`      bit(1)       NOT NULL,
-  `name`        varchar(255) DEFAULT NULL,
-  `countryName` varchar(255) DEFAULT NULL,
-  `languageId`  varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `FK4blv8x93fk99llbqicfupml7m` (`countryName`),
-  KEY `FK98cba7cgrtigouhqhphasrsjs` (`languageId`),
-  CONSTRAINT `FK4blv8x93fk99llbqicfupml7m` FOREIGN KEY (`countryName`) REFERENCES `countries` (`name`),
-  CONSTRAINT `FK98cba7cgrtigouhqhphasrsjs` FOREIGN KEY (`languageId`) REFERENCES `languages` (`id`)
+    `id`          varchar(255) NOT NULL,
+    `active`      bit(1)       NOT NULL,
+    `name`        varchar(255) DEFAULT NULL,
+    `countryName` varchar(255) DEFAULT NULL,
+    `languageId`  varchar(255) DEFAULT NULL,
+    `created`     DATETIME     DEFAULT CURRENT_TIMESTAMP,
+    `modified`    DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `newspapers_name_countryName_unique_key` (`countryName`, `name`),
+    KEY `newspapers_countryName_key` (`countryName`),
+    KEY `newspapers_languageId_key` (`languageId`),
+    CONSTRAINT `newspaper_countryName_fk` FOREIGN KEY (`countryName`) REFERENCES `countries` (`name`),
+    CONSTRAINT `newspaper_languageId_fk` FOREIGN KEY (`languageId`) REFERENCES `languages` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
 # Table, Create Table
 CREATE TABLE `pages`
 (
-  `id`                     varchar(255) NOT NULL,
-  `active`                 bit(1)       NOT NULL,
-  `firstEditionDateString` varchar(255) DEFAULT NULL,
-  `linkFormat`             text         DEFAULT NULL,
-  `linkVariablePartFormat` varchar(255) DEFAULT NULL,
-  `name`                   varchar(255) DEFAULT NULL,
-  `parentPageId`           varchar(255) DEFAULT NULL,
-  `weekly`                 bit(1)       NOT NULL,
-  `weeklyPublicationDay`   int(11)      DEFAULT NULL,
-  `newsPaperId`            varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `FK5m7ck9noyma2252hve2gmeuiu` (`newsPaperId`),
-  CONSTRAINT `FK5m7ck9noyma2252hve2gmeuiu` FOREIGN KEY (`newsPaperId`) REFERENCES `newspapers` (`id`)
+    `id`                     varchar(255) NOT NULL,
+    `active`                 bit(1)       NOT NULL,
+    `firstEditionDateString` varchar(255) DEFAULT NULL,
+    `linkFormat`             text         DEFAULT NULL,
+    `linkVariablePartFormat` varchar(255) DEFAULT NULL,
+    `name`                   varchar(255) DEFAULT NULL,
+    `parentPageId`           varchar(255) DEFAULT NULL,
+    `weekly`                 bit(1)       NOT NULL,
+    `weeklyPublicationDay`   int(11)      DEFAULT NULL,
+    `newsPaperId`            varchar(255) DEFAULT NULL,
+    `created`                DATETIME     DEFAULT CURRENT_TIMESTAMP,
+    `modified`               DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `pages_name_newsPaperId_parentPageId_unique_key` (`newsPaperId`, `name`, `parentPageId`),
+    KEY `pages_newsPaperId_key` (`newsPaperId`),
+    CONSTRAINT `pages_newsPaperId_fkey_constraint` FOREIGN KEY (`newsPaperId`) REFERENCES `newspapers` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE `articles`
 (
-  `id`               varchar(255) NOT NULL,
-  `modificationTS`   datetime     DEFAULT NULL,
-  `publicationTS`    datetime     DEFAULT NULL,
-  `title`            varchar(255) DEFAULT NULL,
-  `articleText`      text         DEFAULT NULL,
-  `previewImageLink` text         DEFAULT NULL,
-  `articleLink`      text         DEFAULT NULL,
-  `pageId`           varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `FK6fptm12k5ef7w7fy26su0gvs1` (`pageId`),
-  CONSTRAINT `FK6fptm12k5ef7w7fy26su0gvs1` FOREIGN KEY (`pageId`) REFERENCES `pages` (`id`)
+    `id`               varchar(255) NOT NULL,
+    `modificationTS`   datetime     DEFAULT NULL,
+    `publicationTS`    datetime     DEFAULT NULL,
+    `title`            varchar(255) DEFAULT NULL,
+    `articleText`      text         DEFAULT NULL,
+    `previewImageLink` text         DEFAULT NULL,
+    `articleLink`      text         DEFAULT NULL,
+    `pageId`           varchar(255) DEFAULT NULL,
+    `created`          DATETIME     DEFAULT CURRENT_TIMESTAMP,
+    `modified`         DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `articles_pageId_key` (`pageId`),
+    UNIQUE KEY `articles_articleLink_unique_key` (articleLink(255)),
+    CONSTRAINT `articles_pageId_fkey_constraint` FOREIGN KEY (`pageId`) REFERENCES `pages` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE `image_links`
 (
-  `articleId` varchar(255) NOT NULL,
-  `link`      text DEFAULT NULL,
-  `caption`   text DEFAULT NULL,
-  KEY `FKtarkqvk2kgymilolrr4g2x3ae` (`articleId`),
-  CONSTRAINT `FKtarkqvk2kgymilolrr4g2x3ae` FOREIGN KEY (`articleId`) REFERENCES `articles` (`id`)
+    `articleId` varchar(255) NOT NULL,
+    `link`      text     DEFAULT NULL,
+    `caption`   text     DEFAULT NULL,
+    `created`   DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `modified`  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    KEY `FKtarkqvk2kgymilolrr4g2x3ae` (`articleId`),
+    CONSTRAINT `FKtarkqvk2kgymilolrr4g2x3ae` FOREIGN KEY (`articleId`) REFERENCES `articles` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+#id	pageId	pageNumber	creation_time	article_count
+
+create table `page_parsing_history`
+(
+    `id`           int(11) NOT NULL auto_increment,
+    `pageId`       varchar(255) DEFAULT NULL,
+    `pageNumber`   int(11) NOT NULL,
+    `articleCount` int(11) NOT NULL,
+    `created`      DATETIME     DEFAULT CURRENT_TIMESTAMP,
+    KEY `FK6fptm1kw30duw7fy26su0gvs1` (`pageId`),
+    KEY `FK6fptm1kw30dulow56ngu0gvs1` (`pageNumber`),
+    CONSTRAINT `FK6fptm12k5esfhkitw6su0gvs1` FOREIGN KEY (`pageId`) REFERENCES `pages` (`id`),
+    PRIMARY KEY (`id`)
+) Engine = MyISAM
+  DEFAULT CHARSET = utf8;
+
+create table `general_log`
+(
+    `id`         int(11) NOT NULL auto_increment,
+    `logMessage` text     DEFAULT NULL,
+    `created`    DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) Engine = MyISAM
+  DEFAULT CHARSET = utf8;

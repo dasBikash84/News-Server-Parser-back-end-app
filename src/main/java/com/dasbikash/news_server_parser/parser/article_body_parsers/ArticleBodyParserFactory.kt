@@ -21,7 +21,7 @@ import com.dasbikash.news_server_parser.parser.article_body_parsers.the_gurdian.
 import com.dasbikash.news_server_parser.parser.article_body_parsers.the_indian_express.TheIndianExpressArticleParser
 import com.dasbikash.news_server_parser.parser.article_body_parsers.the_times_of_india.TheTimesOfIndiaArticleParser
 
-object ArticleBodyParserFactory {
+internal object ArticleBodyParserFactory {
 
     fun getArticleBodyParserForArticle(article: Article): ArticleBodyParser? {
 

@@ -2,13 +2,11 @@ package com.dasbikash.news_server_parser.parser.article_body_parsers
 
 import com.dasbikash.news_server_parser.model.EntityClassNames
 import com.dasbikash.news_server_parser.model.Newspaper
-import com.dasbikash.news_server_parser.parser.NEWS_PAPER_ID
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser
 import com.dasbikash.news_server_parser.utils.DbSessionManager
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 
@@ -47,7 +45,7 @@ internal class ArticleBodyParserTest {
             println("Page: ${it?.name}")
             Thread.sleep(500)
             it?.let {
-                val articleList = PreviewPageParser.parsePreviewPage(it, 1)
+                val articleList = PreviewPageParser.parsePreviewPageForArticles(it, 1)
                 it.articleList = articleList
                 it.articleList
                         ?.forEach {
@@ -61,8 +59,8 @@ internal class ArticleBodyParserTest {
             it?.let {
                 println("Article Data before parsing:" + it.articleList?.first())
                 Thread.sleep(500)
-                println("Article Data after parsing:" + ArticleBodyParser.loadArticleBody(it.articleList?.get(Random(Random(10).nextInt()).nextInt(it.articleList?.size!!))))
-//                println(ArticleBodyParser.loadArticleBody(it.articleList?.first()))
+                println("Article Data after parsing:" + ArticleBodyParser.getArticleBody(it.articleList?.get(Random(Random(10).nextInt()).nextInt(it.articleList?.size!!))))
+//                println(ArticleBodyParser.getArticleBody(it.articleList?.first()))
             }
             Thread.sleep(2000)
 
