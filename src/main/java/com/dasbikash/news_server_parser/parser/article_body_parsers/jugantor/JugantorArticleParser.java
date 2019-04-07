@@ -37,7 +37,7 @@ public class JugantorArticleParser extends ArticleBodyParser {
             dateString = DisplayUtils.banglaToEnglishDateString(dateString);
 
             dateString = dateString.replaceAll(JugantorArticleParserInfo.ARTICLE_MODIFICATION_DATE_CLEANER_SELECTOR,
-                                                JugantorArticleParserInfo.ARTICLE_MODIFICATION_DATE_CLEANER_REPLACEMENT).trim();
+                    JugantorArticleParserInfo.ARTICLE_MODIFICATION_DATE_CLEANER_REPLACEMENT).trim();
             return dateString;
         }
         return null;

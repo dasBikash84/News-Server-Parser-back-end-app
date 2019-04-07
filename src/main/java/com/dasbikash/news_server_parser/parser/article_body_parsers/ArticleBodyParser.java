@@ -5,7 +5,6 @@ import com.dasbikash.news_server_parser.model.ArticleImage;
 import com.dasbikash.news_server_parser.model.Country;
 import com.dasbikash.news_server_parser.parser.JsoupConnector;
 import com.dasbikash.news_server_parser.utils.LinkProcessUtils;
-import com.dasbikash.news_server_parser.utils.ToDoUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -26,7 +25,7 @@ abstract public class ArticleBodyParser {
     protected final ArrayList<String> mParagraphInvalidatorText =
             new ArrayList<>();
 
-    protected final ArrayList<String> mUnwantedArticleText =
+    private final ArrayList<String> mUnwantedArticleText =
             new ArrayList<>();
 
     protected final ArrayList<String> mParagraphQuiterText =
@@ -100,7 +99,6 @@ abstract public class ArticleBodyParser {
 
     private Article parseArticleBody(Article article){
 
-        //ToDoUtils.workToDo();
         System.out.println("Start of parsing");
 
         mArticle = article;
@@ -146,64 +144,44 @@ abstract public class ArticleBodyParser {
 
             try{
                 Elements featuredImageElements = mDocument.select(getFeaturedImageSelector());
-                //Log.d(TAG, "parseArticle: mArticle.getTitle():"+mArticle.getTitle());
-                //Log.d(TAG, "parseArticle: featuredImageElements.size():"+featuredImageElements.size());
 
                 if (featuredImageElements!=null && featuredImageElements.size() == getReqFeaturedImageCount()) {
                     Element featuredImage = featuredImageElements.get(getReqFeaturedImageIndex());
-                    //Log.d(TAG, "parseArticle:featuredImageLink: "+featuredImage.html());
                     if (getFeaturedImageLinkSelectorAttr() !=null) {
 
                         String featuredImageLink = featuredImage.attr(getFeaturedImageLinkSelectorAttr());
-                        //Log.d(TAG, "parseArticle:featuredImageLink: "+featuredImageLink);
                         if (featuredImageLink.trim().length() > 0) {
                             featuredImageLink = processLink(featuredImageLink);
-                            //Log.d(TAG, "parseArticle:featuredImageLink: "+featuredImageLink);
 
                             String imageCaption = "";
                             try {
                                 if (getFeaturedImageCaptionSelectorAttr() !=null) {
-                                    //Log.d(TAG, "parseArticle:getFeaturedImageCaptionSelectorAttr() !=null:  "+getFeaturedImageCaptionSelectorAttr());
                                     imageCaption = featuredImage.attr(getFeaturedImageCaptionSelectorAttr());
-                                    //Log.d(TAG, "parseArticle:imageCaption from attr: "+imageCaption);
                                 } else if(getFeaturedImageCaptionSelector() !=null) {
-                                    //Log.d(TAG, "parseArticle: getFeaturedImageCaptionSelector() !=null");
 
                                     Elements featuredImageCaptionElements = mDocument.select(getFeaturedImageCaptionSelector());
                                     if (featuredImageCaptionElements.size()>0){
                                         imageCaption = featuredImageCaptionElements.get(getReqFeaturedImageIndex()).text();
-                                        //Log.d(TAG, "parseArticle:imageCaption: "+imageCaption);
                                     }
                                 }
                             } catch (Exception ex){
-                                //Log.d(TAG, "parseArticle: Error: "+ex.getMessage());
                                 ex.printStackTrace();
                             }
-                            //Log.d(TAG, "parseArticle: ");
 
                             mArticle.getImageLinkList().add(new ArticleImage(featuredImageLink,imageCaption));
 
-                           /* int featuredImageDataId =
-                                    ImageDataHelper.saveImageData(
-                                            featuredImageLink.hashCode(),
-                                            featuredImageLink,
-                                            imageCaption
-                                    );
-                            ArticleFragmentPayload articleFragmentPayload = ArticleFragmentPayloadHelper.getInstanceByImageDataId(featuredImageDataId);
-                            if (articleFragmentPayload != null) {
-                                mArticleFragmentPayloads.add(articleFragmentPayload);
-                            }*/
+
+
                         }
                     }
                 }
 
             } catch (Exception ex){
-                //Log.d(TAG, "parseArticle: Error: "+ex.getMessage());
                 ex.printStackTrace();
             }
         }
 
-        Elements articleFragments = getArticleFragmentBlocks();//mDocument.select(getArticleFragmentBlockSelector());
+        Elements articleFragments = getArticleFragmentBlocks();
 
         if (articleFragments!=null && articleFragments.size()>0) {
 
@@ -215,7 +193,6 @@ abstract public class ArticleBodyParser {
                 String paraText = articleFragment.html();
 
                 if (paraText.trim().length() == 0) continue;
-                //Log.d(TAG, "parseArticle: paraText:"+paraText);
 
                 if (getParagraphImageSelector() !=null) {
 
@@ -254,23 +231,12 @@ abstract public class ArticleBodyParser {
 
                                     mArticle.getImageLinkList().add(new ArticleImage(articleImageLink,imageCaption));
 
-                                    /*int articleImageDataId =
-                                            ImageDataHelper.saveImageData(
-                                                    articleImageLink.hashCode(),
-                                                    articleImageLink,
-                                                    imageCaption
-                                            );
 
-                                    ArticleFragmentPayload articleFragmentPayload = ArticleFragmentPayloadHelper.getInstanceByImageDataId(articleImageDataId);
 
-                                    if (articleFragmentPayload != null) {
-                                        mArticleFragmentPayloads.add(articleFragmentPayload);
-                                    }*/
                                 }
                             }
                         }
                         if (imageCaptionFound) {
-                            //Log.d(TAG, "parseArticle: imageCaptionFound");
                             continue;
                         }
                         paraText = paraText.replaceAll(
@@ -301,13 +267,6 @@ abstract public class ArticleBodyParser {
 
                 mArticleTextBuilder.append(paraText+"<br>");
 
-                //int textDataId = TextDataHelper.saveTextData(paraText);
-
-                /*ArticleFragmentPayload articleFragmentPayload = ArticleFragmentPayloadHelper.getInstanceByTextDataId(textDataId);
-
-                if (articleFragmentPayload != null) {
-                    mArticleFragmentPayloads.add(articleFragmentPayload);
-                }*/
             }
         }
 
