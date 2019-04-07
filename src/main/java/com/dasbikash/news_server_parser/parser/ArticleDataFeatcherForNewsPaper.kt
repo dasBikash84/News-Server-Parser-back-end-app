@@ -5,6 +5,7 @@ import com.dasbikash.news_server_parser.utils.DbSessionManager
 import com.dasbikash.news_server_parser.model.EntityClassNames
 import com.dasbikash.news_server_parser.model.Newspaper
 import com.dasbikash.news_server_parser.model.Page
+import com.dasbikash.news_server_parser.parser.article_body_parsers.ArticleBodyParser
 import com.dasbikash.news_server_parser.parser.article_body_parsers.ArticleBodyParserFactory
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParseRequest
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser
@@ -109,10 +110,10 @@ class ArticleDataFeatcherForNewsPaper(private val newspaper: Newspaper) : Runnab
     }
 
     private fun downloadAndSaveArticle(article: Article) {
-        val articleBodyParser = ArticleBodyParserFactory.getArticleBodyParserForArticle(article)
+//        val articleBodyParser = ArticleBodyParserFactory.getArticleBodyParserForArticle(article)
         var retryCount = 0
         do {
-            val loadedArticle = articleBodyParser?.loadArticleBody(article)
+            val loadedArticle = ArticleBodyParser.loadArticleBody(article)
             if (loadedArticle!!.isDownloaded()) {
                 dbSession.save(loadedArticle)
                 break

@@ -12,12 +12,16 @@ public class BootstrapSettings {
 		Configuration configuration = new Configuration().configure(new File("src/main/resources/hibernate.cfg.xml"));
 		SessionFactory sessionFactory = configuration.buildSessionFactory();
 
+		boolean loadSettings = false;
+
 		try (Session session = sessionFactory.openSession()) {
 
-			if (NewsPaperSettingsBootStrapFromRealTimeDb.INSTANCE.saveDefaultSettings(session)){
-				System.out.println("Settings loaded.");
-			}else {
-				System.out.println("Settings loading failed.");
+			if (loadSettings) {
+				if (NewsPaperSettingsBootStrapFromRealTimeDb.INSTANCE.saveDefaultSettings(session)) {
+					System.out.println("Settings loaded.");
+				} else {
+					System.out.println("Settings loading failed.");
+				}
 			}
 
 		} catch (Exception e) {

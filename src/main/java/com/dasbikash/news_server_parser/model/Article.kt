@@ -15,6 +15,7 @@ package com.dasbikash.news_server_parser.model
 
 import java.util.*
 import javax.persistence.*
+import kotlin.collections.ArrayList
 
 
 @Entity
@@ -34,11 +35,10 @@ data class Article(
         @Column(name = "articleText", columnDefinition = "text")
         var articleText: String? = null,
 
-        @ElementCollection(targetClass = String::class)
+        @ElementCollection(targetClass = ArticleImage::class)
         @CollectionTable(name = "image_links", joinColumns = [JoinColumn(name = "articleId")])
         @Column(name = "imageLink", columnDefinition = "text")
-
-        var imageLinkList: Set<String> = HashSet(),
+        var imageLinkList: List<ArticleImage> = ArrayList(),
 
         @Column(columnDefinition = "text")
         var previewImageLink: String? = null,
@@ -52,8 +52,20 @@ data class Article(
         }
 
         override fun toString(): String {
-                return "Article(id='$id', page=${page}, title=$title, modificationTS=$modificationTS, publicationTS=$publicationTS, articleText=$articleText, imageLinkList=$imageLinkList, previewImageLink=$previewImageLink, articleLink=$articleLink)"
+                return "Article(id='$id', page=${page}, title=$title, modificationTS=$modificationTS, publicationTS=$publicationTS, " +
+                        "articleText=$articleText, imageLinkList=$imageLinkList, previewImageLink=$previewImageLink, articleLink=$articleLink)"
         }
 
+        fun setPublicationTs(publicationTS: Long){
+                val calander = Calendar.getInstance()
+                calander.timeInMillis = publicationTS
+                this.publicationTS = calander.time
+        }
+
+        fun setModificationTs(modificationTS: Long){
+                val calander = Calendar.getInstance()
+                calander.timeInMillis = modificationTS
+                this.modificationTS = calander.time
+        }
 
 }

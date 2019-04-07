@@ -146,7 +146,7 @@ abstract public class PreviewPageParser {
             articles.add(
                     new Article(
                             UUID.randomUUID().toString(),mCurrentPage,articleTitle,modificationDate,
-                            publicationDate,null,new HashSet(),previewImageLink,articleLink
+                            publicationDate,null,new ArrayList<>(),previewImageLink,articleLink
                     )
             );
         }
