@@ -3,7 +3,7 @@ package com.dasbikash.news_server_parser.parser.article_body_parsers
 import com.dasbikash.news_server_parser.model.EntityClassNames
 import com.dasbikash.news_server_parser.model.Newspaper
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser
-import com.dasbikash.news_server_parser.utils.DbSessionManager
+import com.dasbikash.news_server_parser.database.DbSessionManager
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
@@ -25,7 +25,7 @@ internal class ArticleBodyParserTest {
 
         val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"
         val session = DbSessionManager.getNewSession()
-        val query = session.createQuery(hql)
+        val query = session.createQuery(hql,Newspaper::class.java)
         val newsPapers = query.list() as List<Newspaper>
 
         //session.close()
@@ -35,7 +35,7 @@ internal class ArticleBodyParserTest {
         }
         .asSequence()
         .map {
-            println("Newspaper: ${it?.name}")
+            println("Newspaper: ${it.name}")
             Thread.sleep(500)
             //println("Page: ${it.pageList?.get(0)?.name}")
             it.pageList?.filter {

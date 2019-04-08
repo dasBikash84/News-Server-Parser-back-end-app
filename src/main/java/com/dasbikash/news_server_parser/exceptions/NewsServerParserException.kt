@@ -11,21 +11,15 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_parser.parser
+package com.dasbikash.news_server_parser.exceptions
 
+import java.lang.RuntimeException
 
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-
-object JsoupConnector {
-
-    private val TAG = "URLCon"
-    val CONNECTION_TIMEOUT_MILLIS = 60000
-
-    fun getDocument(pageUrl: String): Document? {
-        var newDocument: Document?
-        newDocument = Jsoup.connect(pageUrl).timeout(CONNECTION_TIMEOUT_MILLIS).followRedirects(true).get()
-        return newDocument
-    }
-
+open class NewsServerParserException:Exception {
+    constructor() : super()
+    constructor(message: String?) : super(message)
+    constructor(message: String?, cause: Throwable?) : super(message, cause)
+    constructor(cause: Throwable?) : super(cause)
+    constructor(message: String?, cause: Throwable?, enableSuppression: Boolean, writableStackTrace: Boolean) :
+            super(message, cause, enableSuppression, writableStackTrace)
 }

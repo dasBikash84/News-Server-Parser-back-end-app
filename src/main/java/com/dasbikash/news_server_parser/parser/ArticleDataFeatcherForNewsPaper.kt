@@ -13,20 +13,29 @@
 
 package com.dasbikash.news_server_parser.parser
 
-import com.dasbikash.news_server_parser.model.*
+import com.dasbikash.news_server_parser.database.DatabaseUtils
+import com.dasbikash.news_server_parser.database.DbNamedNativeQueries
+import com.dasbikash.news_server_parser.database.DbSessionManager
+import com.dasbikash.news_server_parser.exceptions.*
+import com.dasbikash.news_server_parser.model.Article
+import com.dasbikash.news_server_parser.model.Newspaper
+import com.dasbikash.news_server_parser.model.Page
+import com.dasbikash.news_server_parser.model.PageParsingHistory
 import com.dasbikash.news_server_parser.parser.article_body_parsers.ArticleBodyParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser
-import com.dasbikash.news_server_parser.utils.DbSessionManager
 import com.dasbikash.news_server_parser.utils.LoggerUtils
 import org.hibernate.Session
+import java.io.IOException
+import java.net.URISyntaxException
 import kotlin.random.Random
 
-class ArticleDataFeatcherForNewsPaper(private val newspaper: Newspaper) : Runnable {
+class ArticleDataFeatcherForNewsPaper(
+        private val newspaper: Newspaper //caller must end session before sending Newspaper object
+) : Runnable {
 
 
     private var lastNetworkRequestTS = 0L
     private val MIN_DELAY_BETWEEN_NETWORK_REQUESTS = 5000L
-    private val MAX_ARTICLE_DOWNLOAD_RETRY = 5
     private val NOT_APPLICABLE_PAGE_NUMBER = 0
 
     private val topLevelPages = mutableListOf<Page>()
@@ -37,7 +46,7 @@ class ArticleDataFeatcherForNewsPaper(private val newspaper: Newspaper) : Runnab
 
     override fun run() {
 
-        getDatabaseSession().persist(newspaper)
+        getDatabaseSession().update(newspaper)
 
         newspaper.pageList
                 ?.asSequence()
@@ -88,11 +97,53 @@ class ArticleDataFeatcherForNewsPaper(private val newspaper: Newspaper) : Runnab
 
         getDatabaseSession().close()
 
-        //pageListForParsing.forEach { println("Page name: ${it.name} Page id: ${it.id} Parent id: ${it.parentPageId}") }
+
+        //Before going into parsing loop first fetch and save any un-parsed article data of privious loop
+
+        val unParsedArticleList: List<Article> = getUnParsedArticleOfCurrentNewspaper(newspaper)
+        unParsedArticleList
+                .asSequence()
+                .filter {
+                    return@filter try {
+                        waitForFareNetworkUsage()
+                        println("Article before parsing:" + it)
+                        ArticleBodyParser.getArticleBody(it)
+                        true
+                    } catch (ex: EmptyArticleLinkException) {
+                        LoggerUtils.logError(ex,getDatabaseSession())
+                        DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
+                        false
+                    } catch (ex: EmptyDocumentException) {
+                        LoggerUtils.logError(ex,getDatabaseSession())
+                        DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
+                        false
+                    } catch (ex: EmptyArticleBodyException) {
+                        LoggerUtils.logError(ex,getDatabaseSession())
+                        DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
+                        false
+                    } catch (ex: Throwable) {
+                        LoggerUtils.logError(ex,getDatabaseSession())
+                        false
+                    }
+                }
+                .forEach {
+                    println("Article after parsing:" + it)
+                    if (it.isDownloaded()) {
+                        DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().update(it) }
+                    }
+                }
+                /*.forEach {
+                    waitForFareNetworkUsage()
+                    println("Article before parsing:" + it)
+                    ArticleBodyParser.getArticleBody(it)
+                    println("Article after parsing:" + it)
+                    if (it.isDownloaded()) {
+                        DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().update(it) }
+                    }
+                }*/
+
 
         // So now here we have list of pages that need to be parsed for a certain newspaper
-
-        //var count = 3;
 
         do {
             val tempPageList = ArrayList<Page>()
@@ -112,57 +163,104 @@ class ArticleDataFeatcherForNewsPaper(private val newspaper: Newspaper) : Runnab
                 val currentPageNumber: Int
 
                 if (currentPage.isPaginated()) {
-                    currentPageNumber = getLastParsedPageNumber(currentPage)+1
+                    currentPageNumber = getLastParsedPageNumber(currentPage) + 1
                 } else {
                     currentPageNumber = NOT_APPLICABLE_PAGE_NUMBER
                 }
-                //currentPageNumber +=1
+
+                waitForFareNetworkUsage()
+
+                val articleList: MutableList<Article> = mutableListOf()
+
 
                 try {
-                    waitForFareNetworkUsage()
-
-                    val articleList = PreviewPageParser.parsePreviewPageForArticles(currentPage, currentPageNumber)
-
-                    val parcelableArticleList = mutableListOf<Article>()
-
-                    articleList.forEach {
-
-                        if(!getDatabaseSession().transaction.isActive) {
-                            getDatabaseSession().beginTransaction()
-                        }
-                        try {
-                            getDatabaseSession().save(it)
-                            parcelableArticleList.add(it)
-                            getDatabaseSession().transaction.commit()
-                        } catch (ex: Throwable) {
-                            ex.printStackTrace()
-                            val stackTrace = mutableListOf<StackTraceElement>()
-                            ex.stackTrace.toCollection(stackTrace)
-                            if(!getDatabaseSession().transaction.isActive) {
-                                getDatabaseSession().beginTransaction()
-                            }
-                            LoggerUtils.dbErrorLog("Message: ${ex.message} Cause: ${ex.cause?.message} StackTrace: ${stackTrace}", getDatabaseSession())
-                            getDatabaseSession().transaction.commit()
-                        }
-                    }
-
-                    if(!getDatabaseSession().transaction.isActive) {
-                        getDatabaseSession().beginTransaction()
-                    }
-
-                    getDatabaseSession().save(PageParsingHistory(page = currentPage,pageNumber = currentPageNumber,articleCount = parcelableArticleList.size))
-                    getDatabaseSession().transaction.commit()
-
-                } catch (ex: Throwable) {
-                    ex.printStackTrace()
-                    val stackTrace = mutableListOf<StackTraceElement>()
-                    ex.stackTrace.toCollection(stackTrace)
-                    if(!getDatabaseSession().transaction.isActive) {
-                        getDatabaseSession().beginTransaction()
-                    }
-                    LoggerUtils.dbErrorLog("Message: ${ex.message} Cause: ${ex.cause?.message} StackTrace: ${stackTrace}", getDatabaseSession())
-                    getDatabaseSession().transaction.commit()
+                    articleList.addAll(PreviewPageParser.parsePreviewPageForArticles(currentPage, currentPageNumber))
+                } catch (e: NewsPaperNotFoundForPageException) {
+                    e.printStackTrace()
+                    LoggerUtils.logError(e, getDatabaseSession())
+                    continue
+                } catch (e: ParserNotFoundException) {
+                    e.printStackTrace()
+                    LoggerUtils.logError(e, getDatabaseSession())
+                    continue
+                } catch (e: PageLinkGenerationException) {
+                    e.printStackTrace()
+                    LoggerUtils.logError(e, getDatabaseSession())
+                    continue
+                } catch (e: URISyntaxException) {
+                    e.printStackTrace()
+                    LoggerUtils.logError(e, getDatabaseSession())
+                    continue
+                } catch (e: EmptyDocumentException) {
+                    e.printStackTrace()
+                    LoggerUtils.logError(e, getDatabaseSession())
+                    continue
+                } catch (e: EmptyArticlePreviewException) {
+                    e.printStackTrace()
+                    emptyArticleAction(currentPage)
+                    LoggerUtils.logError(e, getDatabaseSession())
+                    continue
+                } catch (e: Throwable) {
+                    e.printStackTrace()
+                    LoggerUtils.logError(e, getDatabaseSession())
+                    continue
                 }
+
+
+                val parseableArticleList = mutableListOf<Article>()
+
+                //Save all parsed article preview data
+                articleList
+                        .asSequence()
+                        .filter {
+                            getDatabaseSession().get(Article::class.java, it.id) == null
+                        }
+                        .forEach {
+                            if (DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().save(it) }) {
+                                parseableArticleList.add(it)
+                            }
+                        }
+                //Full repeat
+                //Should be active during production stage
+                /*if (parseableArticleList.size == 0){
+                    allArticleRepeatAction(currentPage)
+                    continue
+                }*/
+                //save parsing details
+                savePageParsingHistory(currentPage, currentPageNumber, parseableArticleList.size)
+
+                //Now go for article data fetching
+                parseableArticleList
+                        .asSequence()
+                        .filter {
+                            return@filter try {
+                                waitForFareNetworkUsage()
+                                println("Article before parsing:" + it)
+                                ArticleBodyParser.getArticleBody(it)
+                                true
+                            } catch (ex: EmptyArticleLinkException) {
+                                LoggerUtils.logError(ex,getDatabaseSession())
+                                DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
+                                false
+                            } catch (ex: EmptyDocumentException) {
+                                LoggerUtils.logError(ex,getDatabaseSession())
+                                DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
+                                false
+                            } catch (ex: EmptyArticleBodyException) {
+                                LoggerUtils.logError(ex,getDatabaseSession())
+                                DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
+                                false
+                            } catch (ex: Throwable) {
+                                LoggerUtils.logError(ex,getDatabaseSession())
+                                false
+                            }
+                        }
+                        .forEach {
+                            println("Article after parsing:" + it)
+                            if (it.isDownloaded()) {
+                                DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().update(it) }
+                            }
+                        }
 
             } while (tempPageList.size > 0)
             println("#############################################################################################")
@@ -170,28 +268,56 @@ class ArticleDataFeatcherForNewsPaper(private val newspaper: Newspaper) : Runnab
         } while (true)
     }
 
-    private fun downloadAndSaveArticle(article: Article) {
-        var retryCount = 0
-        do {
-            val loadedArticle = ArticleBodyParser.getArticleBody(article)
-            if (loadedArticle!!.isDownloaded()) {
-                dbSession!!.save(loadedArticle)
-                break
-            }
-            waitForFareNetworkUsage()
-            retryCount++
-        } while (retryCount < MAX_ARTICLE_DOWNLOAD_RETRY)
+    private fun allArticleRepeatAction(currentPage: Page) {
+        savePageParsingHistory(currentPage, 0, 0)
+    }
+
+    private fun savePageParsingHistory(currentPage: Page, currentPageNumber: Int, articleCount: Int) {
+        DatabaseUtils.runDbTransection(getDatabaseSession()) {
+            getDatabaseSession().save(PageParsingHistory(page = currentPage, pageNumber = currentPageNumber, articleCount = articleCount))
+        }
+    }
+
+    private fun emptyArticleAction(currentPage: Page) {
+        savePageParsingHistory(currentPage, 0, 0)
+    }
+
+    private fun getUnParsedArticleOfCurrentNewspaper(newspaper: Newspaper): List<Article> {
+
+        val query = getDatabaseSession().getNamedNativeQuery(DbNamedNativeQueries.UN_PARSERD_ARTICLES_BY_NEWSPAPER_ID_NAME);
+
+        val articleList = mutableListOf<Article>()
+        query.setParameter("currentNewsPaperId", newspaper.id)
+        articleList.addAll(query.resultList as MutableList<Article>)
+
+        return articleList
     }
 
     fun waitForFareNetworkUsage() {
-        while ((System.currentTimeMillis() - lastNetworkRequestTS) < MIN_DELAY_BETWEEN_NETWORK_REQUESTS);
+
+        val ramdomDelay = Random(System.currentTimeMillis()).nextLong(MIN_DELAY_BETWEEN_NETWORK_REQUESTS)
+
+        var delayPeriod = MIN_DELAY_BETWEEN_NETWORK_REQUESTS -
+                (System.currentTimeMillis() - lastNetworkRequestTS)
+
+        if (delayPeriod > 0) {
+            delayPeriod += ramdomDelay
+        } else {
+            delayPeriod = ramdomDelay
+        }
+
+        try {
+            Thread.sleep(delayPeriod)
+        } catch (ex: java.lang.Exception) {
+            ex.printStackTrace()
+        }
+//        while ((System.currentTimeMillis() - lastNetworkRequestTS) < MIN_DELAY_BETWEEN_NETWORK_REQUESTS)
         lastNetworkRequestTS = System.currentTimeMillis()
     }
 
-
     private fun getLastParsedPageNumber(page: Page): Int {
         val query = getDatabaseSession().createQuery("FROM PageParsingHistory where pageId=:currentPageId order by created desc")
-        query.setParameter("currentPageId",page.id)
+        query.setParameter("currentPageId", page.id)
         try {
             val historyEntry = query.list().first() as PageParsingHistory
             return historyEntry.pageNumber
@@ -206,24 +332,4 @@ class ArticleDataFeatcherForNewsPaper(private val newspaper: Newspaper) : Runnab
         }
         return dbSession
     }
-
-
-    /*private fun getChildPageListForTopLevelPage(topLevelPage: Page): Collection<Page> {
-        val childPageList = mutableListOf<Page>()
-
-        val hql = "FROM ${EntityClassNames.PAGE} WHERE  parentPageId=:parentPageId and active=true"
-        val query = dbSession!!.createQuery(hql)
-        query.setParameter("parentPageId", topLevelPage.id)
-        query.list().forEach { childPageList.add(it as Page) }
-
-        return childPageList
-    }
-
-    private fun getTopLevelPagesForNewsPaper(newspaper: Newspaper): Collection<Page> {
-        val topLevelPageList = mutableListOf<Page>()
-
-        newspaper.pageList?.filter { it.isTopLevelPage() }?.map { topLevelPageList.add(it) }
-
-        return topLevelPageList
-    }*/
 }

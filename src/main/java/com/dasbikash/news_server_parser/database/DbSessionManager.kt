@@ -11,21 +11,26 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_parser.parser
+package com.dasbikash.news_server_parser.database
 
+import org.hibernate.Session
+import org.hibernate.SessionFactory
+import org.hibernate.cfg.Configuration
+import java.io.File
 
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
+object DbSessionManager {
 
-object JsoupConnector {
+    val CONFIG_FILE_PATH = "src/main/resources/hibernate.cfg.xml";
 
-    private val TAG = "URLCon"
-    val CONNECTION_TIMEOUT_MILLIS = 60000
+    val configuration:Configuration
+    val sessionFactory: SessionFactory
 
-    fun getDocument(pageUrl: String): Document? {
-        var newDocument: Document?
-        newDocument = Jsoup.connect(pageUrl).timeout(CONNECTION_TIMEOUT_MILLIS).followRedirects(true).get()
-        return newDocument
+    init {
+        configuration = Configuration().configure(File(CONFIG_FILE_PATH))
+        sessionFactory = configuration.buildSessionFactory()
     }
 
+    fun getNewSession():Session{
+        return sessionFactory.openSession()
+    }
 }

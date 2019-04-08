@@ -11,21 +11,28 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_parser.parser
+package com.dasbikash.news_server_parser.model
 
+import com.dasbikash.news_server_parser.database.DbSessionManager
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
 
-object JsoupConnector {
+internal class CountryTest {
 
-    private val TAG = "URLCon"
-    val CONNECTION_TIMEOUT_MILLIS = 60000
-
-    fun getDocument(pageUrl: String): Document? {
-        var newDocument: Document?
-        newDocument = Jsoup.connect(pageUrl).timeout(CONNECTION_TIMEOUT_MILLIS).followRedirects(true).get()
-        return newDocument
+    @BeforeEach
+    fun setUp() {
     }
 
+    @AfterEach
+    fun tearDown() {
+    }
+
+    @Test
+    fun testSaveSame(){
+        val country = DbSessionManager.getNewSession().get(Country::class.java,"Bangladfgdesh");
+        println(country)
+    }
 }

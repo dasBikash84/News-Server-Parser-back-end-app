@@ -13,16 +13,22 @@
 
 package com.dasbikash.news_server_parser.utils
 
-import com.dasbikash.news_server_parser.model.DatabaseLog
+import com.dasbikash.news_server_parser.database.DatabaseUtils
+import com.dasbikash.news_server_parser.model.ErrorLog
+import com.dasbikash.news_server_parser.model.GeneralLog
 import org.hibernate.Session
 
 object LoggerUtils {
 
-    fun consoleLog(message: String?) {
-        println(message)
+    fun logMessage(message: String, session: Session) {
+        DatabaseUtils.runDbTransection(session) {
+            session.save(GeneralLog(message))
+        }
     }
 
-    fun dbErrorLog(message: String,session: Session) {
-        session.save(DatabaseLog(logMessage = "Error!!! "+message))
+    fun logError( exception: Throwable,session: Session){
+        DatabaseUtils.runDbTransection(session) {
+            session.save(ErrorLog(exception))
+        }
     }
 }

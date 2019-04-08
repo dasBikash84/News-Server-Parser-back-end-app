@@ -11,21 +11,17 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_parser.parser
+package com.dasbikash.news_server_parser.exceptions
 
+import java.lang.RuntimeException
+import java.net.URI
 
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
+class EmptyArticlePreviewException:NewsServerParserException {
 
-object JsoupConnector {
+    constructor(uri: URI) : super(causePreamble+ uri.path)
+    constructor() : super()
 
-    private val TAG = "URLCon"
-    val CONNECTION_TIMEOUT_MILLIS = 60000
-
-    fun getDocument(pageUrl: String): Document? {
-        var newDocument: Document?
-        newDocument = Jsoup.connect(pageUrl).timeout(CONNECTION_TIMEOUT_MILLIS).followRedirects(true).get()
-        return newDocument
+    companion object {
+        val causePreamble = "EmptyArticlePreviewException for link: ";
     }
-
 }

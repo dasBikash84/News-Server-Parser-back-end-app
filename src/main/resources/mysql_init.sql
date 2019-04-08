@@ -95,7 +95,6 @@ CREATE TABLE `image_links`
     `link`      text     DEFAULT NULL,
     `caption`   text     DEFAULT NULL,
     `created`   DATETIME DEFAULT CURRENT_TIMESTAMP,
-    `modified`  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     KEY `FKtarkqvk2kgymilolrr4g2x3ae` (`articleId`),
     CONSTRAINT `FKtarkqvk2kgymilolrr4g2x3ae` FOREIGN KEY (`articleId`) REFERENCES `articles` (`id`)
 ) ENGINE = InnoDB

@@ -11,26 +11,16 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_parser.utils
+package com.dasbikash.news_server_parser.exceptions
 
-import org.hibernate.Session
-import org.hibernate.SessionFactory
-import org.hibernate.cfg.Configuration
-import java.io.File
+import com.dasbikash.news_server_parser.model.Newspaper
 
-object DbSessionManager {
+class ParserNotFoundException:NewsServerParserException {
 
-    val CONFIG_FILE_PATH = "src/main/resources/hibernate.cfg.xml";
+    constructor(newspaper: Newspaper) : super(causePreamble+"${newspaper.name} with id: ${newspaper.id}")
+    constructor() : super()
 
-    val configuration:Configuration
-    val sessionFactory: SessionFactory
-
-    init {
-        configuration = Configuration().configure(File(CONFIG_FILE_PATH))
-        sessionFactory = configuration.buildSessionFactory()
-    }
-
-    fun getNewSession():Session{
-        return sessionFactory.openSession()
+    companion object {
+        val causePreamble = "ParserNotFoundException for Newspaper: ";
     }
 }

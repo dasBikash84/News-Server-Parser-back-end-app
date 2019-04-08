@@ -13,6 +13,10 @@
 
 package com.dasbikash.news_server_parser.parser.article_body_parsers;
 
+import com.dasbikash.news_server_parser.exceptions.EmptyArticleBodyException;
+import com.dasbikash.news_server_parser.exceptions.EmptyArticleLinkException;
+import com.dasbikash.news_server_parser.exceptions.EmptyDocumentException;
+import com.dasbikash.news_server_parser.exceptions.ParserNotFoundException;
 import com.dasbikash.news_server_parser.model.Article;
 import com.dasbikash.news_server_parser.model.ArticleImage;
 import com.dasbikash.news_server_parser.model.Country;
@@ -22,6 +26,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -93,24 +99,22 @@ abstract public class ArticleBodyParser {
         return LinkProcessUtils.processLink(linkText,siteBaseAddress);
     }
 
-    public static Article getArticleBody(Article article){
+    public static void getArticleBody(Article article)
+            throws EmptyArticleLinkException, ParserNotFoundException, EmptyDocumentException,
+            EmptyArticleBodyException, URISyntaxException {
 
-        if (article.isDownloaded()){
-            return article;
-        }
+        if (article.isDownloaded()) return;
         System.out.println("Article not downloaded.So, work needed to be done.");
 
-        if (article.getArticleLink() !=null){
-            ArticleBodyParser articleBodyParser =
-                    ArticleBodyParserFactory.INSTANCE.getArticleBodyParserForArticle(article);
-            if (articleBodyParser!=null){
-                return articleBodyParser.parseArticleBody(article);
-            }
-        }
-        return null;
+        if (article.getArticleLink() == null) throw new EmptyArticleLinkException(article);
+
+        ArticleBodyParser articleBodyParser =
+                ArticleBodyParserFactory.INSTANCE.getArticleBodyParserForArticle(article);
+        if (articleBodyParser==null) throw new ParserNotFoundException(article.getPage().getNewspaper());
+        articleBodyParser.parseArticleBody(article);
     }
 
-    private Article parseArticleBody(Article article){
+    private void parseArticleBody(Article article) throws URISyntaxException, EmptyDocumentException, EmptyArticleBodyException {
 
         System.out.println("Start of parsing");
 
@@ -119,7 +123,7 @@ abstract public class ArticleBodyParser {
         mDocument = JsoupConnector.INSTANCE.getDocument(mArticle.getArticleLink());
 
         if (mDocument == null) {
-            return mArticle;
+            throw new EmptyDocumentException(new URI(mArticle.getArticleLink()));
         }
 
         System.out.println("Article document title: "+mDocument.title());
@@ -241,11 +245,7 @@ abstract public class ArticleBodyParser {
                                     } catch (Exception ex) {
                                         ex.printStackTrace();
                                     }
-
                                     mArticle.getImageLinkList().add(new ArticleImage(articleImageLink,imageCaption));
-
-
-
                                 }
                             }
                         }
@@ -283,8 +283,10 @@ abstract public class ArticleBodyParser {
             }
         }
 
-        mArticle.setArticleText(mArticleTextBuilder.toString());
+        if (mArticleTextBuilder.toString().isEmpty()){
+            throw new EmptyArticleBodyException(mArticle);
+        }
 
-        return mArticle;
+        mArticle.setArticleText(mArticleTextBuilder.toString());
     }
 }

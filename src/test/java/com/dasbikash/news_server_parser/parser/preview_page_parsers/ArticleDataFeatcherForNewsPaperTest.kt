@@ -35,7 +35,7 @@ internal class ArticleDataFeatcherForNewsPaperTest {
     @Test
     fun run() {
         val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"
-        val query = session.createQuery(hql)
+        val query = session.createQuery(hql,Newspaper::class.java)
 //        .forEach { childPageList.add(it as Page) }
         val newsPapers= query.list() as List<Newspaper>
         //session.delete(newsPapers)

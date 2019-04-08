@@ -15,10 +15,12 @@ package com.dasbikash.news_server_parser.utils
 
 object HashUtils {
 
+    val SUPPLIED_PRIME_NUMBER = 73L;
+
     fun hash(s: String): String {
         var h = 0L
         for (i in 0 until s.length) {
-            h = 31 * h + s[i].toInt()
+            h = SUPPLIED_PRIME_NUMBER * h + s[i].toLong()
         }
         return h.toString()
     }

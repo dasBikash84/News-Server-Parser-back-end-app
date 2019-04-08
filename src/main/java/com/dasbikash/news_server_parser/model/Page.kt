@@ -21,7 +21,7 @@ data class Page(
         @Id
         var id: String="",
 
-        @ManyToOne(targetEntity = Newspaper::class,fetch = FetchType.LAZY)
+        @ManyToOne(targetEntity = Newspaper::class,fetch = FetchType.EAGER)
         @JoinColumn(name="newsPaperId")
         var newspaper: Newspaper?=null,
 

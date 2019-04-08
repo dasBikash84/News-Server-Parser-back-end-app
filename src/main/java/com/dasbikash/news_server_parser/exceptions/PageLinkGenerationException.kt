@@ -11,16 +11,17 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_parser.model
+package com.dasbikash.news_server_parser.exceptions
 
-import javax.persistence.*
+import com.dasbikash.news_server_parser.model.Page
+import java.lang.RuntimeException
 
-@Entity
-@Table(name = "general_log")
-data class DatabaseLog(
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        var id: Int = 0,
-        @Column(columnDefinition="text")
-        val logMessage:String
-)
+class PageLinkGenerationException:NewsServerParserException {
+
+    constructor(page: Page) : super(causePreamble+"${page.name} with id: ${page.id}")
+    constructor() : super()
+
+    companion object {
+        val causePreamble = "PageLinkGenerationException for page: ";
+    }
+}

@@ -21,11 +21,11 @@ data class Newspaper(
         @Id var id: String="",
         var name: String?=null,
 
-        @ManyToOne(targetEntity = Country::class,fetch = FetchType.LAZY)
+        @ManyToOne(targetEntity = Country::class,fetch = FetchType.EAGER)
         @JoinColumn(name="countryName")
         var country: Country?=null,
 
-        @ManyToOne(targetEntity = Language::class,fetch = FetchType.LAZY)
+        @ManyToOne(targetEntity = Language::class,fetch = FetchType.EAGER)
         @JoinColumn(name="languageId")
         var language: Language?=null,
 

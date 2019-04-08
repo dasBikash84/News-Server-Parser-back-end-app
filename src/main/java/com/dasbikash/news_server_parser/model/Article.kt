@@ -13,6 +13,7 @@
 
 package com.dasbikash.news_server_parser.model
 
+import com.dasbikash.news_server_parser.database.DbNamedNativeQueries
 import java.util.*
 import javax.persistence.*
 import kotlin.collections.ArrayList
@@ -20,11 +21,14 @@ import kotlin.collections.ArrayList
 
 @Entity
 @Table(name = DatabaseTableNames.ARTICLE_TABLE_NAME)
+@NamedNativeQuery(name = DbNamedNativeQueries.UN_PARSERD_ARTICLES_BY_NEWSPAPER_ID_NAME,
+                query = DbNamedNativeQueries.UN_PARSERD_ARTICLES_BY_NEWSPAPER_ID_QUERY,
+                resultClass = Article::class)
 data class Article(
         @Id
-        var id: String,
+        var id: String="",
 
-        @ManyToOne(targetEntity = Page::class, fetch = FetchType.LAZY)
+        @ManyToOne(targetEntity = Page::class, fetch = FetchType.EAGER)
         @JoinColumn(name = "pageId")
         var page: Page? = null,
 

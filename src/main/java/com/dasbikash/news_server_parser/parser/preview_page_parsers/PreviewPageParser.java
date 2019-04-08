@@ -13,6 +13,7 @@
 
 package com.dasbikash.news_server_parser.parser.preview_page_parsers;
 
+import com.dasbikash.news_server_parser.exceptions.*;
 import com.dasbikash.news_server_parser.model.Article;
 import com.dasbikash.news_server_parser.model.Page;
 import com.dasbikash.news_server_parser.parser.JsoupConnector;
@@ -22,6 +23,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -42,25 +45,31 @@ abstract public class PreviewPageParser {
     protected abstract Elements getPreviewBlocks();
     protected abstract String getSiteBaseAddress();
 
-    public static List<Article> parsePreviewPageForArticles(Page page, int pageNumber){
+    public static List<Article> parsePreviewPageForArticles(Page page, int pageNumber)
+            throws NewsPaperNotFoundForPageException, ParserNotFoundException, PageLinkGenerationException,
+            URISyntaxException, EmptyDocumentException, EmptyArticlePreviewException {
 
-        if (page.getNewspaper() !=null){
-
-            PreviewPageParser previewPageParser =
-                    PreviewPageParserFactory.INSTANCE
-                    .getPreviewLoaderByNewsPaper(page.getNewspaper());
-
-            if (previewPageParser !=null){
-                return previewPageParser.getArticlePreviews(page,pageNumber);
-            }
+        if (page.getNewspaper() ==null){
+            throw new NewsPaperNotFoundForPageException(page);
         }
-        return null;
+
+        PreviewPageParser previewPageParser =
+                PreviewPageParserFactory.INSTANCE
+                .getPreviewLoaderByNewsPaper(page.getNewspaper());
+
+        if (previewPageParser ==null){
+            throw new ParserNotFoundException(page.getNewspaper());
+        }
+
+        return previewPageParser.getArticlePreviews(page,pageNumber);
     }
 
-    private List<Article> getArticlePreviews(Page page, int pageNumber){
+    private List<Article> getArticlePreviews(Page page, int pageNumber)
+            throws PageLinkGenerationException, URISyntaxException,
+            EmptyDocumentException, EmptyArticlePreviewException {
 
-        mCurrentPage = page;//previewPageParseRequest.getPage();
-        mCurrentPageNumber = pageNumber;//previewPageParseRequest.getPageNumber();
+        mCurrentPage = page;
+        mCurrentPageNumber = pageNumber;
 
         System.out.println("mCurrentPage:"+mCurrentPage.getName());
         System.out.println("mCurrentPageNumber:"+mCurrentPageNumber);
@@ -71,24 +80,25 @@ abstract public class PreviewPageParser {
         System.out.println("mPageLink: "+ mPageLink);
 
         if (mPageLink == null) {
-            return null;
+            throw new PageLinkGenerationException(page);
         }
         mDocument = JsoupConnector.INSTANCE.getDocument(mPageLink);
 
-        if (mDocument == null) return null;
+        if (mDocument == null){
+            throw new EmptyDocumentException(new URI(mPageLink));
+        }
 
         System.out.println("Document title: "+ mDocument.title());
 
         return parseDocument();
     }
 
-    private List<Article> parseDocument(){
+    private List<Article> parseDocument() throws URISyntaxException, EmptyArticlePreviewException {
 
         Elements mPreviewBlocks = getPreviewBlocks();
 
         if (mPreviewBlocks==null || mPreviewBlocks.size()==0){
-            System.out.println("mPreviewBlocks==null || mPreviewBlocks.size()==0");
-            return null;
+            throw new EmptyArticlePreviewException(new URI(mPageLink));
         }
 
         List<Article> articles = new ArrayList<>();
@@ -167,11 +177,16 @@ abstract public class PreviewPageParser {
 
             articles.add(
                     new Article(
-                            /*UUID.randomUUID().toString()*/HashUtils.INSTANCE.hash(articleLink).toString(),mCurrentPage,articleTitle,modificationDate,
+                            HashUtils.INSTANCE.hash(articleLink).toString(),mCurrentPage,articleTitle,modificationDate,
                             publicationDate,null,new ArrayList<>(),previewImageLink,articleLink
                     )
             );
         }
+
+        if (articles.size() == 0){
+            throw new EmptyArticlePreviewException(new URI(mPageLink));
+        }
+
         return articles;
     }
     @SuppressWarnings("MagicConstant")
