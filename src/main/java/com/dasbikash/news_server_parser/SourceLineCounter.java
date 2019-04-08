@@ -21,9 +21,25 @@ import java.util.List;
 public class SourceLineCounter {
 
     private static List<File> allFiles = new ArrayList<File>();
+    private static COUNT_MODE countMode = COUNT_MODE.EXCLUDE_TEST_FILES;
+
+    enum COUNT_MODE{
+        ABSOLUTE_ALL,ALL,EXCLUDE_TEST_FILES
+    }
 
     public static void main(String[] args) {
-        File file = new File("src/main/");
+        File file;
+        switch (countMode){
+            case ALL:
+            case ABSOLUTE_ALL:
+                file = new File("src/");
+                break;
+            case EXCLUDE_TEST_FILES:
+                file = new File("src/main/");
+                break;
+            default:
+                return;
+        }
 
         if (file.exists() && file.isDirectory() && file.canExecute()){
             processFile(file);
@@ -53,12 +69,14 @@ public class SourceLineCounter {
                         break;
                     }
 
-                    if (nextLine.trim().isEmpty() ||
-                        nextLine.contains("import") ||
-                        nextLine.contains("package") ||
-                        nextLine.matches("^//.+") ||
-                        nextLine.matches("^.\\*.+")){
-                        continue;
+                    if (countMode != COUNT_MODE.ABSOLUTE_ALL) {
+                        if (nextLine.trim().isEmpty() ||
+                                nextLine.contains("import") ||
+                                nextLine.contains("package") ||
+                                nextLine.matches("^//.+") ||
+                                nextLine.matches("^.\\*.+")) {
+                            continue;
+                        }
                     }
                     lineCount++;
                 }while (true);
@@ -82,19 +100,15 @@ public class SourceLineCounter {
 
 
     private static void processFile(File file){
-//        System.out.println("processFile called for"+file.getAbsolutePath());
         String[] childFileNames= file.list();
 
         if (childFileNames!=null && childFileNames.length>0) {
 
             for (String childFileName : childFileNames) {
-//                System.out.println("Child file : "+childFileName+" found in "+file.getAbsolutePath());
                 File childFile = new File(file.getAbsolutePath()+"/"+childFileName);
                 if (childFile.exists() && childFile.isDirectory() && childFile.canExecute()) {
-//                    System.out.println(childFile.getAbsolutePath()+" is a directory.");
                     processFile(childFile);
                 } else {
-//                    System.out.println(childFile.getAbsolutePath()+" is a file. So added to list");
                     allFiles.add(childFile);
                 }
             }
