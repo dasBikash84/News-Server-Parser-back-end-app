@@ -25,24 +25,23 @@ class ArticleDataFeatcherForNewsPaper(private val newspaper: Newspaper) : Runnab
 
 
     private var lastNetworkRequestTS = 0L
-    private val MIN_DELAY_BETWEEN_NETWORK_REQUESTS = 5000L;
+    private val MIN_DELAY_BETWEEN_NETWORK_REQUESTS = 5000L
     private val MAX_ARTICLE_DOWNLOAD_RETRY = 5
     private val NOT_APPLICABLE_PAGE_NUMBER = 0
 
     private val topLevelPages = mutableListOf<Page>()
-    private val childPageMap = mutableMapOf<Page, ArrayList<Page>>() //HashMap<Page, List<Page>>()
-    private val lastParsedPageMap = mutableMapOf<Page, Int>();
+    private val childPageMap = mutableMapOf<Page, ArrayList<Page>>()
+    private val lastParsedPageMap = mutableMapOf<Page, Int>()
     private val donePageList = mutableListOf<Page>()
     lateinit var dbSession: Session
 
     override fun run() {
 
-        //dbSession = DbSessionManager.getNewSession()
         getDatabaseSession().persist(newspaper)
 
         newspaper.pageList
                 ?.asSequence()
-                ?.filter { it.isTopLevelPage() }//status wiil be check prior to parsing
+                ?.filter { it.isTopLevelPage() }//status will be checked prior to parsing
                 ?.toCollection(topLevelPages)
 
 

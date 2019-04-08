@@ -25,7 +25,7 @@ public class BootstrapSettings {
 		Configuration configuration = new Configuration().configure(new File("src/main/resources/hibernate.cfg.xml"));
 		SessionFactory sessionFactory = configuration.buildSessionFactory();
 
-		boolean loadSettings = true;
+		boolean loadSettings = false;
 
 		try (Session session = sessionFactory.openSession()) {
 

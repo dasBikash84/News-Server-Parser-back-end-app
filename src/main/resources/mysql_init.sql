@@ -1,4 +1,7 @@
 drop table image_links;
+drop table general_log;
+drop table article_upload_history;
+drop table page_parsing_history;
 drop table articles;
 drop table pages;
 drop table newspapers;
@@ -82,7 +85,6 @@ CREATE TABLE `articles`
     `modified`         DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `articles_pageId_key` (`pageId`),
-    UNIQUE KEY `articles_articleLink_unique_key` (articleLink(255)),
     CONSTRAINT `articles_pageId_fkey_constraint` FOREIGN KEY (`pageId`) REFERENCES `pages` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
@@ -112,8 +114,8 @@ create table `page_parsing_history`
     KEY `FK6fptm1kw30dulow56ngu0gvs1` (`pageNumber`),
     CONSTRAINT `FK6fptm12k5esfhkitw6su0gvs1` FOREIGN KEY (`pageId`) REFERENCES `pages` (`id`),
     PRIMARY KEY (`id`)
-) Engine = MyISAM
-  DEFAULT CHARSET = utf8;
+) Engine = InnoDB
+  DEFAULT CHARSET = utf8mb4;
 
 create table `general_log`
 (
@@ -122,4 +124,18 @@ create table `general_log`
     `created`    DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
 ) Engine = MyISAM
-  DEFAULT CHARSET = utf8;
+  DEFAULT CHARSET = utf8mb4;
+
+create table article_upload_history
+(
+    `id`            int(11)      NOT NULL auto_increment,
+    `articleId`     varchar(255) NOT NULL,
+    `targetAddress` text         NOT NULL,
+    `logMessage`    text     DEFAULT NULL,
+    `created`       DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY `article_upload_history_articleId_targetAddress_unique_key` (`articleId`, `targetAddress`(512)),
+    KEY `article_upload_history_articleId_key` (`articleId`),
+    CONSTRAINT `article_upload_history_articleId_fk` FOREIGN KEY (`articleId`) REFERENCES `articles` (`id`),
+    PRIMARY KEY (`id`)
+) Engine = InnoDB
+  DEFAULT CHARSET = utf8mb4;
