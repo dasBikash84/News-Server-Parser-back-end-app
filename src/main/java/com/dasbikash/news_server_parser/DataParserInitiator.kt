@@ -1,3 +1,4 @@
+@file:JvmName("DataParserInitiator")
 /*
  * Copyright 2019 das.bikash.dev@gmail.com. All rights reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,12 +12,14 @@
  * limitations under the License.
  */
 
+
 package com.dasbikash.news_server_parser
 
 import com.dasbikash.news_server_parser.database.DbSessionManager
 import com.dasbikash.news_server_parser.model.EntityClassNames
 import com.dasbikash.news_server_parser.model.Newspaper
 import com.dasbikash.news_server_parser.parser.ArticleDataFeatcherForNewsPaper
+
 
 object DataParserInitiator {
 
