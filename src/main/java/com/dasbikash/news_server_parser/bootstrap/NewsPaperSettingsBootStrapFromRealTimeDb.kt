@@ -38,7 +38,7 @@ object NewsPaperSettingsBootStrapFromRealTimeDb {
                         )
     }
 
-    fun getDefaultSettingsData():DefaultAppSettings{
+    private fun getDefaultSettingsData():DefaultAppSettings{
         val getResponse: Response =
                 jerseyClient
                 .target(realTimeDbEndPoints.rootSettingsNode)
@@ -48,6 +48,7 @@ object NewsPaperSettingsBootStrapFromRealTimeDb {
         return Gson().fromJson(responseText,DefaultAppSettings::class.java)
     }
 
+    @JvmStatic
     fun saveDefaultSettings(session:Session):Boolean{
         val defaultAppSettings = getDefaultSettingsData()
 

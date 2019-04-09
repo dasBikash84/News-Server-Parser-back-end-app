@@ -27,6 +27,7 @@ import com.dasbikash.news_server_parser.utils.LoggerUtils
 import org.hibernate.Session
 import java.io.IOException
 import java.net.URISyntaxException
+import java.util.*
 import kotlin.random.Random
 
 class ArticleDataFeatcherForNewsPaper(
@@ -35,7 +36,7 @@ class ArticleDataFeatcherForNewsPaper(
 
 
     private var lastNetworkRequestTS = 0L
-    private val MIN_DELAY_BETWEEN_NETWORK_REQUESTS = 5000L
+    private val MIN_DELAY_BETWEEN_NETWORK_REQUESTS = 10000L
     private val NOT_APPLICABLE_PAGE_NUMBER = 0
 
     private val topLevelPages = mutableListOf<Page>()
@@ -45,6 +46,8 @@ class ArticleDataFeatcherForNewsPaper(
     lateinit var dbSession: Session
 
     override fun run() {
+        println("Article data parser for ${newspaper.name} started at ${Date()}")
+        Thread.sleep(Random(System.currentTimeMillis()).nextLong(MIN_DELAY_BETWEEN_NETWORK_REQUESTS))
 
         getDatabaseSession().update(newspaper)
 
@@ -132,16 +135,6 @@ class ArticleDataFeatcherForNewsPaper(
                         DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().update(it) }
                     }
                 }
-                /*.forEach {
-                    waitForFareNetworkUsage()
-                    println("Article before parsing:" + it)
-                    ArticleBodyParser.getArticleBody(it)
-                    println("Article after parsing:" + it)
-                    if (it.isDownloaded()) {
-                        DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().update(it) }
-                    }
-                }*/
-
 
         // So now here we have list of pages that need to be parsed for a certain newspaper
 
@@ -152,7 +145,7 @@ class ArticleDataFeatcherForNewsPaper(
 
             println("#############################################################################################")
             println("#############################################################################################")
-            println("Going to parse page:")
+            println("Going to parse ${pageListForParsing.size} pages:")
 
             do {
                 val itemIndexForRemoval = Random(System.currentTimeMillis()).nextInt(tempPageList.size)

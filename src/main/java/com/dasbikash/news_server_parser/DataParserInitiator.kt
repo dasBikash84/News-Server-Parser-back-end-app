@@ -1,4 +1,5 @@
 @file:JvmName("DataParserInitiator")
+
 /*
  * Copyright 2019 das.bikash.dev@gmail.com. All rights reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +16,7 @@
 
 package com.dasbikash.news_server_parser
 
+import com.dasbikash.news_server_parser.bootstrap.NewsPaperSettingsBootStrapFromRealTimeDb
 import com.dasbikash.news_server_parser.database.DbSessionManager
 import com.dasbikash.news_server_parser.model.EntityClassNames
 import com.dasbikash.news_server_parser.model.Newspaper
@@ -28,17 +30,34 @@ object DataParserInitiator {
 
         val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"
         val session = DbSessionManager.getNewSession()
-        val query = session.createQuery(hql,Newspaper::class.java)
-        val newsPapers = query.list() as List<Newspaper>
+        var newsPapers: List<Newspaper>
+
+        do {
+            val query = session.createQuery(hql, Newspaper::class.java)
+            newsPapers = query.list() as List<Newspaper>
+            if (newsPapers.size == 0) {
+                println("#################################################################")
+                println("Settings data not found, so going to load from remote server.....")
+                println("#################################################################")
+                NewsPaperSettingsBootStrapFromRealTimeDb.saveDefaultSettings(session)
+                continue
+            }
+            break
+        } while (true)
 
         session.close()
+        Thread.sleep(1000)
 
-        var thread: Thread? = null
+        val threadPool = mutableListOf<Thread>()
+
 
         newsPapers.forEach {
-                    thread = Thread(ArticleDataFeatcherForNewsPaper(it))
-                    thread?.start()
-                }
-        thread?.join()
+            val thread: Thread
+            thread = Thread(ArticleDataFeatcherForNewsPaper(it))
+            thread.start()
+            threadPool.add(thread)
+        }
+//        thread?.join()
+        threadPool.forEach { it.join() }
     }
 }

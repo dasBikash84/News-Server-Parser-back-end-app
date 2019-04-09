@@ -16,6 +16,6 @@ internal class NewsPaperSettingsBootStrapFromRealTimeDbTest {
 
     @Test
     fun getRealTimeDbEndPoints() {
-        println(NewsPaperSettingsBootStrapFromRealTimeDb.getDefaultSettingsData())
+//        println(NewsPaperSettingsBootStrapFromRealTimeDb.getDefaultSettingsData())
     }
 }

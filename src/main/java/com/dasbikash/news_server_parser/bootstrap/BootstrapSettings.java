@@ -30,7 +30,7 @@ public class BootstrapSettings {
 		try (Session session = sessionFactory.openSession()) {
 
 			if (loadSettings) {
-				if (NewsPaperSettingsBootStrapFromRealTimeDb.INSTANCE.saveDefaultSettings(session)) {
+				if (NewsPaperSettingsBootStrapFromRealTimeDb.saveDefaultSettings(session)) {
 					System.out.println("Settings loaded.");
 				} else {
 					System.out.println("Settings loading failed.");
