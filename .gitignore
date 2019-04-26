@@ -1,3 +1,6 @@
+#List of folders containing temporary files for development assistance
+/dontTrack
+
 ### Java template
 *.class
 
