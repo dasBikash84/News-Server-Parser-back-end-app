@@ -20,11 +20,17 @@ import com.google.cloud.firestore.Firestore
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.cloud.FirestoreClient
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ServerValue
 import org.hibernate.Session
 import java.io.FileInputStream
 
 
 object FireStoreBootStrap {
+    private lateinit var mRootReference:DatabaseReference
+    private lateinit var mFirebaseDatabasePageArticleMapRef: DatabaseReference
+    private lateinit var mFirebaseDatabasePageArticleMapUpdateTimeRef: DatabaseReference
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -40,11 +46,17 @@ object FireStoreBootStrap {
         FirebaseApp.initializeApp(options)
         val db = FirestoreClient.getFirestore()
 
-        writeLanguages(session, db)
+        mRootReference = FirebaseDatabase.getInstance("https://newsserver-bdb31.firebaseio.com/").reference
+        mFirebaseDatabasePageArticleMapRef = mRootReference.child("page_article_map")
+        mFirebaseDatabasePageArticleMapUpdateTimeRef = mRootReference.child("page_article_map_update_time")
+
+        /*writeLanguages(session, db)
         writeCountries(session, db)
-        writeNewspapers(session, db)
-        writePages(session, db)
-        writeArticles(session, db)
+        writeNewspapers(session, db)*/
+        val pages = getPages(session)
+        pages.forEach {
+                writeArticles(session, db,it)
+            }
 
     }
 
@@ -105,7 +117,7 @@ object FireStoreBootStrap {
         }
     }
 
-    private fun writePages(session: Session, db: Firestore) {
+    private fun writePages(session: Session, db: Firestore):List<Page> {
         println()
         println("#################################################################")
         println("Going to write \"Page\" data to Cloud Firestore")
@@ -133,6 +145,49 @@ object FireStoreBootStrap {
             for (result in future.get()) {
                 println("Page entry Update time : ${result.updateTime}")
             }
+        }
+        return pages
+    }
+
+    private fun writeArticles(session: Session, db: Firestore,page: Page) {
+        println()
+        println("#########################################################################################################")
+        println("Going to write \"Article\" data to Cloud Firestore for page: ${page.name} of NP: ${page.newspaper!!.name}")
+        println("#########################################################################################################")
+
+        val articles = getArticles(session,page)
+        val articlesCollectionRef = db.collection("articles")
+        var batch = db.batch()
+
+        val pageArticleMap = PageArticleMap()
+
+        var articleCount = 0
+        articles.forEach {
+            articleCount++
+            val articleForFs = ArticleForFs.fromArticle(it)
+            pageArticleMap.entries.put(articleForFs.id,articleForFs.publicationTime!!.time)
+            batch.set(articlesCollectionRef.document(), articleForFs)
+            if (articleCount == 400){
+                val future = batch.commit()
+                for (result in future.get()) {
+                    println("Article entry Update time : ${result.updateTime}")
+                }
+//                return
+                articleCount = 0
+                batch = db.batch()
+            }
+        }
+        if (articleCount > 0){
+            val future = batch.commit()
+            for (result in future.get()) {
+                println("Article entry Update time : ${result.updateTime}")
+            }
+        }
+        if (pageArticleMap.entries.size >0 ){
+            val articleMapUploadTask = mFirebaseDatabasePageArticleMapRef.child(page.id).setValueAsync(pageArticleMap.entries)
+            val articleMapUpdateTimeUploadTask = mFirebaseDatabasePageArticleMapUpdateTimeRef.child(page.id).setValueAsync(ServerValue.TIMESTAMP)
+            while (!articleMapUploadTask.isDone){}
+            while (!articleMapUpdateTimeUploadTask.isDone){}
         }
     }
 
@@ -197,4 +252,13 @@ object FireStoreBootStrap {
         val query = session.createQuery(hql, Article::class.java)
         return query.list() as List<Article>
     }
+
+    private fun getArticles(session: Session,page: Page):List<Article>{
+        val hql = "SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME} WHERE pageId='${page.id}' and articleText is not null"
+        return session.createNativeQuery(hql, Article::class.java).resultList as List<Article>
+    }
+}
+
+class PageArticleMap{
+    val entries = mutableMapOf<String,Long>()
 }

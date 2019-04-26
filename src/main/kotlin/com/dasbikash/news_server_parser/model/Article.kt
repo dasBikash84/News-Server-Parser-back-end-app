@@ -58,7 +58,7 @@ data class Article(
 
         override fun toString(): String {
                 return "Article(id='$id', page=${page}, title=$title, modificationTS=$modificationTS, publicationTS=$publicationTS, " +
-                        "articleText=$articleText, imageLinkList=$imageLinkList, previewImageLink=$previewImageLink, articleLink=$articleLink)"
+                        "articleText=$articleText,previewImageLink=$previewImageLink, articleLink=$articleLink)"
         }
 
         fun setPublicationTs(publicationTS: Long){
