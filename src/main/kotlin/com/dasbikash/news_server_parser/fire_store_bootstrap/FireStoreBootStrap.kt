@@ -20,10 +20,9 @@ import com.google.cloud.firestore.Firestore
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.cloud.FirestoreClient
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ServerValue
+import com.google.firebase.database.*
 import org.hibernate.Session
+import org.omg.CORBA.Object
 import java.io.FileInputStream
 
 
@@ -50,14 +49,46 @@ object FireStoreBootStrap {
         mFirebaseDatabasePageArticleMapRef = mRootReference.child("page_article_map")
         mFirebaseDatabasePageArticleMapUpdateTimeRef = mRootReference.child("page_article_map_update_time")
 
-        /*writeLanguages(session, db)
-        writeCountries(session, db)
-        writeNewspapers(session, db)*/
-        val pages = getPages(session)
-        pages.forEach {
-                writeArticles(session, db,it)
+//        writeRemainingArticles(session, db)
+
+    }
+
+    private fun writeRemainingArticles(session: Session, db: Firestore) {
+        val lock = Object()
+        val pageUpdateTimeMap: PageArticleMapUpdateTime = PageArticleMapUpdateTime()
+
+        mFirebaseDatabasePageArticleMapUpdateTimeRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(error: DatabaseError?) {
+                throw Throwable(error?.message)
             }
 
+            override fun onDataChange(dataSnapshot: DataSnapshot?) {
+                dataSnapshot?.children?.asSequence()?.forEach {
+                    pageUpdateTimeMap.entries.put(it.key, it.value as Long)
+                }
+                synchronized(lock) {
+                    lock.notify()
+                }
+            }
+        })
+        synchronized(lock) {
+            lock.wait()
+        }
+        val pages = getPages(session)
+        pages.forEach {
+            if (!pageUpdateTimeMap.entries.keys.contains(it.id)) {
+                writeArticles(session, db, it)
+//                println("${it.newspaper!!.name}: ${it.name}")
+            }
+        }
+    }
+
+    private fun loadAll(session: Session,db:Firestore){
+        writeLanguages(session, db)
+        writeCountries(session, db)
+        writeNewspapers(session, db)
+        writePages(session, db)
+        writeArticles(session, db)
     }
 
     private fun writeLanguages(session: Session, db: Firestore) {
@@ -260,5 +291,9 @@ object FireStoreBootStrap {
 }
 
 class PageArticleMap{
+    val entries = mutableMapOf<String,Long>()
+}
+
+class PageArticleMapUpdateTime{
     val entries = mutableMapOf<String,Long>()
 }
