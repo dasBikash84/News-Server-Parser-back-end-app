@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_parser.fire_store_bootstrap
+package com.dasbikash.news_server_parser.firebase_db_bootstrap
 
 import com.dasbikash.news_server_parser.model.*
 import java.util.*
@@ -70,13 +70,14 @@ class PageForFS(
 
 }
 class ArticleForFs(
-        val id: String,
-        val pageId: String,
-        val title: String,
+        var id: String="",
+        var pageId: String="",
+        var title: String="",
         val publicationTime: Date? = null,
-        val articleText: String,
-        val imageLinkList: List<ArticleImage> = ArrayList(),
-        val previewImageLink: String?
+        private var publicationTimeRTDB: Long? = null,
+        var articleText: String="",
+        var imageLinkList: List<ArticleImage> = ArrayList(),
+        var previewImageLink: String? =""
 ){
     companion object{
         fun fromArticle(article: Article):ArticleForFs{
@@ -91,9 +92,22 @@ class ArticleForFs(
                 article.modificationTS !=null -> publicationTime = article.modificationTS
                 else -> publicationTime = article.modified
             }
-            return ArticleForFs(article.id,article.page!!.id,article.title!!,publicationTime,
+            return ArticleForFs(article.id,article.page!!.id,article.title!!,publicationTime,null,
                                 article.articleText!!,article.imageLinkList,article.previewImageLink)
         }
     }
+
+    fun getPublicationTimeRTDB():Long{
+        return publicationTime?.time ?: 0L
+    }
+
+    fun setPublicationTimeRTDB(pubTime:Long){
+        publicationTimeRTDB = pubTime
+    }
+
+    override fun toString(): String {
+        return "ArticleForFs(id='$id', title='$title', publicationTimeRTDB=${publicationTimeRTDB})"
+    }
+
 }
 

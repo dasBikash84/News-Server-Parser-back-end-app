@@ -11,10 +11,10 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_parser.fire_store_bootstrap
+package com.dasbikash.news_server_parser.firebase_db_bootstrap
 
 import com.dasbikash.news_server_parser.database.DbSessionManager
-import com.dasbikash.news_server_parser.model.*
+import com.dasbikash.news_server_parser.model.Page
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.firestore.Firestore
 import com.google.firebase.FirebaseApp
@@ -22,9 +22,7 @@ import com.google.firebase.FirebaseOptions
 import com.google.firebase.cloud.FirestoreClient
 import com.google.firebase.database.*
 import org.hibernate.Session
-import org.omg.CORBA.Object
 import java.io.FileInputStream
-
 
 object FireStoreBootStrap {
     private lateinit var mRootReference:DatabaseReference
@@ -74,7 +72,7 @@ object FireStoreBootStrap {
         synchronized(lock) {
             lock.wait()
         }
-        val pages = getPages(session)
+        val pages = EntityReader.getPages(session)
         pages.forEach {
             if (!pageUpdateTimeMap.entries.keys.contains(it.id)) {
                 writeArticles(session, db, it)
@@ -92,7 +90,7 @@ object FireStoreBootStrap {
     }
 
     private fun writeLanguages(session: Session, db: Firestore) {
-        val languages = getLanguages(session)
+        val languages = EntityReader.getLanguages(session)
         val languageCollectionRef = db.collection("languages")
         val batch = db.batch()
 
@@ -111,7 +109,7 @@ object FireStoreBootStrap {
     }
 
     private fun writeCountries(session: Session, db: Firestore) {
-        val countries = getCountries(session)
+        val countries = EntityReader.getCountries(session)
         val countryCollectionRef = db.collection("countries")
         val batch = db.batch()
 
@@ -130,7 +128,7 @@ object FireStoreBootStrap {
     }
 
     private fun writeNewspapers(session: Session, db: Firestore) {
-        val newspapers = getNewspapers(session)
+        val newspapers = EntityReader.getNewspapers(session)
         val newspaperCollectionRef = db.collection("newspapers")
         val batch = db.batch()
 
@@ -154,7 +152,7 @@ object FireStoreBootStrap {
         println("Going to write \"Page\" data to Cloud Firestore")
         println("#################################################################")
 
-        val pages = getPages(session)
+        val pages = EntityReader.getPages(session)
         val pagesCollectionRef = db.collection("pages")
         var batch = db.batch()
 
@@ -186,7 +184,7 @@ object FireStoreBootStrap {
         println("Going to write \"Article\" data to Cloud Firestore for page: ${page.name} of NP: ${page.newspaper!!.name}")
         println("#########################################################################################################")
 
-        val articles = getArticles(session,page)
+        val articles = EntityReader.getArticlesForPage(session,page)
         val articlesCollectionRef = db.collection("articles")
         var batch = db.batch()
 
@@ -228,7 +226,7 @@ object FireStoreBootStrap {
         println("Going to write \"Article\" data to Cloud Firestore")
         println("#################################################################")
 
-        val articles = getArticles(session)
+        val articles = EntityReader.getArticles(session)
         val articlesCollectionRef = db.collection("articles")
         var batch = db.batch()
 
@@ -252,41 +250,6 @@ object FireStoreBootStrap {
                 println("Article entry Update time : ${result.updateTime}")
             }
         }
-    }
-
-    private fun getLanguages(session: Session):List<Language>{
-        val hql = "FROM ${EntityClassNames.LANGUAGE}"
-        val query = session.createQuery(hql, Language::class.java)
-        return query.list() as List<Language>
-    }
-
-    private fun getCountries(session: Session):List<Country>{
-        val hql = "FROM ${EntityClassNames.COUNTRY}"
-        val query = session.createQuery(hql, Country::class.java)
-        return query.list() as List<Country>
-    }
-
-    private fun getNewspapers(session: Session):List<Newspaper>{
-        val hql = "FROM ${EntityClassNames.NEWSPAPER}"
-        val query = session.createQuery(hql, Newspaper::class.java)
-        return query.list() as List<Newspaper>
-    }
-
-    private fun getPages(session: Session):List<Page>{
-        val hql = "FROM ${EntityClassNames.PAGE}"
-        val query = session.createQuery(hql, Page::class.java)
-        return query.list() as List<Page>
-    }
-
-    private fun getArticles(session: Session):List<Article>{
-        val hql = "FROM ${EntityClassNames.ARTICLE} WHERE articleText is not null"
-        val query = session.createQuery(hql, Article::class.java)
-        return query.list() as List<Article>
-    }
-
-    private fun getArticles(session: Session,page: Page):List<Article>{
-        val hql = "SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME} WHERE pageId='${page.id}' and articleText is not null"
-        return session.createNativeQuery(hql, Article::class.java).resultList as List<Article>
     }
 }
 
