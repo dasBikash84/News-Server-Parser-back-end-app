@@ -42,7 +42,7 @@ internal class BonikBartaArticleParserTest {
         }.map {
             it?.let {
                 val articleList = PreviewPageParser.parsePreviewPageForArticles(it,1)
-                it.articleList = articleList
+                it.articleList = articleList.first
                 it.articleList
                         ?.forEach {
                             //session.persist(it)

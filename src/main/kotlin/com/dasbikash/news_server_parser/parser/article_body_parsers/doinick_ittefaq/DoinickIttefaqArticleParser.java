@@ -18,7 +18,7 @@ import org.jsoup.select.Elements;
 
 public class DoinickIttefaqArticleParser extends ArticleBodyParser {
 
-    private final String mSiteBaseAddress = "http://www.ittefaq.com.bd";
+    private final String mSiteBaseAddress = "https://www.ittefaq.com.bd";
 
     @Override
     protected String getSiteBaseAddress() {

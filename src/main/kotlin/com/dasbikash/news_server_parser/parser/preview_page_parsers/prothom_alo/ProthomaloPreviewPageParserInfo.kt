@@ -30,5 +30,5 @@ internal object ProthomaloPreviewPageParserInfo {
     @JvmField val ARTICLE_PUBLICATION_DATE_ELEMENT_SELECTOR = ".time.aitm"
     @JvmField val ARTICLE_PUBLICATION_DATE_TEXT_SELECTOR_TAG = "data-published"
 
-    @JvmField val ARTICLE_PUBLICATION_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZZZ"
+    @JvmField val ARTICLE_PUBLICATION_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssXXX"
 }

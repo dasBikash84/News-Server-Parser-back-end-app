@@ -36,7 +36,7 @@ internal class BonikBartaPreviewPageParserTest {
             }?.get(10)
         }.map {
             it?.let {
-                PreviewPageParser.parsePreviewPageForArticles(it, 1)
+                PreviewPageParser.parsePreviewPageForArticles(it, 1).first
                         ?.forEach {
                             println("Article  ${it}")
                         }

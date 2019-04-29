@@ -125,6 +125,7 @@ abstract public class PreviewPageParser {
                 System.out.println("articleLink: "+articleLink);
             } catch (Exception e) {
                 parsingLogMessage.append("articleLink == null");
+                e.printStackTrace();
                 continue;
             }
 
@@ -134,6 +135,7 @@ abstract public class PreviewPageParser {
                 System.out.println("previewImageLink: "+previewImageLink);
             } catch (Exception e) {
                 previewImageLink = null;
+                e.printStackTrace();
                 parsingLogMessage.append("previewImageLink = null");
             }
 
@@ -143,6 +145,7 @@ abstract public class PreviewPageParser {
                 System.out.println("articleTitle: "+articleTitle);
             } catch (Exception e) {
                 parsingLogMessage.append("articleTitle = null");
+                e.printStackTrace();
                 continue;
             }
             if (getArticlePublicationDatetimeFormat() !=null) {
@@ -153,11 +156,13 @@ abstract public class PreviewPageParser {
             try {
                 articlePublicationDateTimeStamp = getArticlePublicationTimeStamp(previewBlock);
                 if (articlePublicationDateTimeStamp==null && mSimpleDateFormat !=null) {
+                    System.out.println("mSimpleDateFormat.toPattern(): "+mSimpleDateFormat.toPattern());
                     articlePublicationDateTimeStamp = mSimpleDateFormat.parse(getArticlePublicationDateString(previewBlock)).getTime();
                 }
                 System.out.println("articlePublicationDateTimeStamp: "+articlePublicationDateTimeStamp);
             } catch (Exception e) {
                 articlePublicationDateTimeStamp = 0L;
+                e.printStackTrace();
                 parsingLogMessage.append("Publication TimeStamp not found");
             }
 
@@ -165,11 +170,12 @@ abstract public class PreviewPageParser {
                 articleModificationDateTimeStamp = getArticleModificationTimeStamp(previewBlock);
                 if (articleModificationDateTimeStamp==null && mSimpleDateFormat !=null) {
                     articleModificationDateTimeStamp = mSimpleDateFormat.parse(getArticleModificationDateString(previewBlock)).getTime();
+                    parsingLogMessage.append("Modification TimeStamp found");
                 }
                 System.out.println("articleModificationDateTimeStamp: "+articleModificationDateTimeStamp);
-                parsingLogMessage.append("Modification TimeStamp found");
             } catch (Exception e) {
                 articleModificationDateTimeStamp = 0L;
+                e.printStackTrace();
             }
 
             Date publicationDate = null;
@@ -256,7 +262,7 @@ abstract public class PreviewPageParser {
     private String getArticleModificationDateString(Element previewBlock){
         return null;
     }
-    private Long getArticleModificationTimeStamp(Element previewBlock){
+    protected Long getArticleModificationTimeStamp(Element previewBlock){
         return null;
     }
     private String processLink(String linkText){

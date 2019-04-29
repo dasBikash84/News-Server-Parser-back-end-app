@@ -15,7 +15,7 @@ package com.dasbikash.news_server_parser.utils
 
 object HashUtils {
 
-    val SUPPLIED_PRIME_NUMBER = 73L;
+    val SUPPLIED_PRIME_NUMBER = 157L;
 
     fun hash(s: String): String {
         var h = 0L

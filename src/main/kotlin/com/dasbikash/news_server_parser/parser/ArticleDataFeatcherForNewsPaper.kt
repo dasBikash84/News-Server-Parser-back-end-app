@@ -35,7 +35,7 @@ class ArticleDataFeatcherForNewsPaper(
 
 
     private var lastNetworkRequestTS = 0L
-    private val MIN_DELAY_BETWEEN_NETWORK_REQUESTS = 2000L
+    private val MIN_DELAY_BETWEEN_NETWORK_REQUESTS = 3000L
     private val NOT_APPLICABLE_PAGE_NUMBER = 0
 
     private val topLevelPages = mutableListOf<Page>()
@@ -59,7 +59,7 @@ class ArticleDataFeatcherForNewsPaper(
                     val topLevelPage = it
                     val childPageList = ArrayList<Page>()
                     newspaper.pageList
-                            ?.filter { it.parentPageId == topLevelPage.id }
+                            ?.filter { it.parentPageId == topLevelPage.id && it.hasData() }
                             ?.toCollection(childPageList)
                     childPageMap.put(it, childPageList)
                 }
@@ -100,7 +100,7 @@ class ArticleDataFeatcherForNewsPaper(
 
         //Before going into parsing loop first fetch and save any un-parsed article data of privious loop
 
-        val unParsedArticleList: List<Article> = getUnParsedArticleOfCurrentNewspaper(newspaper)
+        /*val unParsedArticleList: List<Article> = getUnParsedArticleOfCurrentNewspaper(newspaper)
         unParsedArticleList
                 .asSequence()
                 .filter {
@@ -131,7 +131,7 @@ class ArticleDataFeatcherForNewsPaper(
                     if (it.isDownloaded()) {
                         DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().update(it) }
                     }
-                }
+                }*/
 
         // So now here we have list of pages that need to be parsed for a certain newspaper
 
@@ -220,6 +220,8 @@ class ArticleDataFeatcherForNewsPaper(
                 //save parsing details
                 savePageParsingHistory(currentPage, currentPageNumber, parseableArticleList.size,parsingResult.second)
 
+//                continue
+
                 //Now go for article data fetching
                 parseableArticleList
                         .asSequence()
@@ -252,7 +254,6 @@ class ArticleDataFeatcherForNewsPaper(
                                 DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().update(it) }
                             }
                         }
-                break
             }
             println("#############################################################################################")
             println("#############################################################################################")

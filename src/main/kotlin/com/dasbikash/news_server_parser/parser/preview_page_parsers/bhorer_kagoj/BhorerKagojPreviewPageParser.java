@@ -24,7 +24,7 @@ public class BhorerKagojPreviewPageParser extends PreviewPageParser {
     //private static final String TAG = "StackTrace";
     private static final String TAG = "BKEdLoader";
 
-    private final String mSiteBaseAddress = "http://www.bhorerkagoj.com";
+    private final String mSiteBaseAddress = "https://www.bhorerkagoj.com";
     @Override
     protected String getSiteBaseAddress() {
         return mSiteBaseAddress;

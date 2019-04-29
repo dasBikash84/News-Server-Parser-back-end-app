@@ -28,7 +28,7 @@ object DataParserInitiator {
     @JvmStatic
     fun main(args: Array<String>) {
 
-        val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"
+        val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true and id='NP_ID_1'"
         val session = DbSessionManager.getNewSession()
         var newsPapers: List<Newspaper>
 
@@ -51,7 +51,9 @@ object DataParserInitiator {
         val threadPool = mutableListOf<Thread>()
 
 
-        newsPapers.take(1).forEach {
+        newsPapers/*.takeWhile {
+            it.id.equals("NP_ID_2")
+        }*/.forEach {
             val thread: Thread
             thread = Thread(ArticleDataFeatcherForNewsPaper(it))
             thread.start()

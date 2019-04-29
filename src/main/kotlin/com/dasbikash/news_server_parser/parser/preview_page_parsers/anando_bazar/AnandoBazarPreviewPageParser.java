@@ -77,7 +77,7 @@ public class AnandoBazarPreviewPageParser extends PreviewPageParser {
                 Element dateTimeElement = dateTimeElements.get(0);
                 String articlePublicationDateString = dateTimeElement.text().trim();
                 articlePublicationDateString = DisplayUtils.banglaToEnglishDateString(articlePublicationDateString);
-                return articlePublicationDateString;
+                return articlePublicationDateString.replace(" ,",",");
             }
         }
         return null;

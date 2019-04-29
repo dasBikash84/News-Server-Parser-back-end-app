@@ -22,7 +22,8 @@ import org.jsoup.select.Elements;
 
 public class BdPratidinPreviewPageParser extends PreviewPageParser {
 
-    private final String mSiteBaseAddress = "http://www.bd-pratidin.com";
+    private final String mSiteBaseAddress = "https://www.bd-pratidin.com";
+
     private static final int MAX_RERUN_COUNT_FOR_EMPTY_WITH_REPEAT_FOR_REGULAR_FEATURE = 3;
 
     /*@Override
@@ -36,13 +37,8 @@ public class BdPratidinPreviewPageParser extends PreviewPageParser {
 
     @Override
     protected String getPageLink() {
-        if (mCurrentPageNumber == 1){
-            return mCurrentPage.getLinkFormat().
-                    replace("/"+ Page.DEFAULT_LINK_TRAILING_FORMAT,"");
-        }else{
-            mCurrentPageNumber = (mCurrentPageNumber-1)*12;
-            return super.getPageLink();
-        }
+        mCurrentPageNumber = (mCurrentPageNumber - 1) * 12;
+        return super.getPageLink();
     }
 
     @Override
@@ -58,19 +54,19 @@ public class BdPratidinPreviewPageParser extends PreviewPageParser {
     @Override
     protected String getArticleLink(Element previewBlock) {
         return previewBlock.select(BdPratidinPreviewPageParserInfo.ARTICLE_LINK_ELEMENT_SELECTOR).
-                                    get(0).attr(BdPratidinPreviewPageParserInfo.ARTICLE_LINK_TEXT_SELECTOR_TAG);
+                get(0).attr(BdPratidinPreviewPageParserInfo.ARTICLE_LINK_TEXT_SELECTOR_TAG);
     }
 
     @Override
     protected String getArticlePreviewImageLink(Element previewBlock) {
         return previewBlock.select(BdPratidinPreviewPageParserInfo.ARTICLE_PREVIEW_IMAGE_LINK_ELEMENT_SELECTOR).
-                                    get(0).attr(BdPratidinPreviewPageParserInfo.ARTICLE_PREVIEW_IMAGE_LINK_TEXT_SELECTOR_TAG);
+                get(0).attr(BdPratidinPreviewPageParserInfo.ARTICLE_PREVIEW_IMAGE_LINK_TEXT_SELECTOR_TAG);
     }
 
     @Override
     protected String getArticleTitle(Element previewBlock) {
         return previewBlock.select(BdPratidinPreviewPageParserInfo.ARTICLE_TITLE_ELEMENT_SELECTOR).
-                                    get(0).text();
+                get(0).text();
     }
 
     @Override
@@ -80,15 +76,15 @@ public class BdPratidinPreviewPageParser extends PreviewPageParser {
 
     @Override
     protected String processArticleLink(String articleLink) {
-        if ((!articleLink.matches("^http.+")) && (!articleLink.matches("^/.+"))){
-            articleLink = "/"+articleLink;
+        if ((!articleLink.matches("^http.+")) && (!articleLink.matches("^/.+"))) {
+            articleLink = "/" + articleLink;
         }
         return super.processArticleLink(articleLink);
     }
 
     @Override
     protected String processArticlePreviewImageLink(String previewImageLink) {
-        if (previewImageLink.matches("^\\./.+")){
+        if (previewImageLink.matches("^\\./.+")) {
             previewImageLink = previewImageLink.substring(1);
         }
         return super.processArticlePreviewImageLink(previewImageLink);

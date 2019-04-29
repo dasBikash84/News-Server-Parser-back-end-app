@@ -20,7 +20,7 @@ import org.jsoup.select.Elements;
 public class BhorerKagojArticleParser extends ArticleBodyParser {
     private static final String TAG = "BBArticleLoader";
 
-    private final String mSiteBaseAddress = "http://www.bhorerkagoj.com";
+    private final String mSiteBaseAddress = "https://www.bhorerkagoj.com";
 
     @Override
     protected String getSiteBaseAddress() {

@@ -22,7 +22,7 @@ public class BdPratidinArticleParser extends ArticleBodyParser {
     private static final String TAG = "BdPArtLoader";
     public static final String DATE_STRING_SPLITTER_REGEX = "প্রকাশ\\s:\\s";
 
-    private final String mSiteBaseAddress = "http://www.bd-pratidin.com";
+    private final String mSiteBaseAddress = "https://www.bd-pratidin.com";
 
     @Override
     protected String getSiteBaseAddress() {

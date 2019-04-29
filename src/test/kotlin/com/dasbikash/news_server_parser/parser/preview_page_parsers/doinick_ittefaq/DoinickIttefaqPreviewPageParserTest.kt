@@ -36,7 +36,7 @@ internal class DoinickIttefaqPreviewPageParserTest {
             }?.get(5)
         }.map {
             it?.let {
-                PreviewPageParser.parsePreviewPageForArticles(it, 1)
+                PreviewPageParser.parsePreviewPageForArticles(it, 1).first
                         ?.forEach {
                             println("Article  ${it}")
                         }

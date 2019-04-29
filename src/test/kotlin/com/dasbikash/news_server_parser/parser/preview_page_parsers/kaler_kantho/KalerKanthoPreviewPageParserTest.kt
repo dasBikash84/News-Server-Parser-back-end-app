@@ -36,7 +36,7 @@ internal class KalerKanthoPreviewPageParserTest {
             }?.get(15)
         }.map {
             it?.let {
-                PreviewPageParser.parsePreviewPageForArticles(it, 1)
+                PreviewPageParser.parsePreviewPageForArticles(it, 1).first
                         ?.forEach {
                             println("Article  ${it}")
                         }

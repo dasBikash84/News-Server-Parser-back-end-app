@@ -24,7 +24,7 @@ public class DoinickIttefaqPreviewPageParser extends PreviewPageParser {
     //private static final String TAG = "StackTrace";
     private static final String TAG = "DIttefaqEdLoader";
 
-    private final String mSiteBaseAddress = "http://www.ittefaq.com.bd";
+    private final String mSiteBaseAddress = "https://www.ittefaq.com.bd";
 
     @Override
     protected String getSiteBaseAddress() {
