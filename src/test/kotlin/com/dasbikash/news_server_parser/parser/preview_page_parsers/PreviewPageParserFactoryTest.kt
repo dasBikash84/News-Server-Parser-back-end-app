@@ -30,7 +30,7 @@ internal class PreviewPageParserFactoryTest {
             println("Np: ${it.name}")
             println("Page: ${it.pageList?.get(0)?.name}")
             it.pageList?.filter {
-                it.linkFormat !=null
+                it.hasData()
             }?.get(3)
         }.map {
             it?.let {

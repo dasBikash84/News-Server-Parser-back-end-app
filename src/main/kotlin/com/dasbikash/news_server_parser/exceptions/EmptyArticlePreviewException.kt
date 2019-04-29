@@ -18,6 +18,7 @@ import java.net.URI
 class EmptyArticlePreviewException:NewsServerParserException {
 
     constructor(uri: URI) : super(causePreamble+ uri.path)
+    constructor(cause: String) : super(cause)
     constructor() : super()
 
     companion object {

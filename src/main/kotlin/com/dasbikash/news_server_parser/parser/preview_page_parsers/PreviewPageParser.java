@@ -19,6 +19,7 @@ import com.dasbikash.news_server_parser.model.Page;
 import com.dasbikash.news_server_parser.parser.JsoupConnector;
 import com.dasbikash.news_server_parser.utils.HashUtils;
 import com.dasbikash.news_server_parser.utils.LinkProcessUtils;
+import kotlin.Pair;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -45,7 +46,7 @@ abstract public class PreviewPageParser {
     protected abstract Elements getPreviewBlocks();
     protected abstract String getSiteBaseAddress();
 
-    public static List<Article> parsePreviewPageForArticles(Page page, int pageNumber)
+    public static Pair<List<Article>,String> parsePreviewPageForArticles(Page page, int pageNumber)
             throws NewsPaperNotFoundForPageException, ParserNotFoundException, PageLinkGenerationException,
             URISyntaxException, EmptyDocumentException, EmptyArticlePreviewException {
 
@@ -53,9 +54,8 @@ abstract public class PreviewPageParser {
             throw new NewsPaperNotFoundForPageException(page);
         }
 
-        PreviewPageParser previewPageParser =
-                PreviewPageParserFactory.INSTANCE
-                .getPreviewLoaderByNewsPaper(page.getNewspaper());
+        PreviewPageParser previewPageParser = PreviewPageParserFactory.INSTANCE
+                                                        .getPreviewPageParserByNewsPaper(page.getNewspaper());
 
         if (previewPageParser ==null){
             throw new ParserNotFoundException(page.getNewspaper());
@@ -64,7 +64,7 @@ abstract public class PreviewPageParser {
         return previewPageParser.getArticlePreviews(page,pageNumber);
     }
 
-    private List<Article> getArticlePreviews(Page page, int pageNumber)
+    private Pair<List<Article>,String> getArticlePreviews(Page page, int pageNumber)
             throws PageLinkGenerationException, URISyntaxException,
             EmptyDocumentException, EmptyArticlePreviewException {
 
@@ -85,7 +85,9 @@ abstract public class PreviewPageParser {
         mDocument = JsoupConnector.INSTANCE.getDocument(mPageLink);
 
         if (mDocument == null){
-            throw new EmptyDocumentException(new URI(mPageLink));
+            //noinspection SingleStatementInBlock
+            throw new EmptyDocumentException("Np: "+mCurrentPage.getNewspaper().getName()+", Page: "+mCurrentPage.getName()+
+                                                ", Link: "+mPageLink);
         }
 
         System.out.println("Document title: "+ mDocument.title());
@@ -93,15 +95,19 @@ abstract public class PreviewPageParser {
         return parseDocument();
     }
 
-    private List<Article> parseDocument() throws URISyntaxException, EmptyArticlePreviewException {
+    private Pair<List<Article>,String> parseDocument() throws URISyntaxException, EmptyArticlePreviewException {
 
         Elements mPreviewBlocks = getPreviewBlocks();
 
         if (mPreviewBlocks==null || mPreviewBlocks.size()==0){
-            throw new EmptyArticlePreviewException(new URI(mPageLink));
+            throw new EmptyArticlePreviewException("Np: "+mCurrentPage.getNewspaper().getName()+", Page: "+mCurrentPage.getName()+
+                                                    ", Link: "+mPageLink+" before parsing");
         }
 
         List<Article> articles = new ArrayList<>();
+        StringBuilder parsingLogMessage = new StringBuilder("For page: "+mPageLink+" ");
+
+        int articleCount = 0;
 
         for (Element previewBlock: mPreviewBlocks){
 
@@ -110,13 +116,15 @@ abstract public class PreviewPageParser {
             String articleTitle;
             Long articlePublicationDateTimeStamp = 0L;
             Long articleModificationDateTimeStamp = 0L;
-
+            articleCount++;
+            parsingLogMessage.append("For article num ").append(articleCount).append(": ");
             try {
                 articleLink = getArticleLink(previewBlock);
                 if (articleLink == null) continue;
                 articleLink = processArticleLink(articleLink);
                 System.out.println("articleLink: "+articleLink);
             } catch (Exception e) {
+                parsingLogMessage.append("articleLink == null");
                 continue;
             }
 
@@ -126,6 +134,7 @@ abstract public class PreviewPageParser {
                 System.out.println("previewImageLink: "+previewImageLink);
             } catch (Exception e) {
                 previewImageLink = null;
+                parsingLogMessage.append("previewImageLink = null");
             }
 
             try {
@@ -133,6 +142,7 @@ abstract public class PreviewPageParser {
                 if (articleTitle == null) continue;
                 System.out.println("articleTitle: "+articleTitle);
             } catch (Exception e) {
+                parsingLogMessage.append("articleTitle = null");
                 continue;
             }
             if (getArticlePublicationDatetimeFormat() !=null) {
@@ -148,6 +158,7 @@ abstract public class PreviewPageParser {
                 System.out.println("articlePublicationDateTimeStamp: "+articlePublicationDateTimeStamp);
             } catch (Exception e) {
                 articlePublicationDateTimeStamp = 0L;
+                parsingLogMessage.append("Publication TimeStamp not found");
             }
 
             try {
@@ -156,6 +167,7 @@ abstract public class PreviewPageParser {
                     articleModificationDateTimeStamp = mSimpleDateFormat.parse(getArticleModificationDateString(previewBlock)).getTime();
                 }
                 System.out.println("articleModificationDateTimeStamp: "+articleModificationDateTimeStamp);
+                parsingLogMessage.append("Modification TimeStamp found");
             } catch (Exception e) {
                 articleModificationDateTimeStamp = 0L;
             }
@@ -184,10 +196,12 @@ abstract public class PreviewPageParser {
         }
 
         if (articles.size() == 0){
-            throw new EmptyArticlePreviewException(new URI(mPageLink));
+            throw new EmptyArticlePreviewException("Np: "+mCurrentPage.getNewspaper().getName()+", Page: "+mCurrentPage.getName()+
+                                                    ", Link: "+mPageLink+" after parsing");
         }
 
-        return articles;
+        //noinspection unchecked
+        return new Pair(articles,parsingLogMessage.toString());
     }
     @SuppressWarnings("MagicConstant")
     protected String getPageLink(){

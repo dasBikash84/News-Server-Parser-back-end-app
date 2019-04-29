@@ -37,7 +37,7 @@ internal class TheDailyStarArticleParserTest {
             println("Np: ${it.name}")
             println("Page: ${it.pageList?.get(0)?.name}")
             it.pageList?.filter {
-                it.linkFormat !=null
+                it.hasData()
             }?.first()
         }.map {
             it?.let {

@@ -33,7 +33,7 @@ internal class TheDailyStarPreviewPageParserTest {
             println("Np: ${it.name}")
             println("Page: ${it.pageList?.get(0)}")
             it.pageList?.filter {
-                it.linkFormat != null
+                it.hasData()
             }?.first()
         }.map {
             it?.let {

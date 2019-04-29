@@ -23,7 +23,8 @@ class ErrorLog(exception: Throwable){
         var id: Int = 0
         @Transient
         val exception:Throwable
-        val exceptionClass:String
+        val exceptionClassFullName:String
+        val exceptionClassSimpleName:String
         @Column(columnDefinition="text")
         var exceptionCause:String=""
         @Column(columnDefinition="text")
@@ -33,7 +34,8 @@ class ErrorLog(exception: Throwable){
 
         init {
                 this.exception=exception
-                this.exceptionClass = exception::class.java.canonicalName
+                this.exceptionClassSimpleName = exception::class.java.simpleName
+                this.exceptionClassFullName = exception::class.java.canonicalName
                 this.exceptionCause = exception.cause?.message ?: ""
                 this.exceptionMessage = exception.message ?: ""
                 val stackTrace = mutableListOf<StackTraceElement>()

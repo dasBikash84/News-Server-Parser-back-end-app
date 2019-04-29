@@ -37,7 +37,7 @@ internal class TheFinancialExpressArticleParserTest {
             println("Np: ${it.name}")
             //println("Page: ${it.pageList?.get(0)?.name}")
             it.pageList?.filter {
-                it.linkFormat !=null
+                it.hasData()
             }?.get(Random(Random(it.pageList!!.size).nextInt()).nextInt(it.pageList!!.size))
         }.map {
             it?.let {

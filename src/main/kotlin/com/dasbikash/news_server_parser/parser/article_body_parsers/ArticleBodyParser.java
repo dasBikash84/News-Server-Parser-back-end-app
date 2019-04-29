@@ -31,6 +31,7 @@ import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Objects;
 import java.util.TimeZone;
 
 abstract public class ArticleBodyParser {
@@ -110,7 +111,7 @@ abstract public class ArticleBodyParser {
 
         ArticleBodyParser articleBodyParser =
                 ArticleBodyParserFactory.INSTANCE.getArticleBodyParserForArticle(article);
-        if (articleBodyParser==null) throw new ParserNotFoundException(article.getPage().getNewspaper());
+        if (articleBodyParser==null) throw new ParserNotFoundException(Objects.requireNonNull(article.getPage().getNewspaper()));
         articleBodyParser.parseArticleBody(article);
     }
 
@@ -120,7 +121,7 @@ abstract public class ArticleBodyParser {
 
         mArticle = article;
 
-        mDocument = JsoupConnector.INSTANCE.getDocument(mArticle.getArticleLink());
+        mDocument = JsoupConnector.INSTANCE.getDocument(Objects.requireNonNull(mArticle.getArticleLink()));
 
         if (mDocument == null) {
             throw new EmptyDocumentException(new URI(mArticle.getArticleLink()));

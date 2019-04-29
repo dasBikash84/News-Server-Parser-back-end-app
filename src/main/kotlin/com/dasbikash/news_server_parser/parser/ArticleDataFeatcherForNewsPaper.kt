@@ -35,20 +35,18 @@ class ArticleDataFeatcherForNewsPaper(
 
 
     private var lastNetworkRequestTS = 0L
-    private val MIN_DELAY_BETWEEN_NETWORK_REQUESTS = 10000L
+    private val MIN_DELAY_BETWEEN_NETWORK_REQUESTS = 2000L
     private val NOT_APPLICABLE_PAGE_NUMBER = 0
 
     private val topLevelPages = mutableListOf<Page>()
     private val childPageMap = mutableMapOf<Page, ArrayList<Page>>()
-    private val lastParsedPageMap = mutableMapOf<Page, Int>()
-    private val donePageList = mutableListOf<Page>()
     lateinit var dbSession: Session
 
     override fun run() {
         println("Article data parser for ${newspaper.name} started at ${Date()}")
         Thread.sleep(Random(System.currentTimeMillis()).nextLong(MIN_DELAY_BETWEEN_NETWORK_REQUESTS))
 
-        getDatabaseSession().update(newspaper)
+        getDatabaseSession().update(newspaper) //take newspaper in active state
 
         newspaper.pageList
                 ?.asSequence()
@@ -78,7 +76,7 @@ class ArticleDataFeatcherForNewsPaper(
 
         //add active top level pages to parcable page list
         topLevelPages.forEach {
-            if (it.linkFormat != null) { //if only point to page
+            if (it.hasData()) { //if only point to page
                 pageListForParsing.add(it)
             }
         }
@@ -89,7 +87,7 @@ class ArticleDataFeatcherForNewsPaper(
             childPageMap.values.forEach {
                 if (it.size > i) {
                     val page = it.get(i)
-                    if (page.linkFormat != null) {
+                    if (page.hasData()) {
                         pageListForParsing.add(page)
                     }
                 }
@@ -138,19 +136,18 @@ class ArticleDataFeatcherForNewsPaper(
         // So now here we have list of pages that need to be parsed for a certain newspaper
 
         do {
-            val tempPageList = ArrayList<Page>()
-            tempPageList.addAll(pageListForParsing)
+            val shuffledPageList = ArrayList<Page>(pageListForParsing)
 
+            shuffledPageList.shuffle()
 
             println("#############################################################################################")
             println("#############################################################################################")
             println("Going to parse ${pageListForParsing.size} pages:")
 
-            do {
-                val itemIndexForRemoval = Random(System.currentTimeMillis()).nextInt(tempPageList.size)
-                val currentPage = tempPageList.get(itemIndexForRemoval)
-                tempPageList.removeAt(itemIndexForRemoval)
-                println("Page Name: ${currentPage.name} Page Id: ${currentPage.id} ParentPage: ${currentPage.parentPageId} Newspaper: ${currentPage.newspaper?.name}")
+            for (currentPage in shuffledPageList){
+
+                println("Page Name: ${currentPage.name} Page Id: ${currentPage.id} ParentPage: " +
+                        "${currentPage.parentPageId} Newspaper: ${currentPage.newspaper?.name}")
 
                 val currentPageNumber: Int
 
@@ -165,8 +162,10 @@ class ArticleDataFeatcherForNewsPaper(
                 val articleList: MutableList<Article> = mutableListOf()
 
 
+                val parsingResult: Pair<MutableList<Article>, String>?
                 try {
-                    articleList.addAll(PreviewPageParser.parsePreviewPageForArticles(currentPage, currentPageNumber))
+                    parsingResult = PreviewPageParser.parsePreviewPageForArticles(currentPage, currentPageNumber)
+                    articleList.addAll(parsingResult.first)
                 } catch (e: NewsPaperNotFoundForPageException) {
                     e.printStackTrace()
                     LoggerUtils.logError(e, getDatabaseSession())
@@ -219,7 +218,7 @@ class ArticleDataFeatcherForNewsPaper(
                     continue
                 }*/
                 //save parsing details
-                savePageParsingHistory(currentPage, currentPageNumber, parseableArticleList.size)
+                savePageParsingHistory(currentPage, currentPageNumber, parseableArticleList.size,parsingResult.second)
 
                 //Now go for article data fetching
                 parseableArticleList
@@ -253,8 +252,8 @@ class ArticleDataFeatcherForNewsPaper(
                                 DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().update(it) }
                             }
                         }
-
-            } while (tempPageList.size > 0)
+                break
+            }
             println("#############################################################################################")
             println("#############################################################################################")
         } while (true)
@@ -264,9 +263,10 @@ class ArticleDataFeatcherForNewsPaper(
         savePageParsingHistory(currentPage, 0, 0)
     }
 
-    private fun savePageParsingHistory(currentPage: Page, currentPageNumber: Int, articleCount: Int) {
+    private fun savePageParsingHistory(currentPage: Page, currentPageNumber: Int, articleCount: Int,parsingLogMessage:String="") {
         DatabaseUtils.runDbTransection(getDatabaseSession()) {
-            getDatabaseSession().save(PageParsingHistory(page = currentPage, pageNumber = currentPageNumber, articleCount = articleCount))
+            getDatabaseSession().save(PageParsingHistory(page = currentPage, pageNumber = currentPageNumber,
+                                        articleCount = articleCount,parsingLogMessage = parsingLogMessage))
         }
     }
 

@@ -57,7 +57,11 @@ data class Page(
     }
     @Transient
     fun isPaginated():Boolean{
-        return linkVariablePartFormat!=null
+        return linkVariablePartFormat !=null
+    }
+    @Transient
+    fun hasData():Boolean{
+        return linkFormat != null
     }
 
     override fun toString(): String {

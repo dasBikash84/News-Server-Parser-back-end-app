@@ -32,7 +32,7 @@ internal class JugantorPreviewPageParserTest {
             println("Np: ${it.name}")
             println("Page: ${it.pageList?.get(0)?.name}")
             it.pageList?.filter {
-                it.linkFormat != null
+                it.hasData()
             }?.get(10)
         }.map {
             it?.let {

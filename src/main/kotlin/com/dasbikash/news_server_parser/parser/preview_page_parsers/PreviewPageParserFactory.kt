@@ -36,7 +36,7 @@ import com.dasbikash.news_server_parser.parser.preview_page_parsers.the_times_of
 
 internal object PreviewPageParserFactory {
 
-    fun getPreviewLoaderByNewsPaper(newspaper: Newspaper): PreviewPageParser? {
+    fun getPreviewPageParserByNewsPaper(newspaper: Newspaper): PreviewPageParser? {
 
         return when(newspaper.id){
             NEWS_PAPER_ID.THE_GUARDIAN.id-> TheGurdianPreviewPageParser()

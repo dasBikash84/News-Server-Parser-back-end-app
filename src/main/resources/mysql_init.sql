@@ -1,4 +1,5 @@
 drop table image_links;
+drop table exception_log;
 drop table general_log;
 drop table article_upload_history;
 drop table page_parsing_history;
@@ -138,3 +139,13 @@ create table article_upload_history
     PRIMARY KEY (`id`)
 ) Engine = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE `exception_log`
+(`id` int(11) NOT NULL AUTO_INCREMENT,
+ `exceptionClassFullName` varchar(255) DEFAULT NULL,
+ `exceptionClassSimpleName` varchar(255) DEFAULT NULL,
+ `exceptionCause` text,
+ `exceptionMessage` text,
+ `stackTrace` text,
+ `created` datetime DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)) ENGINE=MyISAM AUTO_INCREMENT=1847 DEFAULT CHARSET=utf8mb4;

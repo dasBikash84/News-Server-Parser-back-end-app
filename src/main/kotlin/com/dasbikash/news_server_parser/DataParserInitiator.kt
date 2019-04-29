@@ -51,7 +51,7 @@ object DataParserInitiator {
         val threadPool = mutableListOf<Thread>()
 
 
-        newsPapers.forEach {
+        newsPapers.take(1).forEach {
             val thread: Thread
             thread = Thread(ArticleDataFeatcherForNewsPaper(it))
             thread.start()
@@ -59,5 +59,13 @@ object DataParserInitiator {
         }
 //        thread?.join()
         threadPool.forEach { it.join() }
-    }
+    /*newsPapers.forEach {
+            val thread: Thread
+            thread = Thread(ArticleDataFeatcherForNewsPaper(it))
+            thread.start()
+            threadPool.add(thread)
+        }
+//        thread?.join()
+        threadPool.forEach { it.join() }
+    */}
 }

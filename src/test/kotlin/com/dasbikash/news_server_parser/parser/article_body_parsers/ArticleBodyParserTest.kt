@@ -38,7 +38,7 @@ internal class ArticleBodyParserTest {
             Thread.sleep(500)
             //println("Page: ${it.pageList?.get(0)?.name}")
             it.pageList?.filter {
-                it.linkFormat != null
+                it.hasData()
             }?.get(Random(Random(it.pageList!!.size).nextInt()).nextInt(it.pageList!!.size))
         }.map {
             println("Page: ${it?.name}")
