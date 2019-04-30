@@ -35,7 +35,7 @@ class ArticleDataFeatcherForNewsPaper(
 
 
     private var lastNetworkRequestTS = 0L
-    private val MIN_DELAY_BETWEEN_NETWORK_REQUESTS = 3000L
+    private val MIN_DELAY_BETWEEN_NETWORK_REQUESTS = 1000L
     private val NOT_APPLICABLE_PAGE_NUMBER = 0
 
     private val topLevelPages = mutableListOf<Page>()
@@ -231,11 +231,12 @@ class ArticleDataFeatcherForNewsPaper(
                                 println("Article before parsing:" + it)
                                 ArticleBodyParser.getArticleBody(it)
                                 true
-                            } catch (ex: EmptyArticleLinkException) {
+                            } catch (ex: NewsServerParserException) {
+                                ex.printStackTrace()
                                 LoggerUtils.logError(ex,getDatabaseSession())
                                 DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
                                 false
-                            } catch (ex: EmptyDocumentException) {
+                            } /*catch (ex: EmptyDocumentException) {
                                 LoggerUtils.logError(ex,getDatabaseSession())
                                 DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
                                 false
@@ -243,8 +244,13 @@ class ArticleDataFeatcherForNewsPaper(
                                 LoggerUtils.logError(ex,getDatabaseSession())
                                 DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
                                 false
-                            } catch (ex: Throwable) {
+                            } catch (ex: ArticleModificationTimeNotFoundException) {
                                 LoggerUtils.logError(ex,getDatabaseSession())
+                                DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
+                                false
+                            } */catch (ex: Throwable) {
+                                LoggerUtils.logError(ex,getDatabaseSession())
+                                DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
                                 false
                             }
                         }

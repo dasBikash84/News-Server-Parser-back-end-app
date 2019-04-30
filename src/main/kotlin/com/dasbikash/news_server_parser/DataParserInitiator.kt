@@ -28,7 +28,7 @@ object DataParserInitiator {
     @JvmStatic
     fun main(args: Array<String>) {
 
-        val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true and id='NP_ID_1'"
+        val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true and id='NP_ID_3'"
         val session = DbSessionManager.getNewSession()
         var newsPapers: List<Newspaper>
 

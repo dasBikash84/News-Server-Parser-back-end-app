@@ -21,6 +21,7 @@ public class BdPratidinArticleParser extends ArticleBodyParser {
 
     private static final String TAG = "BdPArtLoader";
     public static final String DATE_STRING_SPLITTER_REGEX = "প্রকাশ\\s:\\s";
+    public static final String DATE_STRING_SPLITTER_KEY = "<br>";
 
     private final String mSiteBaseAddress = "https://www.bd-pratidin.com";
 
@@ -31,7 +32,7 @@ public class BdPratidinArticleParser extends ArticleBodyParser {
 
     @Override
     protected String processLink(String linkText) {
-        if (linkText.matches("^\\./.+")){
+        if (linkText.matches("^\\./.+")) {
             linkText = linkText.substring(1);
         }
         return super.processLink(linkText);
@@ -43,16 +44,13 @@ public class BdPratidinArticleParser extends ArticleBodyParser {
         Elements dateStringElements =
                 mDocument.select(BdPratidinArticleParserInfo.ARTICLE_MODIFICATION_DATE_STRING_SELECTOR);
 
-        if (dateStringElements != null && dateStringElements.size()>=1) {
-            //Log.d(TAG, "parseArticle: dateText: "+document.select(".detail-poauthor li").get(0).text().trim());
+        if (dateStringElements != null && dateStringElements.size() >= 1) {
             String dateTextFromPage = dateStringElements.get(0).text().trim();
-
-            if (dateTextFromPage.split(DATE_STRING_SPLITTER_REGEX).length == 2) {
-                String dateString = ((dateTextFromPage.split(DATE_STRING_SPLITTER_REGEX))[1]).trim();
-                //Log.d(TAG, "parseArticle: dateString:"+dateString);
-                dateString = DisplayUtils.banglaToEnglishDateString(dateString);
-                return dateString;
-            }
+            System.out.println("dateTextFromPage" + dateTextFromPage);
+            String dateTextFromPageBangla = DisplayUtils.banglaToEnglishDateString(dateTextFromPage);
+            String returnString = dateTextFromPageBangla.replaceAll(".+?:\\s", "");
+            System.out.println("returnString: "+returnString);
+            return returnString;
         }
         return null;
     }

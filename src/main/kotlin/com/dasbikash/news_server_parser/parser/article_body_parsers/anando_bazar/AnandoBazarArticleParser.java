@@ -51,7 +51,7 @@ public class AnandoBazarArticleParser extends ArticleBodyParser {
     protected String getArticleModificationDateString() {
         Elements dateStringElements =
                 mDocument.select(AnandoBazarArticleParserInfo.ARTICLE_MODIFICATION_DATE_STRING_SELECTOR);
-        //Log.d(TAG, "parseArticle: dateStringElements.size(): "+dateStringElements.size());
+        System.out.println("parseArticle: dateStringElements.size(): "+dateStringElements.size());
         if (dateStringElements != null && dateStringElements.size()>0) {
             String dateString = "";
             if (dateStringElements.size() > 1) {

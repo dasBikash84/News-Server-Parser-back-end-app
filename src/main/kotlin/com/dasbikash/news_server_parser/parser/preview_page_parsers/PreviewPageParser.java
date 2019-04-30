@@ -175,7 +175,7 @@ abstract public class PreviewPageParser {
                 System.out.println("articleModificationDateTimeStamp: "+articleModificationDateTimeStamp);
             } catch (Exception e) {
                 articleModificationDateTimeStamp = 0L;
-                e.printStackTrace();
+//                e.printStackTrace();
             }
 
             Date publicationDate = null;

@@ -51,7 +51,7 @@ public class TheFinancialExpressArticleParser extends ArticleBodyParser {
 
     @Override
     protected String[] getArticleModificationDateStringFormats() {
-        return new String[]{TheFinancialExpressArticleParserInfo.ARTICLE_MODIFICATION_DATE_STRING_FORMATS};
+        return TheFinancialExpressArticleParserInfo.ARTICLE_MODIFICATION_DATE_STRING_FORMATS;
     }
 
     @Override

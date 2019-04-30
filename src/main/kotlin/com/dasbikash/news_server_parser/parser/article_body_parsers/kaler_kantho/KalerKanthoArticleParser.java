@@ -46,6 +46,7 @@ public class KalerKanthoArticleParser extends ArticleBodyParser {
 
         if (dateStringElements != null && dateStringElements.size()==2) {
             String dateString = dateStringElements.get(1).text().trim();
+            dateString = dateString.replaceFirst("\\s\\|.+","").trim();
             dateString = DisplayUtils.banglaToEnglishDateString(dateString);
             return dateString;
         }

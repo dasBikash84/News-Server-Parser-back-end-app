@@ -26,5 +26,5 @@ internal object TheFinancialExpressArticleParserInfo {
     @JvmField val PARAGRAPH_IMAGE_CAPTION_SELECTOR_ATTR = "alt"
 
     @JvmField val ARTICLE_MODIFICATION_DATE_STRING_SELECTOR = "span.p3"
-    @JvmField val ARTICLE_MODIFICATION_DATE_STRING_FORMATS = "MMMM dd, yyyy HH:mm:ss"
+    @JvmField val ARTICLE_MODIFICATION_DATE_STRING_FORMATS = arrayOf("MMMM dd, yyyy HH:mm:ss","EEEE, dd MMMMM yyyy")//Tuesday, 14 August 2018
 }

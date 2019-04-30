@@ -49,9 +49,12 @@ public final class DisplayUtils {
     private static final String[][] MONTH_NAME_TABLE = {
             {"জানুয়ারী","Jan"},
             {"জানুয়ারি","Jan"},
+            {"জানুয়ারি","Jan"},
             {"ফেব্রুয়ারী","Feb"},
             {"ফেব্রুয়ারি","Feb"},
+            {"ফেব্রুয়ারি","Feb"},
             {"মার্চ","Mar"},
+            {"এপ্রিল","Apr"},
             {"এপ্রিল","Apr"},
             {"মে","May"},
             {"জুন","Jun"},

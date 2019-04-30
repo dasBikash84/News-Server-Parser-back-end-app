@@ -13,10 +13,7 @@
 
 package com.dasbikash.news_server_parser.parser.article_body_parsers;
 
-import com.dasbikash.news_server_parser.exceptions.EmptyArticleBodyException;
-import com.dasbikash.news_server_parser.exceptions.EmptyArticleLinkException;
-import com.dasbikash.news_server_parser.exceptions.EmptyDocumentException;
-import com.dasbikash.news_server_parser.exceptions.ParserNotFoundException;
+import com.dasbikash.news_server_parser.exceptions.*;
 import com.dasbikash.news_server_parser.model.Article;
 import com.dasbikash.news_server_parser.model.ArticleImage;
 import com.dasbikash.news_server_parser.model.Country;
@@ -79,15 +76,15 @@ abstract public class ArticleBodyParser {
 
     protected abstract Elements getArticleFragmentBlocks();
 
-    protected abstract String getFeaturedImageCaptionSelectorAttr();
+    protected abstract String getParagraphImageSelector();
+    protected abstract String getParagraphImageLinkSelectorAttr();
     protected abstract String getParagraphImageCaptionSelector();
     protected abstract String getParagraphImageCaptionSelectorAttr();
-    protected abstract String getParagraphImageLinkSelectorAttr();
-    protected abstract String getParagraphImageSelector();
+
     protected abstract String  getFeaturedImageSelector();
     protected abstract String getFeaturedImageLinkSelectorAttr();
-
     protected abstract String getFeaturedImageCaptionSelector();
+    protected abstract String getFeaturedImageCaptionSelectorAttr();
 
 
     protected int getReqFeaturedImageCount(){
@@ -102,7 +99,7 @@ abstract public class ArticleBodyParser {
 
     public static void getArticleBody(Article article)
             throws EmptyArticleLinkException, ParserNotFoundException, EmptyDocumentException,
-            EmptyArticleBodyException, URISyntaxException {
+            EmptyArticleBodyException, URISyntaxException, ArticleModificationTimeNotFoundException {
 
         if (article.isDownloaded()) return;
         System.out.println("Article not downloaded.So, work needed to be done.");
@@ -115,7 +112,7 @@ abstract public class ArticleBodyParser {
         articleBodyParser.parseArticleBody(article);
     }
 
-    private void parseArticleBody(Article article) throws URISyntaxException, EmptyDocumentException, EmptyArticleBodyException {
+    private void parseArticleBody(Article article) throws URISyntaxException, EmptyDocumentException, EmptyArticleBodyException, ArticleModificationTimeNotFoundException {
 
         System.out.println("Start of parsing");
 
@@ -124,12 +121,13 @@ abstract public class ArticleBodyParser {
         mDocument = JsoupConnector.INSTANCE.getDocument(Objects.requireNonNull(mArticle.getArticleLink()));
 
         if (mDocument == null) {
-            throw new EmptyDocumentException(new URI(mArticle.getArticleLink()));
+//            throw new EmptyDocumentException(new URI(mArticle.getArticleLink()));
+            throw new EmptyDocumentException("For article: "+mArticle.getArticleLink());
         }
 
         System.out.println("Article document title: "+mDocument.title());
 
-        if (getArticleModificationDateStringFormats()!= null){
+        if (mArticle.getPublicationTS()==null && getArticleModificationDateStringFormats()!= null){
 
             String modificationDateString = getArticleModificationDateString();
 
@@ -142,7 +140,9 @@ abstract public class ArticleBodyParser {
 
                 String[] modificationDateStringFormats = getArticleModificationDateStringFormats();
 
-                for (int i = 0; i < modificationDateStringFormats.length; i++) {
+                int i = 0;
+
+                for (; i < modificationDateStringFormats.length; i++) {
                     try {
                         simpleDateFormat = new SimpleDateFormat(modificationDateStringFormats[i]);
                         simpleDateFormat.setTimeZone(TimeZone.getTimeZone(country.getTimeZone()));
@@ -155,6 +155,9 @@ abstract public class ArticleBodyParser {
                         ex.printStackTrace();
                     }
                 }
+                if (i == modificationDateStringFormats.length) {
+                    throw new ArticleModificationTimeNotFoundException(mArticle);
+                }
             }
         }
 
@@ -162,9 +165,14 @@ abstract public class ArticleBodyParser {
 
             try{
                 Elements featuredImageElements = mDocument.select(getFeaturedImageSelector());
+                System.out.println("featuredImageElements.size(): "+featuredImageElements.size());
 
                 if (featuredImageElements!=null && featuredImageElements.size() == getReqFeaturedImageCount()) {
+
+                    System.out.println("featuredImageElements!=null && featuredImageElements.size() == getReqFeaturedImageCount()");
+
                     Element featuredImage = featuredImageElements.get(getReqFeaturedImageIndex());
+                    System.out.println("featuredImage.text(): "+featuredImage.text());
                     if (getFeaturedImageLinkSelectorAttr() !=null) {
 
                         String featuredImageLink = featuredImage.attr(getFeaturedImageLinkSelectorAttr());
@@ -185,15 +193,11 @@ abstract public class ArticleBodyParser {
                             } catch (Exception ex){
                                 ex.printStackTrace();
                             }
-
+                            System.out.println("Article featured Image found: "+featuredImageLink);
                             mArticle.getImageLinkList().add(new ArticleImage(featuredImageLink,imageCaption));
-
-
-
                         }
                     }
                 }
-
             } catch (Exception ex){
                 ex.printStackTrace();
             }
@@ -207,18 +211,14 @@ abstract public class ArticleBodyParser {
 
             for (Element articleFragment :
                     articleFragments) {
-
                 String paraText = articleFragment.html();
-
                 if (paraText.trim().length() == 0) continue;
 
                 if (getParagraphImageSelector() !=null) {
 
                     try {
-
                         Elements imageChildren = articleFragment.select(getParagraphImageSelector());
                         boolean imageCaptionFound = false;
-
                         if (imageChildren.size() > 0) {
 
                             for (Element imageChild :
@@ -246,6 +246,7 @@ abstract public class ArticleBodyParser {
                                     } catch (Exception ex) {
                                         ex.printStackTrace();
                                     }
+                                    System.out.println("Article Image found: "+articleImageLink);
                                     mArticle.getImageLinkList().add(new ArticleImage(articleImageLink,imageCaption));
                                 }
                             }
@@ -278,8 +279,8 @@ abstract public class ArticleBodyParser {
                         mUnwantedArticleText) {
                     paraText = paraText.replaceAll(unwantedArticleText,"");
                 }
-
-                mArticleTextBuilder.append(paraText+"<br>");
+                System.out.println("New Para: "+paraText);
+                mArticleTextBuilder.append(paraText+"<br><br>");
 
             }
         }
@@ -289,5 +290,10 @@ abstract public class ArticleBodyParser {
         }
 
         mArticle.setArticleText(mArticleTextBuilder.toString());
+
+        System.out.println("Article text before processing: "+mArticle.getArticleText());
+        //noinspection ConstantConditions
+        mArticle.setArticleText(mArticle.getArticleText().replaceAll("<a.+?>","").replace("</a>",""));
+        System.out.println("Article text after processing: "+mArticle.getArticleText());
     }
 }

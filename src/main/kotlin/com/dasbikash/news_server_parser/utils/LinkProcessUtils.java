@@ -47,6 +47,9 @@ public class LinkProcessUtils {
         if(!linkText.matches("^/.+")){
             linkText = "/"+linkText;
         }
+        if(linkText.matches("^\\..+")){
+            linkText = linkText.substring(1);
+        }
         return siteBaseAddress+linkText;
     }
 }
