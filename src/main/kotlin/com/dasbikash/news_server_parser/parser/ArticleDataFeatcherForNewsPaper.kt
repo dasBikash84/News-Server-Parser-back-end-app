@@ -188,12 +188,13 @@ class ArticleDataFeatcherForNewsPaper(
                     continue
                 } catch (e: EmptyArticlePreviewException) {
                     e.printStackTrace()
-                    emptyArticleAction(currentPage)
-                    LoggerUtils.logError(e, getDatabaseSession())
+                    emptyArticlePreviewPageAction(currentPage)
+//                    LoggerUtils.logError(e, getDatabaseSession())
                     continue
                 } catch (e: Throwable) {
                     e.printStackTrace()
-                    LoggerUtils.logError(e, getDatabaseSession())
+                    LoggerUtils.logError(NewsServerParserException("${e.message} for page: ${currentPage.name} page no.: ${currentPageNumber} Np: ${currentPage.newspaper!!.name}"),getDatabaseSession())
+//                    LoggerUtils.logError(e, getDatabaseSession())
                     continue
                 }
 
@@ -213,10 +214,10 @@ class ArticleDataFeatcherForNewsPaper(
                         }
                 //Full repeat
                 //Should be active during production stage
-                /*if (parseableArticleList.size == 0){
-                    allArticleRepeatAction(currentPage)
+                if (parseableArticleList.size == 0){
+                    allArticleRepeatAction(currentPage,parsingResult.second)
                     continue
-                }*/
+                }
                 //save parsing details
                 savePageParsingHistory(currentPage, currentPageNumber, parseableArticleList.size,parsingResult.second)
 
@@ -249,7 +250,7 @@ class ArticleDataFeatcherForNewsPaper(
                                 DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
                                 false
                             } */catch (ex: Throwable) {
-                                LoggerUtils.logError(ex,getDatabaseSession())
+                                LoggerUtils.logError(NewsServerParserException("${ex.message} for article: ${it.articleLink}"),getDatabaseSession())
                                 DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
                                 false
                             }
@@ -266,8 +267,8 @@ class ArticleDataFeatcherForNewsPaper(
         } while (true)
     }
 
-    private fun allArticleRepeatAction(currentPage: Page) {
-        savePageParsingHistory(currentPage, 0, 0)
+    private fun allArticleRepeatAction(currentPage: Page,parsingLogMessage: String) {
+        savePageParsingHistory(currentPage, 0, 0,"All articles are repeated."+parsingLogMessage)
     }
 
     private fun savePageParsingHistory(currentPage: Page, currentPageNumber: Int, articleCount: Int,parsingLogMessage:String="") {
@@ -277,8 +278,8 @@ class ArticleDataFeatcherForNewsPaper(
         }
     }
 
-    private fun emptyArticleAction(currentPage: Page) {
-        savePageParsingHistory(currentPage, 0, 0)
+    private fun emptyArticlePreviewPageAction(currentPage: Page) {
+        savePageParsingHistory(currentPage, 0, 0,"No article found.")
     }
 
     private fun getUnParsedArticleOfCurrentNewspaper(newspaper: Newspaper): List<Article> {
