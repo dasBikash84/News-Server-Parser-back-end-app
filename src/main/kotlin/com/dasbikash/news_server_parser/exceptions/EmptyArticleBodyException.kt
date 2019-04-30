@@ -17,7 +17,7 @@ import com.dasbikash.news_server_parser.model.Article
 
 class EmptyArticleBodyException: NewsServerParserException{
 
-    constructor(article: Article) : super(causePreamble+"${article.title} with link: ${article.articleLink}")
+    constructor(article: Article) : super(causePreamble+"with link: ${article.articleLink} title: ${article.title} ")
     constructor() : super()
 
     companion object {
