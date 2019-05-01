@@ -15,13 +15,13 @@ package com.dasbikash.news_server_parser.exceptions
 
 import java.net.URI
 
-class EmptyArticlePreviewException:NewsServerParserException {
+class EmptyJsoupDocumentException:NewsServerParserException {
 
     constructor(uri: URI) : super(causePreamble+ uri.path)
     constructor(cause: String) : super(cause)
     constructor() : super()
 
     companion object {
-        val causePreamble = "EmptyArticlePreviewException for link: ";
+        val causePreamble = "EmptyJsoupDocumentException for link: ";
     }
 }

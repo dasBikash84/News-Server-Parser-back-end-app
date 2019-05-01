@@ -23,12 +23,18 @@ import com.dasbikash.news_server_parser.model.Newspaper
 import com.dasbikash.news_server_parser.parser.ArticleDataFeatcherForNewsPaper
 
 
+enum class ParserMode{
+    RUNNING,GET_SYNCED
+}
+
 object DataParserInitiator {
+
+    val opMode = ParserMode.GET_SYNCED
 
     @JvmStatic
     fun main(args: Array<String>) {
 
-        val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"
+        val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"// and id='NP_ID_9'"
         val session = DbSessionManager.getNewSession()
         var newsPapers: List<Newspaper>
 
@@ -52,7 +58,7 @@ object DataParserInitiator {
 
         newsPapers.asSequence()
                 .forEach {
-                    val thread = Thread(ArticleDataFeatcherForNewsPaper(it))
+                    val thread = Thread(ArticleDataFeatcherForNewsPaper(it, opMode))
                     thread.start()
                     threadPool.add(thread)
                 }

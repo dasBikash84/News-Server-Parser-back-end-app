@@ -45,5 +45,10 @@ class BdPratidinArticleParserTest {
         System.out.println(dateString);
         dateString = DisplayUtils.banglaToEnglishDateString(dateString);
         System.out.println(dateString);
+        String linkText = "./asdasdasd";//.substring(1);
+        if(linkText.matches("^\\..+")){
+            linkText = linkText.substring(1);
+        }
+        System.out.println(linkText);
     }
 }

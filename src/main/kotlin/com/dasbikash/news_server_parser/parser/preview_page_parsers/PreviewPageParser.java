@@ -24,7 +24,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -48,7 +47,7 @@ abstract public class PreviewPageParser {
 
     public static Pair<List<Article>,String> parsePreviewPageForArticles(Page page, int pageNumber)
             throws NewsPaperNotFoundForPageException, ParserNotFoundException, PageLinkGenerationException,
-            URISyntaxException, EmptyDocumentException, EmptyArticlePreviewException {
+            URISyntaxException, EmptyJsoupDocumentException, EmptyArticlePreviewPageException {
 
         if (page.getNewspaper() ==null){
             throw new NewsPaperNotFoundForPageException(page);
@@ -66,7 +65,7 @@ abstract public class PreviewPageParser {
 
     private Pair<List<Article>,String> getArticlePreviews(Page page, int pageNumber)
             throws PageLinkGenerationException, URISyntaxException,
-            EmptyDocumentException, EmptyArticlePreviewException {
+            EmptyJsoupDocumentException, EmptyArticlePreviewPageException {
 
         mCurrentPage = page;
         mCurrentPageNumber = pageNumber;
@@ -86,7 +85,7 @@ abstract public class PreviewPageParser {
 
         if (mDocument == null){
             //noinspection SingleStatementInBlock
-            throw new EmptyDocumentException("Np: "+mCurrentPage.getNewspaper().getName()+", Page: "+mCurrentPage.getName()+
+            throw new EmptyJsoupDocumentException("Np: "+mCurrentPage.getNewspaper().getName()+", Page: "+mCurrentPage.getName()+
                                                 ", Link: "+mPageLink);
         }
 
@@ -95,12 +94,12 @@ abstract public class PreviewPageParser {
         return parseDocument();
     }
 
-    private Pair<List<Article>,String> parseDocument() throws URISyntaxException, EmptyArticlePreviewException {
+    private Pair<List<Article>,String> parseDocument() throws URISyntaxException, EmptyArticlePreviewPageException {
 
         Elements mPreviewBlocks = getPreviewBlocks();
 
         if (mPreviewBlocks==null || mPreviewBlocks.size()==0){
-            throw new EmptyArticlePreviewException("Np: "+mCurrentPage.getNewspaper().getName()+", Page: "+mCurrentPage.getName()+
+            throw new EmptyArticlePreviewPageException("Np: "+mCurrentPage.getNewspaper().getName()+", Page: "+mCurrentPage.getName()+
                                                     ", Link: "+mPageLink+" before parsing");
         }
 
@@ -121,6 +120,7 @@ abstract public class PreviewPageParser {
             try {
                 articleLink = getArticleLink(previewBlock);
                 if (articleLink == null) continue;
+                articleLink = articleLink.trim();
                 articleLink = processArticleLink(articleLink);
                 System.out.println("articleLink: "+articleLink);
             } catch (Exception e) {
@@ -202,7 +202,7 @@ abstract public class PreviewPageParser {
         }
 
         if (articles.size() == 0){
-            throw new EmptyArticlePreviewException("Np: "+mCurrentPage.getNewspaper().getName()+", Page: "+mCurrentPage.getName()+
+            throw new EmptyArticlePreviewPageException("Np: "+mCurrentPage.getNewspaper().getName()+", Page: "+mCurrentPage.getName()+
                                                     ", Link: "+mPageLink+" after parsing");
         }
 

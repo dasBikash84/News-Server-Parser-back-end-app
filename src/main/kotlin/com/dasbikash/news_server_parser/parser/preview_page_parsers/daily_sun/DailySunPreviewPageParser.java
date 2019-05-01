@@ -24,7 +24,7 @@ public class DailySunPreviewPageParser extends PreviewPageParser {
     private static final String TAG = "StackTrace";
     //private static final String TAG = "NewAgeEditionLoader";
 
-    private final String mSiteBaseAddress = "http://www.daily-sun.com";
+    private final String mSiteBaseAddress = "https://www.daily-sun.com";
 
     @Override
     protected String getPageLink() {

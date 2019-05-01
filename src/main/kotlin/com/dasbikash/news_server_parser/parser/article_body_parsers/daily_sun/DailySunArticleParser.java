@@ -20,7 +20,7 @@ public class DailySunArticleParser extends ArticleBodyParser {
 
     private static final String TAG = "StackTrace";
 
-    private final String mSiteBaseAddress = "http://www.daily-sun.com";
+    private final String mSiteBaseAddress = "https://www.daily-sun.com";
 
     @Override
     protected String getSiteBaseAddress() {

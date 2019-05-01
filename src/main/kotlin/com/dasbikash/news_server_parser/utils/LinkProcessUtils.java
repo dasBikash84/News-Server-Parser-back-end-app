@@ -33,6 +33,10 @@ public class LinkProcessUtils {
 
         String siteHTTPString = getSiteHTTPProtocol(siteBaseAddress);
 
+        if(linkText.matches("^\\..+")){
+            linkText = linkText.substring(1);
+        }
+
         if (siteHTTPString == null) return null;
 
         if (linkText.contains(siteHTTPString)) return linkText;
@@ -46,9 +50,6 @@ public class LinkProcessUtils {
         }
         if(!linkText.matches("^/.+")){
             linkText = "/"+linkText;
-        }
-        if(linkText.matches("^\\..+")){
-            linkText = linkText.substring(1);
         }
         return siteBaseAddress+linkText;
     }

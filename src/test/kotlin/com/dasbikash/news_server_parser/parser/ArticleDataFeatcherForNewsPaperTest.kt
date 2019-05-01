@@ -29,14 +29,14 @@ class ArticleDataFeatcherForNewsPaperTest {
 
         var thread: Thread? = null
 
-        newsPapers.filter {
+        /*newsPapers.filter {
             true//it.id == NEWS_PAPER_ID.THE_GUARDIAN.id
         }
         .forEach {
             thread = Thread(ArticleDataFeatcherForNewsPaper(it))
             thread?.start()
         }
-        thread?.join()
+        thread?.join()*/
         //while (true)
         //return
     }

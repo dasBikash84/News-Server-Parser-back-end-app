@@ -30,9 +30,9 @@ class PreviewPageParserTest {
             e.printStackTrace();
         } catch (URISyntaxException e) {
             e.printStackTrace();
-        } catch (EmptyDocumentException e) {
+        } catch (EmptyJsoupDocumentException e) {
             e.printStackTrace();
-        } catch (EmptyArticlePreviewException e) {
+        } catch (EmptyArticlePreviewPageException e) {
             e.printStackTrace();
         }
     }

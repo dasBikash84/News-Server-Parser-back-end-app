@@ -23,7 +23,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -98,7 +97,7 @@ abstract public class ArticleBodyParser {
     }
 
     public static void getArticleBody(Article article)
-            throws EmptyArticleLinkException, ParserNotFoundException, EmptyDocumentException,
+            throws EmptyArticleLinkException, ParserNotFoundException, EmptyJsoupDocumentException,
             EmptyArticleBodyException, URISyntaxException, ArticleModificationTimeNotFoundException {
 
         if (article.isDownloaded()) return;
@@ -112,7 +111,7 @@ abstract public class ArticleBodyParser {
         articleBodyParser.parseArticleBody(article);
     }
 
-    private void parseArticleBody(Article article) throws URISyntaxException, EmptyDocumentException, EmptyArticleBodyException, ArticleModificationTimeNotFoundException {
+    private void parseArticleBody(Article article) throws URISyntaxException, EmptyJsoupDocumentException, EmptyArticleBodyException, ArticleModificationTimeNotFoundException {
 
         System.out.println("Start of parsing");
 
@@ -121,8 +120,8 @@ abstract public class ArticleBodyParser {
         mDocument = JsoupConnector.INSTANCE.getDocument(Objects.requireNonNull(mArticle.getArticleLink()));
 
         if (mDocument == null) {
-//            throw new EmptyDocumentException(new URI(mArticle.getArticleLink()));
-            throw new EmptyDocumentException("For article: "+mArticle.getArticleLink());
+//            throw new EmptyJsoupDocumentException(new URI(mArticle.getArticleLink()));
+            throw new EmptyJsoupDocumentException("For article: "+mArticle.getArticleLink());
         }
 
         System.out.println("Article document title: "+mDocument.title());
