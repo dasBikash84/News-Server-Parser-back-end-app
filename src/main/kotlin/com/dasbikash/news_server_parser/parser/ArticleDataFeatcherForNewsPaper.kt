@@ -112,6 +112,10 @@ class ArticleDataFeatcherForNewsPaper(
                             } else {
                                 it.active = false
                             }
+                        }else{
+                            it.active = true
+                        }
+                        DatabaseUtils.runDbTransection(getDatabaseSession()){
                             getDatabaseSession().update(it)
                         }
                     }

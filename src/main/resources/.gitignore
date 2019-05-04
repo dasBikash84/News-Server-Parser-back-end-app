@@ -2,3 +2,8 @@
 *.sql
 !mysql_init.sql
 hibernate.cfg.xml
+!country_data.json
+!language_data.json
+!newspaper_data.json
+!page_data_full.json
+!page_group_data.json
