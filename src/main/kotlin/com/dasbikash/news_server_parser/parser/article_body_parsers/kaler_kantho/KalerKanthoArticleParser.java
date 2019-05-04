@@ -23,7 +23,7 @@ public class KalerKanthoArticleParser extends ArticleBodyParser {
     //private static final String TAG = "StackTrace";
     private static final String TAG = "KKArticleLoader";
 
-    private final String mSiteBaseAddress = "http://www.kalerkantho.com";
+    private final String mSiteBaseAddress = "https://www.kalerkantho.com";
 
     @Override
     protected String getSiteBaseAddress() {

@@ -195,8 +195,8 @@ abstract public class PreviewPageParser {
 
             articles.add(
                     new Article(
-                            HashUtils.INSTANCE.hash(articleLink).toString(),mCurrentPage,articleTitle,modificationDate,
-                            publicationDate,null,null,new ArrayList<>(),previewImageLink,articleLink
+                            null,HashUtils.INSTANCE.hash(articleLink).toString(),mCurrentPage,articleTitle,modificationDate,
+                            publicationDate,null,new ArrayList<>(),previewImageLink,articleLink
                     )
             );
         }

@@ -30,8 +30,8 @@ public class DailySunArticleParser extends ArticleBodyParser {
     @Override
     protected String getArticleModificationDateString() {
         Elements h3Blocks = mDocument.select(DailySunArticleParserInfo.ARTICLE_MODIFICATION_DATE_STRING_SELECTOR);
-        if (h3Blocks.size()==3){
-            String fullDateString = h3Blocks.get(2).text();
+        if (h3Blocks.size()> 0){
+            String fullDateString = h3Blocks.get(h3Blocks.size()-1).text();
             String dateString = fullDateString.replaceFirst(
                     DailySunArticleParserInfo.ARTICLE_MODIFICATION_DATE_STRING_REPLACEMENT_SELECTOR,
                     DailySunArticleParserInfo.ARTICLE_MODIFICATION_DATE_STRING_REPLACEMENT_STRING

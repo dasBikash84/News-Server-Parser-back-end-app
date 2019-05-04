@@ -26,6 +26,8 @@ import kotlin.collections.ArrayList
                 resultClass = Article::class)
 data class Article(
         @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        var serial:Int?=null,
         var id: String="",
 
         @ManyToOne(targetEntity = Page::class, fetch = FetchType.EAGER)
@@ -35,7 +37,6 @@ data class Article(
         var title: String? = null,
         var modificationTS: Date? = null,
         var publicationTS: Date? = null,
-        var modified: Date? = null,
 
         @Column(name = "articleText", columnDefinition = "text")
         var articleText: String? = null,

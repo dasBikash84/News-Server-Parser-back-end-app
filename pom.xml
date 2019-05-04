@@ -167,7 +167,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.dasbikash.news_server_parser.DataParserInitiator</mainClass>
+                            <mainClass>com.dasbikash.news_server_parser.DataParseringCoordinator</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

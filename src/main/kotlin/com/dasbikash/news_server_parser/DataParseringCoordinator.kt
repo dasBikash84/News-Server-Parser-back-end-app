@@ -1,4 +1,4 @@
-@file:JvmName("DataParserInitiator")
+@file:JvmName("DataParseringCoordinator")
 
 /*
  * Copyright 2019 das.bikash.dev@gmail.com. All rights reserved.
@@ -27,14 +27,16 @@ enum class ParserMode{
     RUNNING,GET_SYNCED
 }
 
-object DataParserInitiator {
+object DataParseringCoordinator {
 
-    val opMode = ParserMode.GET_SYNCED
+    private val opMode = ParserMode.RUNNING
+    private val articleDataFetcherMap = mutableMapOf<String,ArticleDataFeatcherForNewsPaper>()
+
 
     @JvmStatic
     fun main(args: Array<String>) {
 
-        val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"// and id='NP_ID_9'"
+        val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"
         val session = DbSessionManager.getNewSession()
         var newsPapers: List<Newspaper>
 

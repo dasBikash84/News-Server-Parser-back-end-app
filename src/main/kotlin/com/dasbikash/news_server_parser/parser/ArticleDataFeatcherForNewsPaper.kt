@@ -39,7 +39,7 @@ class ArticleDataFeatcherForNewsPaper(
     private val MAX_OLD_ARTICLE_MS = MAX_OLD_ARTICLE_DAYS * 24 * 60 * 60 * 1000
 
     private var lastNetworkRequestTS = 0L
-    private val MIN_DELAY_BETWEEN_NETWORK_REQUESTS = 3000L
+    private val MIN_DELAY_BETWEEN_NETWORK_REQUESTS = 10000L
     private val NOT_APPLICABLE_PAGE_NUMBER = 0
 
     private val topLevelPages = mutableListOf<Page>()
@@ -53,6 +53,9 @@ class ArticleDataFeatcherForNewsPaper(
         getDatabaseSession().update(newspaper) //take newspaper in active state
 
         newspaper.pageList
+                ?.sortedBy {
+                    it.id
+                }
                 ?.asSequence()
                 ?.filter { it.isTopLevelPage() }//status will be checked prior to parsing
                 ?.toCollection(topLevelPages)
@@ -99,46 +102,21 @@ class ArticleDataFeatcherForNewsPaper(
             i++
         }
 
-        getDatabaseSession().close()
-
-
-        //Before going into parsing loop first fetch and save any un-parsed article data of privious loop
-
-//        if (opMode == ParserMode.GET_SYNCED) {
-            val unParsedArticleList: List<Article> = getUnParsedArticleOfCurrentNewspaper(newspaper)
-            unParsedArticleList
-                .asSequence()
-                .filter {
-                    return@filter try {
-                        waitForFareNetworkUsage()
-                        println("Article before parsing:" + it)
-                        ArticleBodyParser.getArticleBody(it)
-                        true
-                    } catch (ex: NewsServerParserException) {
-                        ex.printStackTrace()
-                        LoggerUtils.logError(ex, getDatabaseSession())
-                        DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
-                        false
-                    } catch (ex: Throwable) {
-                        LoggerUtils.logError(NewsServerParserException("Exp: ${ex::class.java.canonicalName} Msg: ${ex.message} for article: ${it.articleLink}"), getDatabaseSession())
-                        DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
-                        false
-                    }
-                }
-                .forEach {
-                    println("Article after parsing:" + it)
-                    if (it.isDownloaded()) {
-                        DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().update(it) }
-                    }
-                }
-//        }
-
-        // So now here we have list of pages that need to be parsed for a certain newspaper
-
         do {
-            val shuffledPageList = ArrayList<Page>(pageListForParsing)
+            //Mark pages with article as active
+            pageListForParsing.asSequence()
+                    .forEach {
+                        if (!it.isTopLevelPage()) {
+                            if (it.articleList != null) {
+                                it.active = it.articleList!!.size > 0
+                            } else {
+                                it.active = false
+                            }
+                            getDatabaseSession().update(it)
+                        }
+                    }
 
-            shuffledPageList.shuffle()
+            val shuffledPageList = ArrayList<Page>(pageListForParsing)
 
             println("#############################################################################################")
             println("#############################################################################################")
@@ -149,10 +127,15 @@ class ArticleDataFeatcherForNewsPaper(
                 println("Page Name: ${currentPage.name} Page Id: ${currentPage.id} ParentPage: " +
                         "${currentPage.parentPageId} Newspaper: ${currentPage.newspaper?.name}")
 
+
                 val currentPageNumber: Int
 
                 if (currentPage.isPaginated()) {
-                    currentPageNumber = getLastParsedPageNumber(currentPage) + 1
+                    if (opMode == ParserMode.GET_SYNCED) {
+                        currentPageNumber = getLastParsedPageNumber(currentPage) + 1
+                    }else{
+                        currentPageNumber = 1
+                    }
                 } else {
                     currentPageNumber = NOT_APPLICABLE_PAGE_NUMBER
                 }
@@ -162,7 +145,7 @@ class ArticleDataFeatcherForNewsPaper(
                 val articleList: MutableList<Article> = mutableListOf()
 
 
-                val parsingResult: Pair<MutableList<Article>, String>?
+                var parsingResult: Pair<MutableList<Article>, String>? = null
                 try {
                     parsingResult = PreviewPageParser.parsePreviewPageForArticles(currentPage, currentPageNumber)
                     articleList.addAll(parsingResult.first)
@@ -188,13 +171,11 @@ class ArticleDataFeatcherForNewsPaper(
                     continue
                 } catch (e: EmptyArticlePreviewPageException) {
                     e.printStackTrace()
+                    LoggerUtils.logError(e, getDatabaseSession()) //to be removed
                     if (opMode == ParserMode.RUNNING) {
-                        emptyArticlePreviewPageAction(currentPage) //Again start from page 1
-                    } else {
-                        pageListForParsing.remove(currentPage) // Don't have to search this page any mode
-                        println("Parsing finished for ${currentPage.name} of ${currentPage.newspaper!!.name}")
+                        savePageParsingHistory(currentPage, currentPageNumber, 0, parsingResult?.second ?: "")
+                        continue
                     }
-                    continue
                 } catch (e: Throwable) {
                     e.printStackTrace()
                     LoggerUtils.logError(NewsServerParserException("Exp ${e::class.java.canonicalName} Msg: ${e.message} for page: ${currentPage.name} page no.: ${currentPageNumber} Np: ${currentPage.newspaper!!.name}"), getDatabaseSession())
@@ -202,26 +183,18 @@ class ArticleDataFeatcherForNewsPaper(
                 }
 
 
-                val parseableArticleList = mutableListOf<Article>()
-
-                //Save all parsed article preview data
-                articleList
+                val parseableArticleList =
+                        articleList
                         .asSequence()
                         .filter {
-                            getDatabaseSession().get(Article::class.java, it.id) == null
+                            DatabaseUtils.findArticleById(getDatabaseSession(),it.id) == null
                         }
-                        .forEach {
-                            if (DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().save(it) }) {
-                                parseableArticleList.add(it)
-                            }
-                        }
+                        .toCollection(mutableListOf<Article>())
                 //For Full repeat
                 if (opMode == ParserMode.RUNNING && parseableArticleList.size == 0) {
-                    allArticleRepeatAction(currentPage, parsingResult.second)
+                    allArticleRepeatAction(currentPage, parsingResult?.second ?: "")
                     continue
                 }
-
-                savePageParsingHistory(currentPage, currentPageNumber, parseableArticleList.size, parsingResult.second)
 
                 //Now go for article data fetching
                 parseableArticleList
@@ -258,31 +231,14 @@ class ArticleDataFeatcherForNewsPaper(
                         .forEach {
                             println("Article after parsing:" + it)
                             if (it.isDownloaded()) {
-
                                 if (it.previewImageLink == null && it.imageLinkList.size>0){
                                     it.previewImageLink = it.imageLinkList.get(0).link
                                 }
-
-                                DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().update(it) }
-
-                                if (opMode == ParserMode.GET_SYNCED && pageListForParsing.contains(currentPage)) {
-                                    when {
-                                        it.publicationTS != null -> {
-                                            if (System.currentTimeMillis() - it.publicationTS!!.time > MAX_OLD_ARTICLE_MS) {
-                                                pageListForParsing.remove(currentPage)
-                                                println("Parsing finished for ${currentPage.name} of ${currentPage.newspaper!!.name}")
-                                            }
-                                        }
-                                        it.modificationTS != null -> {
-                                            if (System.currentTimeMillis() - it.modificationTS!!.time > MAX_OLD_ARTICLE_MS) {
-                                                pageListForParsing.remove(currentPage)
-                                                println("Parsing finished for ${currentPage.name} of ${currentPage.newspaper!!.name}")
-                                            }
-                                        }
-                                    }
-                                }
+                                DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().save(it) }
                             }
                         }
+
+                savePageParsingHistory(currentPage, currentPageNumber, parseableArticleList.size, parsingResult?.second ?: "")
             }
             println("#############################################################################################")
             println("#############################################################################################")
@@ -298,21 +254,6 @@ class ArticleDataFeatcherForNewsPaper(
             getDatabaseSession().save(PageParsingHistory(page = currentPage, pageNumber = currentPageNumber,
                     articleCount = articleCount, parsingLogMessage = parsingLogMessage))
         }
-    }
-
-    private fun emptyArticlePreviewPageAction(currentPage: Page) {
-        savePageParsingHistory(currentPage, 0, 0, "No article found.")
-    }
-
-    private fun getUnParsedArticleOfCurrentNewspaper(newspaper: Newspaper): List<Article> {
-
-        val query = getDatabaseSession().getNamedNativeQuery(DbNamedNativeQueries.UN_PARSERD_ARTICLES_BY_NEWSPAPER_ID_NAME);
-
-        val articleList = mutableListOf<Article>()
-        query.setParameter("currentNewsPaperId", newspaper.id)
-        articleList.addAll(query.resultList as MutableList<Article>)
-
-        return articleList
     }
 
     fun waitForFareNetworkUsage() {
@@ -349,7 +290,7 @@ class ArticleDataFeatcherForNewsPaper(
     }
 
     private fun getDatabaseSession(): Session {
-        if (!::dbSession.isInitialized || /*!dbSession.isConnected || */!dbSession.isOpen) {
+        if (!::dbSession.isInitialized || !dbSession.isOpen) {
             dbSession = DbSessionManager.getNewSession()
         }
         return dbSession

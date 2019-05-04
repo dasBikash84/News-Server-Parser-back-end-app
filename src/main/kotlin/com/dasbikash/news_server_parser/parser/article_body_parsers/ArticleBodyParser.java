@@ -228,7 +228,7 @@ abstract public class ArticleBodyParser {
 
                                 String articleImageLink = imageChild.attr(getParagraphImageLinkSelectorAttr());
 
-                                if (articleImageLink.length() > 0) {
+                                if (articleImageLink.length() > 0 && articleImageLink.length()<1000) {
                                     articleImageLink = processLink(articleImageLink);
                                     String imageCaption = "";
                                     try {
@@ -252,15 +252,20 @@ abstract public class ArticleBodyParser {
                         }
                         if (imageCaptionFound) {
                             continue;
-                        }
+                        }/*
                         paraText = paraText.replaceAll(
                                 ARTICLE_IMAGE_BLOCK_REMOVER_REGEX,
                                 ARTICLE_IMAGE_BLOCK_REPLACER_REGEX
-                        );
+                        );*/
                     }catch (Exception ex){
                         ex.printStackTrace();
                     }
                 }
+
+                paraText = paraText.replaceAll(
+                        ARTICLE_IMAGE_BLOCK_REMOVER_REGEX,
+                        ARTICLE_IMAGE_BLOCK_REPLACER_REGEX
+                );
 
                 if (paraText.trim().length()==0) continue;
 

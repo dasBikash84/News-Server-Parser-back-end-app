@@ -1,5 +1,7 @@
 package com.dasbikash.news_server_parser.model
 
+import com.dasbikash.news_server_parser.database.DatabaseUtils
+import com.dasbikash.news_server_parser.database.DbSessionManager
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

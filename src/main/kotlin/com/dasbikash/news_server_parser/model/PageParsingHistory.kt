@@ -29,7 +29,7 @@ data class PageParsingHistory(
         var articleCount: Int = 0,
         @Column(columnDefinition = "text")
         var parsingLogMessage: String = "",
-        var created: Date? = null
+        var created: Date? = Date()
 ) {
     override fun toString(): String {
         return "PageParsingHistory(id=$id, page=${page?.name}, pageNumber=$pageNumber, articleCount=$articleCount, created=$created)"

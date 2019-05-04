@@ -25,7 +25,7 @@ public class KalerKanthoPreviewPageParser extends PreviewPageParser {
     private static final String TAG = "KKEdLoader";
     public static final int ARTICLE_PREVIEW_COUNT_PER_PAGE = 18;
 
-    private final String mSiteBaseAddress = "http://www.kalerkantho.com";
+    private final String mSiteBaseAddress = "https://www.kalerkantho.com";
     private static final int MAX_RERUN_COUNT_FOR_EMPTY_WITH_REPEAT_FOR_REGULAR_FEATURE = 3;
 
    /* @Override
