@@ -112,10 +112,10 @@ class ArticleDataFeatcherForNewsPaper(
                             } else {
                                 it.active = false
                             }
-                        }else{
+                        } else {
                             it.active = true
                         }
-                        DatabaseUtils.runDbTransection(getDatabaseSession()){
+                        DatabaseUtils.runDbTransection(getDatabaseSession()) {
                             getDatabaseSession().update(it)
                         }
                     }
@@ -124,22 +124,14 @@ class ArticleDataFeatcherForNewsPaper(
 
             println("#############################################################################################")
             println("#############################################################################################")
-            println("Going to parse ${pageListForParsing.size} pages:")
+            println("Going to parse ${pageListForParsing.size} pages for Np: ${newspaper.name}")
 
             for (currentPage in shuffledPageList) {
-
-                println("Page Name: ${currentPage.name} Page Id: ${currentPage.id} ParentPage: " +
-                        "${currentPage.parentPageId} Newspaper: ${currentPage.newspaper?.name}")
-
 
                 val currentPageNumber: Int
 
                 if (currentPage.isPaginated()) {
-                    if (opMode == ParserMode.GET_SYNCED) {
-                        currentPageNumber = getLastParsedPageNumber(currentPage) + 1
-                    }else{
-                        currentPageNumber = 1
-                    }
+                    currentPageNumber = getLastParsedPageNumber(currentPage) + 1
                 } else {
                     currentPageNumber = NOT_APPLICABLE_PAGE_NUMBER
                 }
@@ -189,11 +181,11 @@ class ArticleDataFeatcherForNewsPaper(
 
                 val parseableArticleList =
                         articleList
-                        .asSequence()
-                        .filter {
-                            DatabaseUtils.findArticleById(getDatabaseSession(),it.id) == null
-                        }
-                        .toCollection(mutableListOf<Article>())
+                                .asSequence()
+                                .filter {
+                                    DatabaseUtils.findArticleById(getDatabaseSession(), it.id) == null
+                                }
+                                .toCollection(mutableListOf<Article>())
                 //For Full repeat
                 if (opMode == ParserMode.RUNNING && parseableArticleList.size == 0) {
                     allArticleRepeatAction(currentPage, parsingResult?.second ?: "")
@@ -235,14 +227,15 @@ class ArticleDataFeatcherForNewsPaper(
                         .forEach {
                             println("Article after parsing:" + it)
                             if (it.isDownloaded()) {
-                                if (it.previewImageLink == null && it.imageLinkList.size>0){
+                                if (it.previewImageLink == null && it.imageLinkList.size > 0) {
                                     it.previewImageLink = it.imageLinkList.get(0).link
                                 }
                                 DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().save(it) }
                             }
                         }
 
-                savePageParsingHistory(currentPage, currentPageNumber, parseableArticleList.size, parsingResult?.second ?: "")
+                savePageParsingHistory(currentPage, currentPageNumber, parseableArticleList.size, parsingResult?.second
+                        ?: "")
             }
             println("#############################################################################################")
             println("#############################################################################################")

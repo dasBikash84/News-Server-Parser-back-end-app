@@ -1,3 +1,0 @@
-Manifest-Version: 1.0
-Main-Class: com.dasbikash.news_server_parser.DataParseringCoordinator
-

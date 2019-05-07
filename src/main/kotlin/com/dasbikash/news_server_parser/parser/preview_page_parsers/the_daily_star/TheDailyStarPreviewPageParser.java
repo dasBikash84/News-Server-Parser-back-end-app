@@ -43,14 +43,14 @@ public class TheDailyStarPreviewPageParser extends PreviewPageParser {
 
     @Override
     protected Elements getPreviewBlocks() {
-        System.out.println("getPreviewBlocks()");
+        //System.out.println("getPreviewBlocks()");
         Elements featurePreviewBlocks =
                 mDocument.select(TheDailyStarPreviewPageParserInfo.FEATURE_BLOCK_SELECTOR);
         if (featurePreviewBlocks.size()<1){
-            System.out.println("featurePreviewBlocks.size()<1");
+            //System.out.println("featurePreviewBlocks.size()<1");
             return null;
         }
-        System.out.println("featurePreviewBlocks.size():"+featurePreviewBlocks.size());
+        //System.out.println("featurePreviewBlocks.size():"+featurePreviewBlocks.size());
         Elements previewBlocks = new Elements();
 
         for (Element element :

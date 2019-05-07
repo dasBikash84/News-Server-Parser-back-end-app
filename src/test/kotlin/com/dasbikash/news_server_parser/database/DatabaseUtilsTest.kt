@@ -15,8 +15,6 @@ package com.dasbikash.news_server_parser.database
 
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 internal class DatabaseUtilsTest {

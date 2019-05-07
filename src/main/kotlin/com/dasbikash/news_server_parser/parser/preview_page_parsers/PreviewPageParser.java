@@ -70,13 +70,13 @@ abstract public class PreviewPageParser {
         mCurrentPage = page;
         mCurrentPageNumber = pageNumber;
 
-        System.out.println("mCurrentPage:"+mCurrentPage.getName());
-        System.out.println("mCurrentPageNumber:"+mCurrentPageNumber);
+        //System.out.println("mCurrentPage:"+mCurrentPage.getName());
+        //System.out.println("mCurrentPageNumber:"+mCurrentPageNumber);
 
 
         mPageLink = getPageLink();
 
-        System.out.println("mPageLink: "+ mPageLink);
+        //System.out.println("mPageLink: "+ mPageLink);
 
         if (mPageLink == null) {
             throw new PageLinkGenerationException(page);
@@ -89,7 +89,7 @@ abstract public class PreviewPageParser {
                                                 ", Link: "+mPageLink);
         }
 
-        System.out.println("Document title: "+ mDocument.title());
+        //System.out.println("Document title: "+ mDocument.title());
 
         return parseDocument();
     }
@@ -122,7 +122,7 @@ abstract public class PreviewPageParser {
                 if (articleLink == null) continue;
                 articleLink = articleLink.trim();
                 articleLink = processArticleLink(articleLink);
-                System.out.println("articleLink: "+articleLink);
+                //System.out.println("articleLink: "+articleLink);
             } catch (Exception e) {
                 parsingLogMessage.append("articleLink == null");
                 e.printStackTrace();
@@ -132,7 +132,7 @@ abstract public class PreviewPageParser {
             try {
                 previewImageLink = getArticlePreviewImageLink(previewBlock);
                 previewImageLink = processArticlePreviewImageLink(previewImageLink);
-                System.out.println("previewImageLink: "+previewImageLink);
+                //System.out.println("previewImageLink: "+previewImageLink);
             } catch (Exception e) {
                 previewImageLink = null;
                 e.printStackTrace();
@@ -142,7 +142,7 @@ abstract public class PreviewPageParser {
             try {
                 articleTitle = getArticleTitle(previewBlock);
                 if (articleTitle == null) continue;
-                System.out.println("articleTitle: "+articleTitle);
+                //System.out.println("articleTitle: "+articleTitle);
             } catch (Exception e) {
                 parsingLogMessage.append("articleTitle = null");
                 e.printStackTrace();
@@ -156,10 +156,10 @@ abstract public class PreviewPageParser {
             try {
                 articlePublicationDateTimeStamp = getArticlePublicationTimeStamp(previewBlock);
                 if (articlePublicationDateTimeStamp==null && mSimpleDateFormat !=null) {
-                    System.out.println("mSimpleDateFormat.toPattern(): "+mSimpleDateFormat.toPattern());
+                    //System.out.println("mSimpleDateFormat.toPattern(): "+mSimpleDateFormat.toPattern());
                     articlePublicationDateTimeStamp = mSimpleDateFormat.parse(getArticlePublicationDateString(previewBlock)).getTime();
                 }
-                System.out.println("articlePublicationDateTimeStamp: "+articlePublicationDateTimeStamp);
+                //System.out.println("articlePublicationDateTimeStamp: "+articlePublicationDateTimeStamp);
             } catch (Exception e) {
                 articlePublicationDateTimeStamp = 0L;
                 e.printStackTrace();
@@ -172,7 +172,7 @@ abstract public class PreviewPageParser {
                     articleModificationDateTimeStamp = mSimpleDateFormat.parse(getArticleModificationDateString(previewBlock)).getTime();
                     parsingLogMessage.append("Modification TimeStamp found");
                 }
-                System.out.println("articleModificationDateTimeStamp: "+articleModificationDateTimeStamp);
+                //System.out.println("articleModificationDateTimeStamp: "+articleModificationDateTimeStamp);
             } catch (Exception e) {
                 articleModificationDateTimeStamp = 0L;
 //                e.printStackTrace();
@@ -213,17 +213,17 @@ abstract public class PreviewPageParser {
     protected String getPageLink(){
 
         if (mCurrentPage == null || mCurrentPage.getLinkFormat() == null){
-            System.out.println("mCurrentPage == null || mCurrentPage.getLinkFormat() == null");
+            //System.out.println("mCurrentPage == null || mCurrentPage.getLinkFormat() == null");
             return null;
         }
 
         if (mCurrentPage.getLinkVariablePartFormat() == null){
-            System.out.println("mCurrentPage.getLinkVariablePartFormat() == null");
+            //System.out.println("mCurrentPage.getLinkVariablePartFormat() == null");
             return mCurrentPage.getLinkFormat();
         }
 
         if (mCurrentPage.getLinkVariablePartFormat().equals(Page.DEFAULT_LINK_TRAILING_FORMAT)){
-            System.out.println("mCurrentPage.getLinkVariablePartFormat().equals(Page.DEFAULT_LINK_TRAILING_FORMAT)");
+            //System.out.println("mCurrentPage.getLinkVariablePartFormat().equals(Page.DEFAULT_LINK_TRAILING_FORMAT)");
             return mCurrentPage.getLinkFormat().replace(mCurrentPage.getLinkVariablePartFormat(),""+mCurrentPageNumber);
         } else {
 

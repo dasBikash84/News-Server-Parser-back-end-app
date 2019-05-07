@@ -13,11 +13,8 @@
 
 package com.dasbikash.news_server_parser.model
 
-import com.dasbikash.news_server_parser.database.DbSessionManager
-import com.dasbikash.news_server_parser.utils.LoggerUtils
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-
 import org.junit.jupiter.api.Test
 
 internal class ErrorLogTest {
@@ -32,8 +29,8 @@ internal class ErrorLogTest {
 
     @Test
     fun testLog(){
-        LoggerUtils.logError(
+       /* LoggerUtils.logError(
                 Throwable("Test throwable", Throwable("Test Cause")), DbSessionManager.getNewSession()
-        )
+        )*/
     }
 }

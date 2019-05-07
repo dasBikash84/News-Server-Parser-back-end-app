@@ -14,7 +14,6 @@
 package com.dasbikash.news_server_parser.parser.preview_page_parsers.bd_pratidin;
 
 
-import com.dasbikash.news_server_parser.model.Page;
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;

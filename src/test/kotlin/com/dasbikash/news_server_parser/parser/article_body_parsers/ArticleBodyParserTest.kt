@@ -1,13 +1,7 @@
 package com.dasbikash.news_server_parser.parser.article_body_parsers
 
-import com.dasbikash.news_server_parser.database.DbSessionManager
-import com.dasbikash.news_server_parser.model.EntityClassNames
-import com.dasbikash.news_server_parser.model.Newspaper
-import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import kotlin.random.Random
 
 internal class ArticleBodyParserTest {
 
@@ -19,7 +13,7 @@ internal class ArticleBodyParserTest {
     fun tearDown() {
     }
 
-    @Test
+    /*@Test
     fun readFirstPageArticles() {
 
         val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"
@@ -66,5 +60,5 @@ internal class ArticleBodyParserTest {
         }
         .iterator().forEach {  }
 
-    }
+    }*/
 }

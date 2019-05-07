@@ -13,14 +13,9 @@
 
 package com.dasbikash.news_server_parser.parser.preview_page_parsers;
 
-import com.dasbikash.news_server_parser.exceptions.*;
-import org.junit.jupiter.api.Test;
-
-import java.net.URISyntaxException;
-
 class PreviewPageParserTest {
 
-    @Test
+    /*@Test
     public void testTT(){
         try {
             PreviewPageParser.parsePreviewPageForArticles(null,10);
@@ -35,6 +30,6 @@ class PreviewPageParserTest {
         } catch (EmptyArticlePreviewPageException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
 }

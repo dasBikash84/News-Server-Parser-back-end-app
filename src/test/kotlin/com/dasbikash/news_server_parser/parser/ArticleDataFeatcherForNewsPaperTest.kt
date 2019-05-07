@@ -1,11 +1,7 @@
 package com.dasbikash.news_server_parser.parser
 
-import com.dasbikash.news_server_parser.database.DbSessionManager
-import com.dasbikash.news_server_parser.model.EntityClassNames
-import com.dasbikash.news_server_parser.model.Newspaper
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 
 class ArticleDataFeatcherForNewsPaperTest {
 
@@ -17,7 +13,7 @@ class ArticleDataFeatcherForNewsPaperTest {
     fun tearDown() {
     }
 
-    @Test
+    /*@Test
     fun readAllTopLevelPages() {
 
         val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"
@@ -29,15 +25,15 @@ class ArticleDataFeatcherForNewsPaperTest {
 
         var thread: Thread? = null
 
-        /*newsPapers.filter {
+        *//*newsPapers.filter {
             true//it.id == NEWS_PAPER_ID.THE_GUARDIAN.id
         }
         .forEach {
             thread = Thread(ArticleDataFeatcherForNewsPaper(it))
             thread?.start()
         }
-        thread?.join()*/
+        thread?.join()*//*
         //while (true)
         //return
-    }
+    }*/
 }

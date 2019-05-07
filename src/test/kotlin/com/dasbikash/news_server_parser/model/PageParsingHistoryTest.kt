@@ -1,10 +1,7 @@
 package com.dasbikash.news_server_parser.model
 
-import com.dasbikash.news_server_parser.database.DbSessionManager
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Test
 
 internal class PageParsingHistoryTest {
 
@@ -15,7 +12,7 @@ internal class PageParsingHistoryTest {
     @AfterEach
     fun tearDown() {
     }
-    @Test
+    /*@Test
     fun readWriteTest(){
         var session = DbSessionManager.getNewSession();
 
@@ -23,5 +20,5 @@ internal class PageParsingHistoryTest {
         session.save(Country("a","b","c"))
         session.transaction.commit()
 
-    }
+    }*/
 }

@@ -1,15 +1,7 @@
 package com.dasbikash.news_server_parser.parser.article_body_parsers.dhaka_tribune
 
-import com.dasbikash.news_server_parser.database.DbSessionManager
-import com.dasbikash.news_server_parser.model.EntityClassNames
-import com.dasbikash.news_server_parser.model.Newspaper
-import com.dasbikash.news_server_parser.parser.NEWS_PAPER_ID
-import com.dasbikash.news_server_parser.parser.article_body_parsers.ArticleBodyParser
-import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import kotlin.random.Random
 
 internal class DhakaTribuneArticleParserTest {
 
@@ -21,13 +13,13 @@ internal class DhakaTribuneArticleParserTest {
     fun tearDown() {
     }
 
-    @Test
-    fun readFirstPageArticles(){
+    /*@Test
+    fun readFirstPageArticles() {
 
         val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"
-        val  session = DbSessionManager.getNewSession()
-        val query = session.createQuery(hql,Newspaper::class.java)
-        val newsPapers= query.list() as List<Newspaper>
+        val session = DbSessionManager.getNewSession()
+        val query = session.createQuery(hql, Newspaper::class.java)
+        val newsPapers = query.list() as List<Newspaper>
 
         //session.close()
 
@@ -41,7 +33,7 @@ internal class DhakaTribuneArticleParserTest {
             }?.get(Random(Random(10).nextInt()).nextInt(it.pageList!!.size))
         }.map {
             it?.let {
-                val articleList = PreviewPageParser.parsePreviewPageForArticles(it,1)
+                val articleList = PreviewPageParser.parsePreviewPageForArticles(it, 1)
                 it.articleList = articleList.first
                 it.articleList
                         ?.forEach {
@@ -52,11 +44,11 @@ internal class DhakaTribuneArticleParserTest {
             it
         }.map {
             it?.let {
-                println("Article Data before parsing:"+it.articleList?.first())
-                println("Article Data after parsing:"+ ArticleBodyParser.getArticleBody(it.articleList?.get(Random(Random(10).nextInt()).nextInt(it.articleList?.size!!))))
+                println("Article Data before parsing:" + it.articleList?.first())
+                println("Article Data after parsing:" + ArticleBodyParser.getArticleBody(it.articleList?.get(Random(Random(10).nextInt()).nextInt(it.articleList?.size!!))))
 //                println(ArticleBodyParser.getArticleBody(it.articleList?.first()))
             }
         }
 
-    }
+    }*/
 }

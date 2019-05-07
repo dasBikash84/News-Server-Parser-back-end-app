@@ -51,7 +51,7 @@ public class AnandoBazarArticleParser extends ArticleBodyParser {
     protected String getArticleModificationDateString() {
         Elements dateStringElements =
                 mDocument.select(AnandoBazarArticleParserInfo.ARTICLE_MODIFICATION_DATE_STRING_SELECTOR);
-        System.out.println("parseArticle: dateStringElements.size(): "+dateStringElements.size());
+        //System.out.println("parseArticle: dateStringElements.size(): "+dateStringElements.size());
         if (dateStringElements != null && dateStringElements.size()>0) {
             String dateString = "";
             if (dateStringElements.size() > 1) {
@@ -59,18 +59,18 @@ public class AnandoBazarArticleParser extends ArticleBodyParser {
             } else {
                 dateString = dateStringElements.get(0).text();
             }
-            System.out.println("parseArticle: dateString: "+dateString);
+            //System.out.println("parseArticle: dateString: "+dateString);
             if (dateString.trim().length() > 0) {
                 if (dateString.split("শেষ আপডেট\\s?:").length == 2) {
                     dateString = dateString.split("শেষ আপডেট\\s?:\\s?")[1];
                 }
             }
-            System.out.println("parseArticle: dateString: "+dateString);
+            //System.out.println("parseArticle: dateString: "+dateString);
             //Log.d(TAG, "parseArticle: dateString: "+dateString);
             if (dateString.trim().length() > 0) {
                 dateString = DisplayUtils.banglaToEnglishDateString(dateString.trim());
             }
-            System.out.println("parseArticle: dateString: "+dateString);
+            //System.out.println("parseArticle: dateString: "+dateString);
             return dateString;
         }
         return null;

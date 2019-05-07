@@ -31,9 +31,9 @@ public class BootstrapSettings {
 
 			if (loadSettings) {
 				if (NewsPaperSettingsBootStrapFromRealTimeDb.saveDefaultSettings(session)) {
-					System.out.println("Settings loaded.");
+					//System.out.println("Settings loaded.");
 				} else {
-					System.out.println("Settings loading failed.");
+					//System.out.println("Settings loading failed.");
 				}
 			}
 

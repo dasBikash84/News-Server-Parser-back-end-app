@@ -1,21 +1,9 @@
 package com.dasbikash.news_server_parser.parser.preview_page_parsers
 
-import com.dasbikash.news_server_parser.model.EntityClassNames
-import com.dasbikash.news_server_parser.model.Newspaper
-import com.dasbikash.news_server_parser.parser.ArticleDataFeatcherForNewsPaper
-import org.hibernate.Session
-import org.hibernate.SessionFactory
-import org.hibernate.cfg.Configuration
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-
-import java.io.File
-
 internal class ArticleDataFeatcherForNewsPaperTest {
 
 
-    lateinit var configuration:Configuration
+    /*lateinit var configuration:Configuration
     lateinit var sessionFactory:SessionFactory
     lateinit var session: Session
 
@@ -45,7 +33,7 @@ internal class ArticleDataFeatcherForNewsPaperTest {
         println()
         println()
         val thList = mutableListOf<Thread>()
-        /*newsPapers.filter { true }.forEach {
+        *//*newsPapers.filter { true }.forEach {
             println(it.name)
             val thread = Thread(ArticleDataFeatcherForNewsPaper(it))
             thread.start()
@@ -53,10 +41,10 @@ internal class ArticleDataFeatcherForNewsPaperTest {
             //thread.join()
         }
 
-        thList.forEach { it.join() }*/
+        thList.forEach { it.join() }*//*
 
         //Thread.sleep(10000)
 
 
-    }
+    }*/
 }

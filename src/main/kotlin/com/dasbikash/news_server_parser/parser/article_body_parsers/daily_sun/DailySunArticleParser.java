@@ -30,13 +30,17 @@ public class DailySunArticleParser extends ArticleBodyParser {
     @Override
     protected String getArticleModificationDateString() {
         Elements h3Blocks = mDocument.select(DailySunArticleParserInfo.ARTICLE_MODIFICATION_DATE_STRING_SELECTOR);
-        if (h3Blocks.size()> 0){
-            String fullDateString = h3Blocks.get(h3Blocks.size()-1).text();
-            String dateString = fullDateString.replaceFirst(
-                    DailySunArticleParserInfo.ARTICLE_MODIFICATION_DATE_STRING_REPLACEMENT_SELECTOR,
-                    DailySunArticleParserInfo.ARTICLE_MODIFICATION_DATE_STRING_REPLACEMENT_STRING
-            ).trim();
-            return dateString;
+
+        System.out.println("h3Blocks.size(): " + h3Blocks.size());
+        if (h3Blocks.size()>= 4){
+            String fullDateString = h3Blocks.get(3).text();
+            System.out.println("fullDateString: " + fullDateString);
+//            String dateString = fullDateString.replaceFirst(
+//                    DailySunArticleParserInfo.ARTICLE_MODIFICATION_DATE_STRING_REPLACEMENT_SELECTOR,
+//                    DailySunArticleParserInfo.ARTICLE_MODIFICATION_DATE_STRING_REPLACEMENT_STRING
+//            ).trim();
+            return fullDateString;
+//            return dateString;
         }
         return null;
     }

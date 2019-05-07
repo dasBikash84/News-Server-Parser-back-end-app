@@ -13,44 +13,23 @@
 
 package com.dasbikash.news_server_parser.model
 
-import com.dasbikash.news_server_parser.database.DbSessionManager
 import org.hibernate.Session
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
-import com.google.firebase.FirebaseApp
-import com.google.auth.oauth2.GoogleCredentials
-import com.google.firebase.FirebaseOptions
-import com.google.cloud.firestore.Firestore
-import com.google.firebase.cloud.FirestoreClient
-import com.google.api.core.ApiFuture
-import java.util.HashMap
-import org.glassfish.hk2.utilities.reflection.Pretty.collection
-import com.google.cloud.firestore.DocumentReference
-import java.io.FileInputStream
-import com.google.cloud.firestore.WriteBatch
-
-
-
-
-
-
 
 
 internal class LanguageTest {
     lateinit var session: Session
     @BeforeEach
     fun setUp() {
-        session = DbSessionManager.getNewSession()
+//        session = DbSessionManager.getNewSession()
     }
 
     @AfterEach
     fun tearDown() {
     }
 
-    @Test
+    /*@Test
     fun readAllLanguage(){
         val hql = "FROM ${EntityClassNames.LANGUAGE}"
         val query = session.createQuery(hql, Language::class.java)
@@ -95,9 +74,9 @@ internal class LanguageTest {
 
 
         for (result in future.get()) {
-            System.out.println("Update time : " + result.updateTime)
+            //System.out.println("Update time : " + result.updateTime)
         }
-        /*val docRef = db.collection("languages").document("alovelace")
+        *//*val docRef = db.collection("languages").document("alovelace")
         // Add document data  with id "alovelace" using a hashmap
         val data = HashMap<String, Any>()
         data["first"] = "Ada"
@@ -107,11 +86,11 @@ internal class LanguageTest {
         val result = docRef.set(data)
         // ...
         // result.get() blocks on response
-        System.out.println("Update time : " + result.get().updateTime)*/
+        System.out.println("Update time : " + result.get().updateTime)*//*
     }
 
     class langForDb(
         var id:String="",
         var name: String?=null
-    )
+    )*/
 }

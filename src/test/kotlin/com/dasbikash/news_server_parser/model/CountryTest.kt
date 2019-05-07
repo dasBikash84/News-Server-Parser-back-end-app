@@ -13,7 +13,6 @@
 
 package com.dasbikash.news_server_parser.model
 
-import com.dasbikash.news_server_parser.database.DbSessionManager
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -30,7 +29,7 @@ internal class CountryTest {
 
     @Test
     fun testSaveSame(){
-        val country = DbSessionManager.getNewSession().get(Country::class.java,"Bangladfgdesh");
-        println(country)
+        /*val country = DbSessionManager.getNewSession().get(Country::class.java,"Bangladfgdesh");
+        println(country)*/
     }
 }

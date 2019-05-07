@@ -13,12 +13,9 @@
 
 package com.dasbikash.news_server_parser.parser.article_body_parsers.bd_pratidin;
 
-import com.dasbikash.news_server_parser.utils.DisplayUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class BdPratidinArticleParserTest {
 
@@ -37,18 +34,18 @@ class BdPratidinArticleParserTest {
         System.out.println("dateTextFromPage"+dateTextFromPage);
         String dateTextFromPageBangla = DisplayUtils.banglaToEnglishDateString(dateTextFromPage);
         System.out.println("dateTextFromPageBangla"+dateTextFromPageBangla);
-        System.out.println(dateTextFromPageBangla.replaceAll(".+?:\\s",""));*/
+        System.out.println(dateTextFromPageBangla.replaceAll(".+?:\\s",""));*//*
 
         String dateString = "২৮ জানুয়ারি, ২০১৯ ১৬:১৩ | পড়া যাবে ১ মিনিটে";
-        System.out.println(dateString);
+        //System.out.println(dateString);
         dateString = dateString.replaceFirst("\\s\\|.+","").trim();
-        System.out.println(dateString);
+        //System.out.println(dateString);
         dateString = DisplayUtils.banglaToEnglishDateString(dateString);
-        System.out.println(dateString);
+        //System.out.println(dateString);
         String linkText = "./asdasdasd";//.substring(1);
         if(linkText.matches("^\\..+")){
             linkText = linkText.substring(1);
-        }
-        System.out.println(linkText);
+        }*/
+        //System.out.println(linkText);
     }
 }

@@ -1,13 +1,7 @@
 package com.dasbikash.news_server_parser.parser.preview_page_parsers.kaler_kantho
 
-import com.dasbikash.news_server_parser.database.DbSessionManager
-import com.dasbikash.news_server_parser.model.EntityClassNames
-import com.dasbikash.news_server_parser.model.Newspaper
-import com.dasbikash.news_server_parser.parser.NEWS_PAPER_ID
-import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 
 internal class KalerKanthoPreviewPageParserTest {
 
@@ -19,7 +13,7 @@ internal class KalerKanthoPreviewPageParserTest {
     fun tearDown() {
     }
 
-    @Test
+    /*@Test
     fun readFirstPageArticles() {
 
         val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"
@@ -43,5 +37,5 @@ internal class KalerKanthoPreviewPageParserTest {
             }
         }
 
-    }
+    }*/
 }

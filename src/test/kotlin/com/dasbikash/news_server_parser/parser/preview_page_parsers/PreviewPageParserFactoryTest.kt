@@ -1,11 +1,7 @@
 package com.dasbikash.news_server_parser.parser.preview_page_parsers
 
-import com.dasbikash.news_server_parser.database.DbSessionManager
-import com.dasbikash.news_server_parser.model.EntityClassNames
-import com.dasbikash.news_server_parser.model.Newspaper
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 
 internal class PreviewPageParserFactoryTest {
 
@@ -17,7 +13,7 @@ internal class PreviewPageParserFactoryTest {
     fun tearDown() {
     }
 
-    @Test
+    /*@Test
     fun readFirstPageArticles(){
 
         val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"
@@ -42,5 +38,5 @@ internal class PreviewPageParserFactoryTest {
             }
         }
 
-    }
+    }*/
 }

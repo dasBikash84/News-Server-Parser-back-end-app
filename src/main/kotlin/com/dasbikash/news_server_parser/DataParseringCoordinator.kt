@@ -1,4 +1,4 @@
-@file:JvmName("DataParseringCoordinator")
+@file:JvmName("com.dasbikash.news_server_parser.DataParseringCoordinator")
 
 /*
  * Copyright 2019 das.bikash.dev@gmail.com. All rights reserved.

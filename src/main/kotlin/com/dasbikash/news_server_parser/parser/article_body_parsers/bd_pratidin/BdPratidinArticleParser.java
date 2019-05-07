@@ -46,10 +46,10 @@ public class BdPratidinArticleParser extends ArticleBodyParser {
 
         if (dateStringElements != null && dateStringElements.size() >= 1) {
             String dateTextFromPage = dateStringElements.get(0).text().trim();
-            System.out.println("dateTextFromPage" + dateTextFromPage);
+            //System.out.println("dateTextFromPage" + dateTextFromPage);
             String dateTextFromPageBangla = DisplayUtils.banglaToEnglishDateString(dateTextFromPage);
             String returnString = dateTextFromPageBangla.replaceAll(".+?:\\s", "");
-            System.out.println("returnString: "+returnString);
+            //System.out.println("returnString: "+returnString);
             return returnString;
         }
         return null;
