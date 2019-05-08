@@ -17,6 +17,9 @@
 package com.dasbikash.news_server_parser
 
 import com.dasbikash.news_server_parser.database.DbSessionManager
+import com.dasbikash.news_server_parser.exceptions.HighestLevelException
+import com.dasbikash.news_server_parser.exceptions.ParserRestartedException
+import com.dasbikash.news_server_parser.exceptions.handler.ParserExceptionHandler
 import com.dasbikash.news_server_parser.model.EntityClassNames
 import com.dasbikash.news_server_parser.model.Newspaper
 import com.dasbikash.news_server_parser.parser.ArticleDataFeatcherForNewsPaper
@@ -49,6 +52,7 @@ object DataParseringCoordinator {
                         .forEach {
                             if (articleDataFetcherMap.containsKey(it.id) && !articleDataFetcherMap.get(it.id)!!.isAlive) {
                                 articleDataFetcherMap.remove(it.id)
+                                ParserExceptionHandler.handleException(ParserRestartedException(it))
                             }
                             if (!articleDataFetcherMap.containsKey(it.id)) {
                                 session.detach(it)
@@ -67,6 +71,6 @@ object DataParseringCoordinator {
     }
 
     private fun handleException(ex: InterruptedException) {
-
+        ParserExceptionHandler.handleException(HighestLevelException(ex))
     }
 }

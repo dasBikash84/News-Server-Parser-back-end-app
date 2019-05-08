@@ -13,11 +13,14 @@
 
 package com.dasbikash.news_server_parser.exceptions
 
-open class NewsServerParserException:Exception {
+import com.dasbikash.news_server_parser.model.Newspaper
+
+class ParserRestartedException:HighestLevelException {
+
+    constructor(newspaper: Newspaper) : super(causePreamble+"${newspaper.name} with id: ${newspaper.id}")
     constructor() : super()
-    constructor(message: String?) : super(message)
-    constructor(message: String?, cause: Throwable?) : super(message, cause)
-    constructor(cause: Throwable?) : super(cause)
-    constructor(message: String?, cause: Throwable?, enableSuppression: Boolean, writableStackTrace: Boolean) :
-            super(message, cause, enableSuppression, writableStackTrace)
+
+    companion object {
+        val causePreamble = "Parser Restarted for Newspaper: ";
+    }
 }

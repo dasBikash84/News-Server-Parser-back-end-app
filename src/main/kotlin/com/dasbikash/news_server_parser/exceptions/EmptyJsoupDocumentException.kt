@@ -15,7 +15,7 @@ package com.dasbikash.news_server_parser.exceptions
 
 import java.net.URI
 
-class EmptyJsoupDocumentException:NewsServerParserException {
+class EmptyJsoupDocumentException:ParserException {
 
     constructor(uri: URI) : super(causePreamble+ uri.path)
     constructor(cause: String) : super(cause)

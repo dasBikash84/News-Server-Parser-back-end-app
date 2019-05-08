@@ -15,7 +15,7 @@ package com.dasbikash.news_server_parser.exceptions
 
 import com.dasbikash.news_server_parser.model.Newspaper
 
-class ParserNotFoundException:NewsServerParserException {
+class ParserNotFoundException:HighestLevelException {
 
     constructor(newspaper: Newspaper) : super(causePreamble+"${newspaper.name} with id: ${newspaper.id}")
     constructor() : super()

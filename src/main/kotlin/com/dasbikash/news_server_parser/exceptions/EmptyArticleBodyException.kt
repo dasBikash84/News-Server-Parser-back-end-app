@@ -15,7 +15,7 @@ package com.dasbikash.news_server_parser.exceptions
 
 import com.dasbikash.news_server_parser.model.Article
 
-class EmptyArticleBodyException: NewsServerParserException{
+class EmptyArticleBodyException: ParserException{
 
     constructor(article: Article) : super(causePreamble+"with link: ${article.articleLink} title: ${article.title} ")
     constructor() : super()

@@ -15,7 +15,7 @@ package com.dasbikash.news_server_parser.exceptions
 
 import java.net.URI
 
-class EmptyArticlePreviewPageException:NewsServerParserException {
+class EmptyArticlePreviewPageException:ParserException {
 
     constructor(uri: URI) : super(causePreamble+ uri.path)
     constructor(cause: String) : super(cause)

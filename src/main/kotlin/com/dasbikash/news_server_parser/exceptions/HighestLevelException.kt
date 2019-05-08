@@ -13,14 +13,10 @@
 
 package com.dasbikash.news_server_parser.exceptions
 
-import com.dasbikash.news_server_parser.model.Article
-
-class ArticleModificationTimeNotFoundException: ParserException{
-
-    constructor(article: Article) : super("Not found for article: "+article.articleLink)
+open class HighestLevelException:ParserException {
     constructor() : super()
-
-    companion object {
-        val causePreamble = "EmptyArticleBodyException for article: ";
-    }
+    constructor(message: String?) : super(message)
+    constructor(message: String?, cause: Throwable?) : super(message, cause)
+    constructor(cause: Throwable?) : super(cause)
+    constructor(message: String?, cause: Throwable?, enableSuppression: Boolean, writableStackTrace: Boolean) : super(message, cause, enableSuppression, writableStackTrace)
 }

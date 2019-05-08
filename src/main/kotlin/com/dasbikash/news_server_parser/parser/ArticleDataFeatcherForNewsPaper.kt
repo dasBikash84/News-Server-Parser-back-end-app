@@ -173,7 +173,7 @@ class ArticleDataFeatcherForNewsPaper(
                     }
                 } catch (e: Throwable) {
                     e.printStackTrace()
-                    LoggerUtils.logError(NewsServerParserException("Exp ${e::class.java.canonicalName} Msg: ${e.message} for page: ${currentPage.name} page no.: ${currentPageNumber} Np: ${currentPage.newspaper!!.name}"), getDatabaseSession())
+                    LoggerUtils.logError(ParserException("Exp ${e::class.java.canonicalName} Msg: ${e.message} for page: ${currentPage.name} page no.: ${currentPageNumber} Np: ${currentPage.newspaper!!.name}"), getDatabaseSession())
                     continue
                 }
 
@@ -200,7 +200,7 @@ class ArticleDataFeatcherForNewsPaper(
                                 println("Article before parsing:" + it)
                                 ArticleBodyParser.getArticleBody(it)
                                 true
-                            } catch (ex: NewsServerParserException) {
+                            } catch (ex: ParserException) {
                                 ex.printStackTrace()
                                 LoggerUtils.logError(ex, getDatabaseSession())
                                 DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
@@ -218,7 +218,7 @@ class ArticleDataFeatcherForNewsPaper(
                                 DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
                                 false
                             } */ catch (ex: Throwable) {
-                                LoggerUtils.logError(NewsServerParserException("Exp: ${ex::class.java.canonicalName} Msg: ${ex.message} for article: ${it.articleLink}"), getDatabaseSession())
+                                LoggerUtils.logError(ParserException("Exp: ${ex::class.java.canonicalName} Msg: ${ex.message} for article: ${it.articleLink}"), getDatabaseSession())
                                 DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
                                 false
                             }
