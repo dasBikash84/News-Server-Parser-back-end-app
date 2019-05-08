@@ -15,7 +15,7 @@ package com.dasbikash.news_server_parser.exceptions
 
 import com.dasbikash.news_server_parser.model.Page
 
-class NewsPaperNotFoundForPageException:ParserException {
+class NewsPaperNotFoundForPageException:HighestLevelException {
 
     constructor(page: Page) : super(causePreamble+"${page.name} with id: ${page.id}")
     constructor() : super()

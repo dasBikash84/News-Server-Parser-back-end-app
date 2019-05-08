@@ -17,6 +17,7 @@ import com.dasbikash.news_server_parser.ParserMode
 import com.dasbikash.news_server_parser.database.DatabaseUtils
 import com.dasbikash.news_server_parser.database.DbSessionManager
 import com.dasbikash.news_server_parser.exceptions.*
+import com.dasbikash.news_server_parser.exceptions.handler.ParserExceptionHandler
 import com.dasbikash.news_server_parser.model.Article
 import com.dasbikash.news_server_parser.model.Newspaper
 import com.dasbikash.news_server_parser.model.Page
@@ -34,31 +35,27 @@ class ArticleDataFeatcherForNewsPaper(
         private val opMode: ParserMode
 ) : Thread() {
 
-    private val MAX_OLD_ARTICLE_DAYS = 30L
-    private val MAX_OLD_ARTICLE_MS = MAX_OLD_ARTICLE_DAYS * 24 * 60 * 60 * 1000
-
     private var lastNetworkRequestTS = 0L
     private val MIN_DELAY_BETWEEN_NETWORK_REQUESTS = 10000L
-    private val NOT_APPLICABLE_PAGE_NUMBER = 0
+    private val PAGE_NUMBER_NOT_APPLICABLE = 0
+
+    private val SQL_FOR_LAST_PARSED_PAGE_NUMBER = "FROM PageParsingHistory where pageId=:currentPageId order by created desc"
 
     private val topLevelPages = mutableListOf<Page>()
     private val childPageMap = mutableMapOf<Page, ArrayList<Page>>()
     lateinit var dbSession: Session
 
     override fun run() {
-        println("Article data parser for ${newspaper.name} started at ${Date()}")
-        Thread.sleep(Random(System.currentTimeMillis()).nextLong(MIN_DELAY_BETWEEN_NETWORK_REQUESTS))
+        sleep(Random(System.currentTimeMillis()).nextLong(MIN_DELAY_BETWEEN_NETWORK_REQUESTS))
+        println("Parser for ${newspaper.name} started at ${Date()}")
+        LoggerUtils.logMessage("Parser for ${newspaper.name} started",getDatabaseSession())
 
         getDatabaseSession().update(newspaper) //take newspaper in active state
 
-        newspaper.pageList
-                ?.sortedBy {
-                    it.id
-                }
+        newspaper.pageList?.sortedBy {it.id}
                 ?.asSequence()
-                ?.filter { it.isTopLevelPage() }//status will be checked prior to parsing
+                ?.filter { it.isTopLevelPage() }
                 ?.toCollection(topLevelPages)
-
 
         topLevelPages.asSequence()
                 .forEach {
@@ -102,7 +99,7 @@ class ArticleDataFeatcherForNewsPaper(
         }
 
         do {
-            //Mark pages with article as active
+            //Mark pages with articles as active
             pageListForParsing.asSequence()
                     .forEach {
                         if (!it.isTopLevelPage()) {
@@ -119,20 +116,16 @@ class ArticleDataFeatcherForNewsPaper(
                         }
                     }
 
-            val shuffledPageList = ArrayList<Page>(pageListForParsing)
-
-            println("#############################################################################################")
-            println("#############################################################################################")
             println("Going to parse ${pageListForParsing.size} pages for Np: ${newspaper.name}")
 
-            for (currentPage in shuffledPageList) {
+            for (currentPage in pageListForParsing) {
 
                 val currentPageNumber: Int
 
                 if (currentPage.isPaginated()) {
                     currentPageNumber = getLastParsedPageNumber(currentPage) + 1
                 } else {
-                    currentPageNumber = NOT_APPLICABLE_PAGE_NUMBER
+                    currentPageNumber = PAGE_NUMBER_NOT_APPLICABLE
                 }
 
                 waitForFareNetworkUsage()
@@ -145,38 +138,37 @@ class ArticleDataFeatcherForNewsPaper(
                     parsingResult = PreviewPageParser.parsePreviewPageForArticles(currentPage, currentPageNumber)
                     articleList.addAll(parsingResult.first)
                 } catch (e: NewsPaperNotFoundForPageException) {
-                    e.printStackTrace()
-                    LoggerUtils.logError(e, getDatabaseSession())
+                    println("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
+                    ParserExceptionHandler.handleException(e)
                     return
                 } catch (e: ParserNotFoundException) {
-                    e.printStackTrace()
-                    LoggerUtils.logError(e, getDatabaseSession())
+                    println("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
+                    ParserExceptionHandler.handleException(e)
                     return
                 } catch (e: PageLinkGenerationException) {
-                    e.printStackTrace()
-                    LoggerUtils.logError(e, getDatabaseSession())
+                    println("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
+                    ParserExceptionHandler.handleException(e)
                     continue
                 } catch (e: URISyntaxException) {
-                    e.printStackTrace()
-                    LoggerUtils.logError(e, getDatabaseSession())
+                    println("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
+                    ParserExceptionHandler.handleException(ParserException(e))
                     continue
                 } catch (e: EmptyJsoupDocumentException) {
-                    e.printStackTrace()
-                    LoggerUtils.logError(e, getDatabaseSession())
+                    println("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
+                    ParserExceptionHandler.handleException(e)
                     continue
                 } catch (e: EmptyArticlePreviewPageException) {
-                    e.printStackTrace()
-                    LoggerUtils.logError(e, getDatabaseSession()) //to be removed
+                    println("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
+                    ParserExceptionHandler.handleException(e)
                     if (opMode == ParserMode.RUNNING) {
                         savePageParsingHistory(currentPage, currentPageNumber, 0, parsingResult?.second ?: "")
                         continue
                     }
                 } catch (e: Throwable) {
-                    e.printStackTrace()
-                    LoggerUtils.logError(ParserException("Exp ${e::class.java.canonicalName} Msg: ${e.message} for page: ${currentPage.name} page no.: ${currentPageNumber} Np: ${currentPage.newspaper!!.name}"), getDatabaseSession())
+                    println("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
+                    ParserExceptionHandler.handleException(ParserException(e))
                     continue
                 }
-
 
                 val parseableArticleList =
                         articleList
@@ -184,7 +176,7 @@ class ArticleDataFeatcherForNewsPaper(
                                 .filter {
                                     DatabaseUtils.findArticleById(getDatabaseSession(), it.id) == null
                                 }
-                                .toCollection(mutableListOf<Article>())
+                                .toCollection(mutableListOf())
                 //For Full repeat
                 if (opMode == ParserMode.RUNNING && parseableArticleList.size == 0) {
                     allArticleRepeatAction(currentPage, parsingResult?.second ?: "")
@@ -197,34 +189,19 @@ class ArticleDataFeatcherForNewsPaper(
                         .filter {
                             return@filter try {
                                 waitForFareNetworkUsage()
-                                println("Article before parsing:" + it)
                                 ArticleBodyParser.getArticleBody(it)
                                 true
                             } catch (ex: ParserException) {
-                                ex.printStackTrace()
-                                LoggerUtils.logError(ex, getDatabaseSession())
+                                ParserExceptionHandler.handleException(ex)
                                 DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
                                 false
-                            } /*catch (ex: EmptyJsoupDocumentException) {
-                                LoggerUtils.logError(ex,getDatabaseSession())
-                                DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
-                                false
-                            } catch (ex: EmptyArticleBodyException) {
-                                LoggerUtils.logError(ex,getDatabaseSession())
-                                DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
-                                false
-                            } catch (ex: ArticleModificationTimeNotFoundException) {
-                                LoggerUtils.logError(ex,getDatabaseSession())
-                                DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
-                                false
-                            } */ catch (ex: Throwable) {
-                                LoggerUtils.logError(ParserException("Exp: ${ex::class.java.canonicalName} Msg: ${ex.message} for article: ${it.articleLink}"), getDatabaseSession())
+                            } catch (ex: Throwable) {
+                                ParserExceptionHandler.handleException(ParserException(ex))
                                 DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
                                 false
                             }
                         }
                         .forEach {
-                            println("Article after parsing:" + it)
                             if (it.isDownloaded()) {
                                 if (it.previewImageLink == null && it.imageLinkList.size > 0) {
                                     it.previewImageLink = it.imageLinkList.get(0).link
@@ -236,8 +213,6 @@ class ArticleDataFeatcherForNewsPaper(
                 savePageParsingHistory(currentPage, currentPageNumber, parseableArticleList.size, parsingResult?.second
                         ?: "")
             }
-            println("#############################################################################################")
-            println("#############################################################################################")
         } while (pageListForParsing.size > 0)
     }
 
@@ -246,6 +221,11 @@ class ArticleDataFeatcherForNewsPaper(
     }
 
     private fun savePageParsingHistory(currentPage: Page, currentPageNumber: Int, articleCount: Int, parsingLogMessage: String = "") {
+        if (articleCount>0) {
+            println("${articleCount} new article found for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
+        }else{
+            println("No new article found for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
+        }
         DatabaseUtils.runDbTransection(getDatabaseSession()) {
             getDatabaseSession().save(PageParsingHistory(page = currentPage, pageNumber = currentPageNumber,
                     articleCount = articleCount, parsingLogMessage = parsingLogMessage))
@@ -266,16 +246,15 @@ class ArticleDataFeatcherForNewsPaper(
         }
 
         try {
-            Thread.sleep(delayPeriod)
+            sleep(delayPeriod)
         } catch (ex: java.lang.Exception) {
             ex.printStackTrace()
         }
-//        while ((System.currentTimeMillis() - lastNetworkRequestTS) < MIN_DELAY_BETWEEN_NETWORK_REQUESTS)
         lastNetworkRequestTS = System.currentTimeMillis()
     }
 
     private fun getLastParsedPageNumber(page: Page): Int {
-        val query = getDatabaseSession().createQuery("FROM PageParsingHistory where pageId=:currentPageId order by created desc")
+        val query = getDatabaseSession().createQuery(SQL_FOR_LAST_PARSED_PAGE_NUMBER)
         query.setParameter("currentPageId", page.id)
         try {
             val historyEntry = query.list().first() as PageParsingHistory

@@ -15,12 +15,8 @@ package com.dasbikash.news_server_parser.exceptions
 
 import com.dasbikash.news_server_parser.model.Article
 
-class EmptyArticleBodyException: ParserException{
+class EmptyArticleBodyException: MediumLevelException{
 
-    constructor(article: Article) : super(causePreamble+"with link: ${article.articleLink} title: ${article.title} ")
+    constructor(article: Article) : super("For article: ${article.articleLink}")
     constructor() : super()
-
-    companion object {
-        val causePreamble = "EmptyArticleBodyException for article: ";
-    }
 }

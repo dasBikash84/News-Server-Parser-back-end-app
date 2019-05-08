@@ -27,10 +27,10 @@ class DailySunArticleParser : ArticleBodyParser() {
     override fun getArticleModificationDateString(): String? {
         val h3Blocks = mDocument.select(DailySunArticleParserInfo.ARTICLE_MODIFICATION_DATE_STRING_SELECTOR)
 
-        println("h3Blocks.size(): " + h3Blocks.size)
+//        println("h3Blocks.size(): " + h3Blocks.size)
         if (h3Blocks.size >= 4) {
             val fullDateString = h3Blocks[3].text()
-            println("fullDateString: $fullDateString")
+//            println("fullDateString: $fullDateString")
             return fullDateString
         }
         return null

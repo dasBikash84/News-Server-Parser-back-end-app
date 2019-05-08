@@ -125,7 +125,7 @@ abstract public class PreviewPageParser {
                 //System.out.println("articleLink: "+articleLink);
             } catch (Exception e) {
                 parsingLogMessage.append("articleLink == null");
-                e.printStackTrace();
+//                e.printStackTrace();
                 continue;
             }
 
@@ -135,7 +135,7 @@ abstract public class PreviewPageParser {
                 //System.out.println("previewImageLink: "+previewImageLink);
             } catch (Exception e) {
                 previewImageLink = null;
-                e.printStackTrace();
+//                e.printStackTrace();
                 parsingLogMessage.append("previewImageLink = null");
             }
 
@@ -145,7 +145,7 @@ abstract public class PreviewPageParser {
                 //System.out.println("articleTitle: "+articleTitle);
             } catch (Exception e) {
                 parsingLogMessage.append("articleTitle = null");
-                e.printStackTrace();
+//                e.printStackTrace();
                 continue;
             }
             if (getArticlePublicationDatetimeFormat() !=null) {
@@ -162,7 +162,7 @@ abstract public class PreviewPageParser {
                 //System.out.println("articlePublicationDateTimeStamp: "+articlePublicationDateTimeStamp);
             } catch (Exception e) {
                 articlePublicationDateTimeStamp = 0L;
-                e.printStackTrace();
+//                e.printStackTrace();
                 parsingLogMessage.append("Publication TimeStamp not found");
             }
 

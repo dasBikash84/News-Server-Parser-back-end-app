@@ -112,7 +112,7 @@ class JugantorPreviewPageParser : PreviewPageParser() {
                 publicationTime.time = simpleDateFormat.parse(articlePublicationDateString)
                 return publicationTime.timeInMillis
             } catch (e: ParseException) {
-                e.printStackTrace()
+//                e.printStackTrace()
                 return 0L
             }
 

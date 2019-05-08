@@ -15,12 +15,8 @@ package com.dasbikash.news_server_parser.exceptions
 
 import com.dasbikash.news_server_parser.model.Article
 
-class ArticleModificationTimeNotFoundException: ParserException{
+class ArticleModificationTimeNotFoundException: MediumLevelException{
 
-    constructor(article: Article) : super("Not found for article: "+article.articleLink)
+    constructor(article: Article) : super("For article: "+article.articleLink)
     constructor() : super()
-
-    companion object {
-        val causePreamble = "EmptyArticleBodyException for article: ";
-    }
 }

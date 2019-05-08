@@ -155,7 +155,7 @@ abstract public class ArticleBodyParser {
                             break;
                         }
                     } catch (Exception ex) {
-                        ex.printStackTrace();
+//                        ex.printStackTrace();
                     }
                 }
                 if (i == modificationDateStringFormats.length) {
@@ -194,7 +194,7 @@ abstract public class ArticleBodyParser {
                                     }
                                 }
                             } catch (Exception ex){
-                                ex.printStackTrace();
+//                                ex.printStackTrace();
                             }
 //                            System.out.println("Article featured Image found: "+featuredImageLink);
                             mArticle.getImageLinkList().add(new ArticleImage(featuredImageLink,imageCaption));
@@ -202,7 +202,7 @@ abstract public class ArticleBodyParser {
                     }
                 }
             } catch (Exception ex){
-                ex.printStackTrace();
+//                ex.printStackTrace();
             }
         }
 
@@ -247,7 +247,7 @@ abstract public class ArticleBodyParser {
                                             }
                                         }
                                     } catch (Exception ex) {
-                                        ex.printStackTrace();
+//                                        ex.printStackTrace();
                                     }
 //                                    System.out.println("Article Image found: "+articleImageLink);
                                     mArticle.getImageLinkList().add(new ArticleImage(articleImageLink,imageCaption));
@@ -262,7 +262,7 @@ abstract public class ArticleBodyParser {
                                 ARTICLE_IMAGE_BLOCK_REPLACER_REGEX
                         );*/
                     }catch (Exception ex){
-                        ex.printStackTrace();
+//                        ex.printStackTrace();
                     }
                 }
 
