@@ -32,7 +32,7 @@ import kotlin.random.Random
 class ArticleDataFeatcherForNewsPaper(
         private val newspaper: Newspaper, //caller must end session before sending Newspaper object
         private val opMode: ParserMode
-) : Runnable {
+) : Thread() {
 
     private val MAX_OLD_ARTICLE_DAYS = 30L
     private val MAX_OLD_ARTICLE_MS = MAX_OLD_ARTICLE_DAYS * 24 * 60 * 60 * 1000

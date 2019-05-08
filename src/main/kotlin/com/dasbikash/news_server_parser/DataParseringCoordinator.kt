@@ -22,36 +22,51 @@ import com.dasbikash.news_server_parser.model.Newspaper
 import com.dasbikash.news_server_parser.parser.ArticleDataFeatcherForNewsPaper
 
 
-enum class ParserMode{
-    RUNNING,GET_SYNCED
+enum class ParserMode {
+    RUNNING, GET_SYNCED
 }
 
 object DataParseringCoordinator {
 
     private val opMode = ParserMode.RUNNING
-    private val articleDataFetcherMap = mutableMapOf<String,ArticleDataFeatcherForNewsPaper>()
+
+    private val ITERATION_DELAY = 15 * 60 * 1000L //15 mins
+
+    private val articleDataFetcherMap
+            = mutableMapOf<String, ArticleDataFeatcherForNewsPaper>()
 
 
     @JvmStatic
     fun main(args: Array<String>) {
+        do {
+            try {
+                val session = DbSessionManager.getNewSession()
+                val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"
+                val query = session.createQuery(hql, Newspaper::class.java)
+                val newsPapers = query.list() as List<Newspaper>
 
-        val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"
-        val session = DbSessionManager.getNewSession()
-        val query = session.createQuery(hql, Newspaper::class.java)
-        val newsPapers = query.list() as List<Newspaper>
+                newsPapers.asSequence()
+                        .forEach {
+                            if (articleDataFetcherMap.containsKey(it.id) && !articleDataFetcherMap.get(it.id)!!.isAlive) {
+                                articleDataFetcherMap.remove(it.id)
+                            }
+                            if (!articleDataFetcherMap.containsKey(it.id)) {
+                                session.detach(it)
+                                val articleDataFeatcherForNewsPaper = ArticleDataFeatcherForNewsPaper(it, opMode)
+                                articleDataFetcherMap.put(it.id, articleDataFeatcherForNewsPaper)
+                                articleDataFeatcherForNewsPaper.start()
+                            }
+                        }
+                session.close()
+                Thread.sleep(ITERATION_DELAY)
+            } catch (ex: InterruptedException) {
+                ex.printStackTrace()
+                handleException(ex)
+            }
+        } while (true)
+    }
 
-        session.close()
-        Thread.sleep(1000)
+    private fun handleException(ex: InterruptedException) {
 
-        val threadPool = mutableListOf<Thread>()
-
-        newsPapers.asSequence()
-                .forEach {
-                    val thread = Thread(ArticleDataFeatcherForNewsPaper(it, opMode))
-                    thread.start()
-                    threadPool.add(thread)
-                }
-
-        threadPool.forEach { it.join() }
     }
 }
