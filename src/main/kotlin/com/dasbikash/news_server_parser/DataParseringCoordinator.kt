@@ -37,13 +37,8 @@ object DataParseringCoordinator {
 
         val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"
         val session = DbSessionManager.getNewSession()
-        var newsPapers: List<Newspaper>
-
-        do {
-            val query = session.createQuery(hql, Newspaper::class.java)
-            newsPapers = query.list() as List<Newspaper>
-            break
-        } while (true)
+        val query = session.createQuery(hql, Newspaper::class.java)
+        val newsPapers = query.list() as List<Newspaper>
 
         session.close()
         Thread.sleep(1000)

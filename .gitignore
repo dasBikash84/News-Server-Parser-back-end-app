@@ -1,6 +1,6 @@
 #List of folders containing temporary files for development assistance
 /dontTrack
-
+*BootStrap*
 ### Java template
 *.class
 
