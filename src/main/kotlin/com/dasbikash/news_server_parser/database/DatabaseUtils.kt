@@ -62,6 +62,36 @@ object DatabaseUtils {
         return query.list() as List<Newspaper>
     }
 
+    fun getAllLanguages(session: Session): List<Language>{
+        val hql = "FROM ${EntityClassNames.LANGUAGE}"
+        val query = session.createQuery(hql, Language::class.java)
+        return query.list() as List<Language>
+    }
+
+    fun getAllCountries(session: Session): List<Country>{
+        val hql = "FROM ${EntityClassNames.COUNTRY}"
+        val query = session.createQuery(hql, Country::class.java)
+        return query.list() as List<Country>
+    }
+
+    fun getAllNewspapers(session: Session): List<Newspaper>{
+        val hql = "FROM ${EntityClassNames.NEWSPAPER}"
+        val query = session.createQuery(hql, Newspaper::class.java)
+        return query.list() as List<Newspaper>
+    }
+
+    fun getAllPages(session: Session): List<Page>{
+        val hql = "FROM ${EntityClassNames.PAGE}"
+        val query = session.createQuery(hql, Page::class.java)
+        return query.list() as List<Page>
+    }
+
+    fun getAllPageGroups(session: Session): List<PageGroup>{
+        val hql = "FROM ${EntityClassNames.PAGE_GROUP}"
+        val query = session.createQuery(hql, PageGroup::class.java)
+        return query.list() as List<PageGroup>
+    }
+
     fun findArticleById(session: Session,id:String): Article?{
         val hql = "FROM ${EntityClassNames.ARTICLE} where id='${id}'"
         val query = session.createQuery(hql, Article::class.java)
@@ -81,7 +111,3 @@ object DatabaseUtils {
         return 0
     }*/
 }
-
-
-//val hql = "SELECT * FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME} WHERE pageId='${page.id}' and articleText is not null"
-//return session.createNativeQuery(hql, Article::class.java).resultList as List<Article>

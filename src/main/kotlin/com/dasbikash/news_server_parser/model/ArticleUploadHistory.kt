@@ -14,24 +14,23 @@
 package com.dasbikash.news_server_parser.model
 
 import java.util.*
-import javax.persistence.*
 
-@Entity
-@Table(name = "article_upload_history")
+//@Entity
+//@Table(name = "article_upload_history")
 data class ArticleUploadHistory (
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id:Int?=null,
-    @ManyToOne(targetEntity = Article::class,fetch = FetchType.LAZY)
-    @JoinColumn(name="articleId")
+//    @ManyToOne(targetEntity = Article::class,fetch = FetchType.LAZY)
+//    @JoinColumn(name="articleId")
     var article: Article? = null,
-    @Column(columnDefinition = "text")
+//    @Column(columnDefinition = "text")
     var targetAddress: String? = null,
-    @Column(columnDefinition = "text")
+//    @Column(columnDefinition = "text")
     var logMessage: String? = null,
     var created:Date? = null
 ){
-    override fun toString(): String {
-        return "ArticleUploadHistory(id=$id, article=${article?.title}, targetAddress=$targetAddress, logMessage=$logMessage, created=$created)"
-    }
+//    override fun toString(): String {
+//        return "ArticleUploadHistory(id=$id, article=${article?.title}, targetAddress=$targetAddress, logMessage=$logMessage, created=$created)"
+//    }
 }

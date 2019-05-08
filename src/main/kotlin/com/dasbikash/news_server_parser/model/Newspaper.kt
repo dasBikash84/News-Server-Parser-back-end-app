@@ -13,30 +13,53 @@
 
 package com.dasbikash.news_server_parser.model
 
+import com.dasbikash.news_server_parser.bootstrap.Countries
+import com.dasbikash.news_server_parser.bootstrap.Languages
 import javax.persistence.*
 
 @Entity
 @Table(name = DatabaseTableNames.NEWSPAPER_TABLE_NAME)
 data class Newspaper(
-        @Id var id: String="",
-        var name: String?=null,
+        @Id var id: String = "",
+        var name: String? = null,
 
-        @ManyToOne(targetEntity = Country::class,fetch = FetchType.EAGER)
-        @JoinColumn(name="countryName")
-        var country: Country?=null,
+        @ManyToOne(targetEntity = Country::class, fetch = FetchType.EAGER)
+        @JoinColumn(name = "countryName")
+        var country: Country? = null,
 
-        @ManyToOne(targetEntity = Language::class,fetch = FetchType.EAGER)
-        @JoinColumn(name="languageId")
-        var language: Language?=null,
+        @ManyToOne(targetEntity = Language::class, fetch = FetchType.EAGER)
+        @JoinColumn(name = "languageId")
+        var language: Language? = null,
 
-        var active: Boolean=true,
+        var active: Boolean = true,
 
-        @OneToMany(fetch = FetchType.LAZY,mappedBy = "newspaper",targetEntity = Page::class)
-        var pageList: List<Page>?=null
+        @OneToMany(fetch = FetchType.LAZY, mappedBy = "newspaper", targetEntity = Page::class)
+        var pageList: List<Page>? = null
 
 
 ) {
-        override fun toString(): String {
-                return "Newspaper(id='$id', name=$name, country=$country, language=$language, active=$active)"
+    @Transient
+    var countryName:String?=null
+    @Transient
+    var languageId:String?=null
+
+    override fun toString(): String {
+        return "Newspaper(id='$id', name=$name, country=${country?.name}, language=${language?.name}, active=$active)"
+    }
+    fun setCountryData(countries: List<Country>){
+        countries.asSequence().forEach {
+            if (it.name == countryName){
+                country = it
+                return@forEach
+            }
         }
+    }
+    fun setlanguageData(languages: List<Language>){
+        languages.asSequence().forEach {
+            if (it.id == languageId){
+                language = it
+                return@forEach
+            }
+        }
+    }
 }

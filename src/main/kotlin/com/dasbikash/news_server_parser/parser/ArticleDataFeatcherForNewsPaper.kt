@@ -15,7 +15,6 @@ package com.dasbikash.news_server_parser.parser
 
 import com.dasbikash.news_server_parser.ParserMode
 import com.dasbikash.news_server_parser.database.DatabaseUtils
-import com.dasbikash.news_server_parser.database.DbNamedNativeQueries
 import com.dasbikash.news_server_parser.database.DbSessionManager
 import com.dasbikash.news_server_parser.exceptions.*
 import com.dasbikash.news_server_parser.model.Article

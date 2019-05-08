@@ -74,21 +74,33 @@ CREATE TABLE `pages`
 
 CREATE TABLE `articles`
 (
+    `serial`           int(11)      NOT NULL AUTO_INCREMENT,
     `id`               varchar(255) NOT NULL,
     `modificationTS`   datetime     DEFAULT NULL,
     `publicationTS`    datetime     DEFAULT NULL,
     `title`            varchar(255) DEFAULT NULL,
-    `articleText`      text         DEFAULT NULL,
-    `previewImageLink` text         DEFAULT NULL,
-    `articleLink`      text         DEFAULT NULL,
+    `articleText`      text,
+    `previewImageLink` text,
+    `articleLink`      text,
     `pageId`           varchar(255) DEFAULT NULL,
-    `created`          DATETIME     DEFAULT CURRENT_TIMESTAMP,
-    `modified`         DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
+    `modified`         datetime     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`serial`),
+    UNIQUE KEY `article_id_unique_key` (`id`),
     KEY `articles_pageId_key` (`pageId`),
     CONSTRAINT `articles_pageId_fkey_constraint` FOREIGN KEY (`pageId`) REFERENCES `pages` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE `image_links`
+(
+    `articleId` int(11) NOT NULL,
+    `link`      text,
+    `caption`   text,
+    `created`   datetime DEFAULT CURRENT_TIMESTAMP,
+    KEY `FKtarkqvk2kgymilolrr4g2x3ae` (`articleId`),
+    CONSTRAINT `FKtarkqvk2kgymilolrr4g2x3ae` FOREIGN KEY (`articleId`) REFERENCES `articles` (`serial`)
+)    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE `image_links`
 (
@@ -109,6 +121,7 @@ create table `page_parsing_history`
     `pageId`       varchar(255) DEFAULT NULL,
     `pageNumber`   int(11) NOT NULL,
     `articleCount` int(11) NOT NULL,
+    `parsingLogMessage` text NOT NULL,
     `created`      DATETIME     DEFAULT CURRENT_TIMESTAMP,
     KEY `FK6fptm1kw30duw7fy26su0gvs1` (`pageId`),
     KEY `FK6fptm1kw30dulow56ngu0gvs1` (`pageNumber`),
@@ -141,11 +154,39 @@ create table article_upload_history
   DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE `exception_log`
-(`id` int(11) NOT NULL AUTO_INCREMENT,
- `exceptionClassFullName` varchar(255) DEFAULT NULL,
- `exceptionClassSimpleName` varchar(255) DEFAULT NULL,
- `exceptionCause` text,
- `exceptionMessage` text,
- `stackTrace` text,
- `created` datetime DEFAULT CURRENT_TIMESTAMP,
- PRIMARY KEY (`id`)) ENGINE=MyISAM AUTO_INCREMENT=1847 DEFAULT CHARSET=utf8mb4;
+(
+    `id`                       int(11) NOT NULL AUTO_INCREMENT,
+    `exceptionClassFullName`   varchar(255) DEFAULT NULL,
+    `exceptionClassSimpleName` varchar(255) DEFAULT NULL,
+    `exceptionCause`           text,
+    `exceptionMessage`         text,
+    `stackTrace`               text,
+    `created`                  datetime     DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE = MyISAM
+  AUTO_INCREMENT = 1847
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE `page_groups`
+(
+    `id`      int(11)      NOT NULL AUTO_INCREMENT,
+    `name`    varchar(255) NOT NULL,
+    `active`  bit(1)   default true,
+    `created` datetime DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+
+CREATE TABLE `page_group_entries`
+(
+    `id`          int(11)      NOT NULL AUTO_INCREMENT,
+    `pageGroupId` int(11)      NOT NULL,
+    `pageId`      varchar(255) NOT NULL,
+    UNIQUE KEY `page_group_entries_pageGroupId_pageId_unique_key` (`pageGroupId`, `pageId`),
+    CONSTRAINT `page_group_entries_pageGroupId_fk` FOREIGN KEY (`pageGroupId`) REFERENCES `page_groups` (`id`),
+    CONSTRAINT `page_group_entries_pageId_fk` FOREIGN KEY (`pageId`) REFERENCES `pages` (`id`),
+    `created`     datetime DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;

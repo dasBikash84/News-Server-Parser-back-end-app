@@ -35,7 +35,7 @@ data class Page(
         var firstEditionDateString:String? = null,
         var weekly:Boolean = false,
         var weeklyPublicationDay:Int? = 0,
-        var active: Boolean = true,
+        var active: Boolean = false,
 
         @OneToMany(fetch = FetchType.LAZY,mappedBy = "page",targetEntity = Article::class)
         var articleList: List<Article>?=null,
@@ -52,6 +52,9 @@ data class Page(
     }
 
     @Transient
+    var newsPaperId:String?=null
+
+    @Transient
     fun isTopLevelPage():Boolean{
         return parentPageId == TOP_LEVEL_PAGE_PARENT_ID
     }
@@ -65,9 +68,15 @@ data class Page(
     }
 
     override fun toString(): String {
-        return "Page(id='$id', newspaper=$newspaper, parentPageId=$parentPageId, name=$name, linkFormat=$linkFormat, linkVariablePartFormat=$linkVariablePartFormat, firstEditionDateString=$firstEditionDateString, weekly=$weekly, weeklyPublicationDay=$weeklyPublicationDay, active=$active)"
+        return "Page(id='$id', newspaper=${newspaper?.name}, parentPageId=$parentPageId, name=$name, linkFormat=$linkFormat, linkVariablePartFormat=$linkVariablePartFormat, firstEditionDateString=$firstEditionDateString, weekly=$weekly, weeklyPublicationDay=$weeklyPublicationDay, active=$active)"
     }
 
+    fun setNewspaper(newspapers: List<Newspaper>) {
+        newspapers.asSequence().forEach {
+            if (it.id == newsPaperId){
+                newspaper = it
+                return@forEach
+            }
+        }
+    }
 }
-
-//is_weekly,weekly_pub_day,link_format,link_variable_part_format,first_edition_date_string

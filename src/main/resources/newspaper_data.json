@@ -41,7 +41,8 @@
       "id": "NP_ID_7",
       "name": "The Times of India",
       "countryName": "India",
-      "languageId": "LANG_ID_3"
+      "languageId": "LANG_ID_3",
+      "active":false
     },
     {
       "id": "NP_ID_8",
@@ -59,8 +60,7 @@
       "id": "NP_ID_10",
       "name": "বাংলাদেশ প্রতিদিন",
       "countryName": "Bangladesh",
-      "languageId": "LANG_ID_1",
-      "active":false
+      "languageId": "LANG_ID_1"
     },
     {
       "id": "NP_ID_11",

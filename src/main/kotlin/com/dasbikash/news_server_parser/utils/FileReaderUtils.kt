@@ -11,13 +11,14 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_parser.model
+package com.dasbikash.news_server_parser.utils
 
-object DatabaseTableNames {
-    const val COUNTRY_TABLE_NAME = "countries";
-    const val LANGUAGE_TABLE_NAME = "languages";
-    const val NEWSPAPER_TABLE_NAME = "newspapers";
-    const val PAGE_TABLE_NAME = "pages";
-    const val ARTICLE_TABLE_NAME = "articles";
-    const val PAGE_GROUP_TABLE_NAME = "page_groups";
+import com.google.gson.Gson
+import java.io.InputStreamReader
+
+object FileReaderUtils{
+    fun <T> jsonFileToEntityList(fileResouceLocation:String,type:Class<T>):T{
+        val fileReader = InputStreamReader(javaClass.getResourceAsStream(fileResouceLocation))
+        return Gson().fromJson(fileReader, type)
+    }
 }

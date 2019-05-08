@@ -11,13 +11,22 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_parser.model
+package com.dasbikash.news_server_parser.bootstrap
 
-object DatabaseTableNames {
-    const val COUNTRY_TABLE_NAME = "countries";
-    const val LANGUAGE_TABLE_NAME = "languages";
-    const val NEWSPAPER_TABLE_NAME = "newspapers";
-    const val PAGE_TABLE_NAME = "pages";
-    const val ARTICLE_TABLE_NAME = "articles";
-    const val PAGE_GROUP_TABLE_NAME = "page_groups";
+import com.dasbikash.news_server_parser.model.*
+
+class Countries{
+    var countries:List<Country>?=null
+}
+class Languages{
+    var languages:List<Language>?=null
+}
+class Newspapers{
+    var newspapers:List<Newspaper>?=null
+}
+class Pages{
+    var pages:List<Page>?=null
+}
+class PageGroups{
+    var pageGroups:List<PageGroup>?=null
 }
