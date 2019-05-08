@@ -16,7 +16,6 @@
 
 package com.dasbikash.news_server_parser
 
-import com.dasbikash.news_server_parser.bootstrap.NewsPaperSettingsBootStrapFromRealTimeDb
 import com.dasbikash.news_server_parser.database.DbSessionManager
 import com.dasbikash.news_server_parser.model.EntityClassNames
 import com.dasbikash.news_server_parser.model.Newspaper
@@ -43,13 +42,6 @@ object DataParseringCoordinator {
         do {
             val query = session.createQuery(hql, Newspaper::class.java)
             newsPapers = query.list() as List<Newspaper>
-            if (newsPapers.size == 0) {
-                println("#################################################################")
-                println("Settings data not found, so going to load from remote server.....")
-                println("#################################################################")
-                NewsPaperSettingsBootStrapFromRealTimeDb.saveDefaultSettings(session)
-                continue
-            }
             break
         } while (true)
 

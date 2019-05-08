@@ -14,7 +14,6 @@
 package com.dasbikash.news_server_parser.model
 
 
-import com.google.cloud.firestore.annotation.Exclude
 import javax.persistence.*
 
 @Entity
@@ -23,7 +22,6 @@ data class Language (
         @Id var id:String="",
         var name: String?=null,
         @OneToMany(targetEntity = Newspaper::class,mappedBy = "language",fetch = FetchType.LAZY)
-        @Exclude
         var newsPapers:List<Newspaper>? = null
 ){
         override fun toString(): String {
