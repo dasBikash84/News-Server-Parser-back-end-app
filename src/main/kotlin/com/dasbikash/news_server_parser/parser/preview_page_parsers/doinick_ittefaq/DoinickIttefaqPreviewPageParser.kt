@@ -46,8 +46,8 @@ class DoinickIttefaqPreviewPageParser : PreviewPageParser() {
         return previewBlock.select(DoinickIttefaqPreviewPageParserInfo.ARTICLE_PREVIEW_IMAGE_LINK_ELEMENT_SELECTOR)[0].attr(DoinickIttefaqPreviewPageParserInfo.ARTICLE_PREVIEW_IMAGE_LINK_TEXT_SELECTOR_TAG)
     }
 
-    override fun processArticlePreviewImageLink(previewImageLink: String): String? {
-        var previewImageLink = previewImageLink
+    override fun processArticlePreviewImageLink(previewImageLinkStr: String): String? {
+        var previewImageLink = previewImageLinkStr
         if (!previewImageLink.matches(".+?url\\(.+?\\).+".toRegex())) {
             return null
         }

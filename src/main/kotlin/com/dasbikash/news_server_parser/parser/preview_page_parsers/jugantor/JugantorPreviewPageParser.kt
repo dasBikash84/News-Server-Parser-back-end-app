@@ -55,14 +55,14 @@ class JugantorPreviewPageParser : PreviewPageParser() {
         return null
     }
 
-    override fun processArticlePreviewImageLink(previewImageLink: String): String? {
-        var previewImageLink = previewImageLink
+    override fun processArticlePreviewImageLink(previewImageLinkStr: String): String? {
+        var previewImageLink = previewImageLinkStr
         if (!previewImageLink.matches(".+?url\\(.+?\\).+".toRegex())) {
             return null
         }
         previewImageLink = previewImageLink.split("url\\(".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]
         previewImageLink = previewImageLink.split("\\)".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
-        //return previewImageLink;
+        //return previewImageLinkStr;
         return super.processArticlePreviewImageLink(previewImageLink)
     }
 
@@ -71,14 +71,14 @@ class JugantorPreviewPageParser : PreviewPageParser() {
         return processDateString(articlePublicationDateString, mSimpleDateFormat)
     }
 
-    private fun processDateString(articlePublicationDateString: String, simpleDateFormat: SimpleDateFormat): Long {
-        var articlePublicationDateString = articlePublicationDateString
-        //Log.d(TAG, "processDateString: articlePublicationDateString: "+articlePublicationDateString);
+    private fun processDateString(articlePublicationDateStr: String, simpleDateFormat: SimpleDateFormat): Long {
+        var articlePublicationDateString = articlePublicationDateStr
+        //Log.d(TAG, "processDateString: articlePublicationDateStr: "+articlePublicationDateStr);
         if (articlePublicationDateString.contains(HOURS_AGO_TIME_STRING_BANGLA)) {
             articlePublicationDateString = articlePublicationDateString.replace(HOURS_AGO_TIME_STRING_BANGLA, "").trim { it <= ' ' }
-            var agoHour = 0
+//            var agoHour = 0
             try {
-                agoHour = Integer.decode(articlePublicationDateString)!!
+                var agoHour = Integer.decode(articlePublicationDateString)!!
                 //Log.d(TAG, "processDateString: agoHour: " + agoHour);
                 val publicationTime = Calendar.getInstance()
                 publicationTime.timeInMillis = publicationTime.timeInMillis - agoHour * ONE_HOUR_IN_MILLIS
@@ -90,9 +90,9 @@ class JugantorPreviewPageParser : PreviewPageParser() {
 
         } else if (articlePublicationDateString.contains(MINUTES_AGO_TIME_STRING_BANGLA)) {
             articlePublicationDateString = articlePublicationDateString.replace(MINUTES_AGO_TIME_STRING_BANGLA, "").trim { it <= ' ' }
-            var agoMinutes = 0
+//            var agoMinutes = 0
             try {
-                agoMinutes = Integer.decode(articlePublicationDateString)!!
+                var agoMinutes = Integer.decode(articlePublicationDateString)!!
                 //Log.d(TAG, "processDateString: agoMinutes: " + agoMinutes);
                 val publicationTime = Calendar.getInstance()
                 publicationTime.timeInMillis = publicationTime.timeInMillis - agoMinutes * ONE_MINUTE_IN_MILLIS
@@ -103,9 +103,9 @@ class JugantorPreviewPageParser : PreviewPageParser() {
             }
 
         } else {
-            //Log.d(TAG, "processDateString: GeneralTimeString: "+articlePublicationDateString);
+            //Log.d(TAG, "processDateString: GeneralTimeString: "+articlePublicationDateStr);
             articlePublicationDateString = DisplayUtils.banglaToEnglishDateString(articlePublicationDateString).trim { it <= ' ' }
-            //Log.d(TAG, "processDateString: inEnglish: "+articlePublicationDateString);
+            //Log.d(TAG, "processDateString: inEnglish: "+articlePublicationDateStr);
             val publicationTime = Calendar.getInstance()
             publicationTime.timeZone = simpleDateFormat.timeZone
             try {

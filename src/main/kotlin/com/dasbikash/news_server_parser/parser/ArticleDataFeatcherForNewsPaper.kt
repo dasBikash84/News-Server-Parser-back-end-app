@@ -36,7 +36,7 @@ class ArticleDataFeatcherForNewsPaper(
 ) : Thread() {
 
     private var lastNetworkRequestTS = 0L
-    private val MIN_DELAY_BETWEEN_NETWORK_REQUESTS = 10000L
+    private val MIN_DELAY_BETWEEN_NETWORK_REQUESTS = 10 * 1000L //10 secs
     private val PAGE_NUMBER_NOT_APPLICABLE = 0
 
     private val SQL_FOR_LAST_PARSED_PAGE_NUMBER = "FROM PageParsingHistory where pageId=:currentPageId order by created desc"
@@ -48,11 +48,11 @@ class ArticleDataFeatcherForNewsPaper(
     override fun run() {
         sleep(Random(System.currentTimeMillis()).nextLong(MIN_DELAY_BETWEEN_NETWORK_REQUESTS))
         println("Parser for ${newspaper.name} started at ${Date()}")
-        LoggerUtils.logMessage("Parser for ${newspaper.name} started",getDatabaseSession())
+        LoggerUtils.logMessage("Parser for ${newspaper.name} started", getDatabaseSession())
 
         getDatabaseSession().update(newspaper) //take newspaper in active state
 
-        newspaper.pageList?.sortedBy {it.id}
+        newspaper.pageList?.sortedBy { it.id }
                 ?.asSequence()
                 ?.filter { it.isTopLevelPage() }
                 ?.toCollection(topLevelPages)
@@ -187,27 +187,21 @@ class ArticleDataFeatcherForNewsPaper(
                 parseableArticleList
                         .asSequence()
                         .filter {
-                            return@filter try {
-                                waitForFareNetworkUsage()
+                            waitForFareNetworkUsage()
+                            try {
                                 ArticleBodyParser.getArticleBody(it)
-                                true
                             } catch (ex: ParserException) {
                                 ParserExceptionHandler.handleException(ex)
-                                DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
-                                false
                             } catch (ex: Throwable) {
                                 ParserExceptionHandler.handleException(ParserException(ex))
-                                DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().delete(it) }
-                                false
                             }
+                            it.isDownloaded()
                         }
                         .forEach {
-                            if (it.isDownloaded()) {
-                                if (it.previewImageLink == null && it.imageLinkList.size > 0) {
-                                    it.previewImageLink = it.imageLinkList.get(0).link
-                                }
-                                DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().save(it) }
+                            if (it.previewImageLink == null && it.imageLinkList.size > 0) {
+                                it.previewImageLink = it.imageLinkList.get(0).link
                             }
+                            DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().save(it) }
                         }
 
                 savePageParsingHistory(currentPage, currentPageNumber, parseableArticleList.size, parsingResult?.second
@@ -221,9 +215,9 @@ class ArticleDataFeatcherForNewsPaper(
     }
 
     private fun savePageParsingHistory(currentPage: Page, currentPageNumber: Int, articleCount: Int, parsingLogMessage: String = "") {
-        if (articleCount>0) {
+        if (articleCount > 0) {
             println("${articleCount} new article found for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
-        }else{
+        } else {
             println("No new article found for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
         }
         DatabaseUtils.runDbTransection(getDatabaseSession()) {

@@ -47,7 +47,7 @@ class AnandoBazarArticleParser : ArticleBodyParser() {
         val dateStringElements = mDocument.select(AnandoBazarArticleParserInfo.ARTICLE_MODIFICATION_DATE_STRING_SELECTOR)
         //System.out.println("parseArticle: dateStringElements.size(): "+dateStringElements.size());
         if (dateStringElements != null && dateStringElements.size > 0) {
-            var dateString = ""
+            var dateString:String// = ""
             if (dateStringElements.size > 1) {
                 dateString = dateStringElements[1].text()
             } else {

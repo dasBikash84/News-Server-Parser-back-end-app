@@ -56,8 +56,8 @@ class KalerKanthoPreviewPageParser : PreviewPageParser() {
         return null
     }
 
-    override fun processArticleLink(articleLink: String): String? {
-        var articleLink = articleLink
+    override fun processArticleLink(articleLinkStr: String): String? {
+        var articleLink = articleLinkStr
         if (articleLink.matches("^\\./.+".toRegex())) {
             articleLink = articleLink.substring(1)
         }

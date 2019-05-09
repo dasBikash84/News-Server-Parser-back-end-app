@@ -130,9 +130,9 @@ abstract public class ArticleBodyParser {
 
             String modificationDateString = getArticleModificationDateString();
 
-            if (mArticle.getPage().getNewspaper().getId().equals("NP_ID_18")) {
-                System.out.println("modificationDateString: " + modificationDateString);
-            }
+//            if (mArticle.getPage().getNewspaper().getId().equals("NP_ID_18")) {
+//                System.out.println("modificationDateString: " + modificationDateString);
+//            }
 
             if (modificationDateString !=null && modificationDateString.length()>0){
 

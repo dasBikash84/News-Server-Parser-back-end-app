@@ -34,8 +34,8 @@ class AnandoBazarPreviewPageParser : PreviewPageParser() {
     }
 
     override fun getPreviewBlocks(): Elements {
-        var previewBlocks = Elements()
-        previewBlocks = mDocument.select(AnandoBazarPreviewPageParserInfo.ARTICLE_PREVIEW_BLOCK_SELECTOR[mPageLayoutType])
+//        var previewBlocks = Elements()
+        var previewBlocks = mDocument.select(AnandoBazarPreviewPageParserInfo.ARTICLE_PREVIEW_BLOCK_SELECTOR[mPageLayoutType])
         if (previewBlocks.size == 0) {
             mPageLayoutType = 1
             previewBlocks = mDocument.select(AnandoBazarPreviewPageParserInfo.ARTICLE_PREVIEW_BLOCK_SELECTOR[mPageLayoutType])

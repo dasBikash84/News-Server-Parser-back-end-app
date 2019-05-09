@@ -29,8 +29,8 @@ object LinkProcessUtils {
         }
     }
 
-    fun processLink(linkText: String, siteBaseAddress: String): String? {
-        var linkText = linkText
+    fun processLink(linkStr: String, siteBaseAddress: String): String? {
+        var linkText = linkStr
 
         val siteHTTPString = getSiteHTTPProtocol(siteBaseAddress)
 

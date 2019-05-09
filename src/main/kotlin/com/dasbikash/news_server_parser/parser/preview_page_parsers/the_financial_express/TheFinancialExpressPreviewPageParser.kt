@@ -67,8 +67,8 @@ class TheFinancialExpressPreviewPageParser : PreviewPageParser() {
         return null
     }
 
-    override fun processArticleLink(articleLink: String): String? {
-        var articleLink = articleLink
+    override fun processArticleLink(articleLinkStr: String): String? {
+        var articleLink = articleLinkStr
         if (!articleLink.contains(mSiteBaseAddress) &&
                 !articleLink.matches("^//.+".toRegex()) &&
                 !articleLink.matches("^/.+".toRegex())) {
@@ -77,8 +77,8 @@ class TheFinancialExpressPreviewPageParser : PreviewPageParser() {
         return super.processArticleLink(articleLink)
     }
 
-    override fun processArticlePreviewImageLink(previewImageLink: String): String? {
-        var previewImageLink = previewImageLink
+    override fun processArticlePreviewImageLink(previewImageLinkStr: String): String? {
+        var previewImageLink = previewImageLinkStr
         if (!previewImageLink.contains(mSiteBaseAddress) &&
                 !previewImageLink.matches("^//.+".toRegex()) &&
                 !previewImageLink.matches("^/.+".toRegex())) {

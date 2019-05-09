@@ -26,8 +26,8 @@ class ProthomaloArticleParser : ArticleBodyParser() {
         return mSiteBaseAddress
     }
 
-    override fun processLink(linkText: String): String {
-        var linkText = linkText
+    override fun processLink(linkStr: String): String {
+        var linkText = linkStr
         if (linkText.contains("paimages")) {
             linkText = linkText.replace("paimages", "paloimages")
         }

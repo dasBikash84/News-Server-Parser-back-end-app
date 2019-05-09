@@ -24,8 +24,8 @@ class TheFinancialExpressArticleParser : ArticleBodyParser() {
         return mSiteBaseAddress
     }
 
-    override fun processLink(linkText: String): String {
-        var linkText = linkText
+    override fun processLink(linkStr: String): String {
+        var linkText = linkStr
         if (linkText.matches("^\\./.+".toRegex())) {
             linkText = linkText.substring(1)
         }

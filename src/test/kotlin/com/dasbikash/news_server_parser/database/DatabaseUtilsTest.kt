@@ -27,8 +27,8 @@ internal class DatabaseUtilsTest {
     fun tearDown() {
     }
 
-    @Test
-    fun readArticleCountForPage(){
+//    @Test
+//    fun readArticleCountForPage(){
 //        println(DatabaseUtils.getArticleCountForPage(DbSessionManager.getNewSession(),"PAGE_ID_619"))
-    }
+//    }
 }

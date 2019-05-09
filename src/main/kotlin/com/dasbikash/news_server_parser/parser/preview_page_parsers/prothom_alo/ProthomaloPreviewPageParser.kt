@@ -28,8 +28,8 @@ class ProthomaloPreviewPageParser : PreviewPageParser() {
         return mSiteBaseAddress
     }
 
-    override fun processArticlePreviewImageLink(previewImageLink: String): String? {
-        var previewImageLink = previewImageLink
+    override fun processArticlePreviewImageLink(previewImageLinkStr: String): String? {
+        var previewImageLink = previewImageLinkStr
         if (previewImageLink.contains(INVALID_DOMAIN_STRING)) {
             previewImageLink = previewImageLink.replace(INVALID_DOMAIN_STRING, VALID_DOMAIN_REPLACEMENT_STRING)
         }

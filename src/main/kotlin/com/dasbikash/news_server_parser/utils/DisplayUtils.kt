@@ -113,8 +113,8 @@ object DisplayUtils {
         return String(chars)
     }
 
-    private fun convertToBanglaTimeString(publicationTimeString: String): String {
-        var publicationTimeString = publicationTimeString
+    private fun convertToBanglaTimeString(publicationTimeStr: String): String {
+        var publicationTimeString = publicationTimeStr
 
         if (publicationTimeString == JUST_NOW_TIME_STRING) return JUST_NOW_TIME_STRING_BANGLA
         if (publicationTimeString == YESTERDAY_TIME_STRING) return YESTERDAY_TIME_STRING_BANGLA
@@ -137,16 +137,16 @@ object DisplayUtils {
         return englishToBanglaDateString(publicationTimeString)
     }
 
-    fun banglaToEnglishDateString(dateString: String): String {
-        var dateString = dateString
+    fun banglaToEnglishDateString(dateStr: String): String {
+        var dateString = dateStr
         dateString = replaceBanglaMonthName(dateString)
         dateString = replaceBanglaDigits(dateString)
         dateString = replaceAMPMMarkerBanToEng(dateString)
         return dateString
     }
 
-    fun englishToBanglaDateString(dateString: String): String {
-        var dateString = dateString
+    fun englishToBanglaDateString(dateStr: String): String {
+        var dateString = dateStr
         dateString = replaceEnglishMonthName(dateString)
         dateString = replaceEnglishDigits(dateString)
         dateString = replaceEnglishDayName(dateString)

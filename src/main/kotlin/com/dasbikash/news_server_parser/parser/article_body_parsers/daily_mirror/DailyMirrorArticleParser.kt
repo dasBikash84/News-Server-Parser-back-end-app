@@ -29,7 +29,7 @@ class DailyMirrorArticleParser : ArticleBodyParser() {
         val dateStringElements = mDocument.select(DailyMirrorArticleParserInfo.ARTICLE_MODIFICATION_DATE_STRING_BLOCK_SELECTOR)
         //Log.d(TAG, "parseArticle: dateStringElements.size(): "+dateStringElements.size());
         if (dateStringElements != null && dateStringElements.size > 0) {
-            var dateString = ""
+            var dateString:String// = ""
             if (dateStringElements.size == 2) {
                 dateString = dateStringElements[1].attr(DailyMirrorArticleParserInfo.ARTICLE_MODIFICATION_DATE_STRING_SELECTOR_ATTR).trim { it <= ' ' }
             } else {

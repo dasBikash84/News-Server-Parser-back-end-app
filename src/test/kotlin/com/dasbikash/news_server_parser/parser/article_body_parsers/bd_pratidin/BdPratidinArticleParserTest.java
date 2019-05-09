@@ -27,9 +27,9 @@ class BdPratidinArticleParserTest {
     void tearDown() {
     }
 
-    @Test
+//    @Test
 
-    public void splitTest(){
+//    public void splitTest(){
         /*String dateTextFromPage = "প্রকাশ : ১৭ ফেব্রুয়ারি, ২০১৯ ১৭:৫৬ আপডেট : ৭ এপ্রিল, ২০১৯ ১৫:৪২";
         System.out.println("dateTextFromPage"+dateTextFromPage);
         String dateTextFromPageBangla = DisplayUtils.banglaToEnglishDateString(dateTextFromPage);
@@ -47,5 +47,5 @@ class BdPratidinArticleParserTest {
             linkText = linkText.substring(1);
         }*/
         //System.out.println(linkText);
-    }
+//    }
 }

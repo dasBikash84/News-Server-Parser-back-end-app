@@ -60,16 +60,16 @@ class BdPratidinPreviewPageParser : PreviewPageParser() {
         return null
     }
 
-    override fun processArticleLink(articleLink: String): String? {
-        var articleLink = articleLink
+    override fun processArticleLink(articleLinkStr: String): String? {
+        var articleLink = articleLinkStr
         if (!articleLink.matches("^http.+".toRegex()) && !articleLink.matches("^/.+".toRegex())) {
             articleLink = "/$articleLink"
         }
         return super.processArticleLink(articleLink)
     }
 
-    override fun processArticlePreviewImageLink(previewImageLink: String): String? {
-        var previewImageLink = previewImageLink
+    override fun processArticlePreviewImageLink(previewImageLinkStr: String): String? {
+        var previewImageLink = previewImageLinkStr
         if (previewImageLink.matches("^\\./.+".toRegex())) {
             previewImageLink = previewImageLink.substring(1)
         }

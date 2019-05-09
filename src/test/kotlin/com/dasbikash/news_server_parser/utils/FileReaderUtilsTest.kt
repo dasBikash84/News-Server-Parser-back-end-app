@@ -29,7 +29,7 @@ internal class FileReaderUtilsTest {
     @AfterEach
     fun tearDown() {
     }
-    @Test
+    /*@Test
     fun testRead(){
        FileReaderUtils.jsonFileToEntityList("/language_data.json",Languages::class.java)
                .languages!!.asSequence().forEach {
@@ -51,5 +51,5 @@ internal class FileReaderUtilsTest {
                .pageGroups!!.asSequence().forEach {
            println(it)
        }
-    }
+    }*/
 }

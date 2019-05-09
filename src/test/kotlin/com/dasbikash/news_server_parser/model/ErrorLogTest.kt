@@ -27,10 +27,10 @@ internal class ErrorLogTest {
     fun tearDown() {
     }
 
-    @Test
+   /* @Test
     fun testLog(){
-       /* LoggerUtils.logError(
+       *//* LoggerUtils.logError(
                 Throwable("Test throwable", Throwable("Test Cause")), DbSessionManager.getNewSession()
-        )*/
-    }
+        )*//*
+    }*/
 }

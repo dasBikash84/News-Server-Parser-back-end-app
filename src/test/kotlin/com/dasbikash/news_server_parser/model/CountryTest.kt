@@ -27,9 +27,9 @@ internal class CountryTest {
     fun tearDown() {
     }
 
-    @Test
-    fun testSaveSame(){
+//    @Test
+//    fun testSaveSame(){
         /*val country = DbSessionManager.getNewSession().get(Country::class.java,"Bangladfgdesh");
         println(country)*/
-    }
+//    }
 }
