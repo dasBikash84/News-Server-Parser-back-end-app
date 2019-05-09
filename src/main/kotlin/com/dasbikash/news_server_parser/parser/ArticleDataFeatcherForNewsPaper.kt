@@ -128,7 +128,12 @@ class ArticleDataFeatcherForNewsPaper(
                     currentPageNumber = PAGE_NUMBER_NOT_APPLICABLE
                 }
 
-                waitForFareNetworkUsage()
+                try {
+                    waitForFareNetworkUsage()
+                } catch (ex: InterruptedException) {
+                    ex.printStackTrace()
+                    return
+                }
 
                 val articleList: MutableList<Article> = mutableListOf()
 
@@ -184,28 +189,31 @@ class ArticleDataFeatcherForNewsPaper(
                 }
 
                 //Now go for article data fetching
-                parseableArticleList
-                        .asSequence()
-                        .filter {
-                            waitForFareNetworkUsage()
-                            try {
-                                ArticleBodyParser.getArticleBody(it)
-                            } catch (ex: ParserException) {
-                                ParserExceptionHandler.handleException(ex)
-                            } catch (ex: Throwable) {
-                                ParserExceptionHandler.handleException(ParserException(ex))
-                            }
-                            it.isDownloaded()
-                        }
-                        .forEach {
-                            if (it.previewImageLink == null && it.imageLinkList.size > 0) {
-                                it.previewImageLink = it.imageLinkList.get(0).link
-                            }
-                            DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().save(it) }
-                        }
 
-                savePageParsingHistory(currentPage, currentPageNumber, parseableArticleList.size, parsingResult?.second
-                        ?: "")
+                for (article in parseableArticleList) {
+                    try {
+                        waitForFareNetworkUsage()
+                    } catch (ex: InterruptedException) {
+                        ex.printStackTrace()
+                        return
+                    }
+                    try {
+                        ArticleBodyParser.getArticleBody(article)
+                        if (article.isDownloaded()) {
+                            if (article.previewImageLink == null && article.imageLinkList.size > 0) {
+                                article.previewImageLink = article.imageLinkList.get(0).link
+                            }
+                            DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().save(article) }
+                        }
+                    } catch (ex: ParserException) {
+                        ParserExceptionHandler.handleException(ex)
+                    } catch (ex: Throwable) {
+                        ParserExceptionHandler.handleException(ParserException(ex))
+                    }
+                }
+
+                savePageParsingHistory(
+                        currentPage, currentPageNumber, parseableArticleList.size, parsingResult?.second ?: "")
             }
         } while (pageListForParsing.size > 0)
     }
@@ -239,11 +247,8 @@ class ArticleDataFeatcherForNewsPaper(
             delayPeriod = ramdomDelay
         }
 
-        try {
-            sleep(delayPeriod)
-        } catch (ex: java.lang.Exception) {
-            ex.printStackTrace()
-        }
+        sleep(delayPeriod)
+
         lastNetworkRequestTS = System.currentTimeMillis()
     }
 

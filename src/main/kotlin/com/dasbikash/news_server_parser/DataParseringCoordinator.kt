@@ -16,13 +16,16 @@
 
 package com.dasbikash.news_server_parser
 
+import com.dasbikash.news_server_parser.database.DatabaseUtils
 import com.dasbikash.news_server_parser.database.DbSessionManager
 import com.dasbikash.news_server_parser.exceptions.HighestLevelException
 import com.dasbikash.news_server_parser.exceptions.ParserRestartedException
+import com.dasbikash.news_server_parser.exceptions.ParserStoppedException
 import com.dasbikash.news_server_parser.exceptions.handler.ParserExceptionHandler
 import com.dasbikash.news_server_parser.model.EntityClassNames
 import com.dasbikash.news_server_parser.model.Newspaper
 import com.dasbikash.news_server_parser.parser.ArticleDataFeatcherForNewsPaper
+import com.dasbikash.news_server_parser.utils.LoggerUtils
 
 
 enum class ParserMode {
@@ -44,23 +47,29 @@ object DataParseringCoordinator {
         do {
             try {
                 val session = DbSessionManager.getNewSession()
-                val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"
-                val query = session.createQuery(hql, Newspaper::class.java)
-                val newsPapers = query.list() as List<Newspaper>
 
-                newsPapers.asSequence()
-                        .forEach {
-                            if (articleDataFetcherMap.containsKey(it.id) && !articleDataFetcherMap.get(it.id)!!.isAlive) {
-                                articleDataFetcherMap.remove(it.id)
-                                ParserExceptionHandler.handleException(ParserRestartedException(it))
-                            }
-                            if (!articleDataFetcherMap.containsKey(it.id)) {
-                                session.detach(it)
-                                val articleDataFeatcherForNewsPaper = ArticleDataFeatcherForNewsPaper(it, opMode)
-                                articleDataFetcherMap.put(it.id, articleDataFeatcherForNewsPaper)
-                                articleDataFeatcherForNewsPaper.start()
-                            }
+                val allNewspapers = DatabaseUtils.getAllNewspapers(session)
+
+                allNewspapers.asSequence().forEach {
+                    if (it.active){
+                        if (articleDataFetcherMap.containsKey(it.id) && !articleDataFetcherMap.get(it.id)!!.isAlive) {
+                            articleDataFetcherMap.remove(it.id)
+                            ParserExceptionHandler.handleException(ParserRestartedException(it))
                         }
+                        if (!articleDataFetcherMap.containsKey(it.id)) {
+                            session.detach(it)
+                            val articleDataFeatcherForNewsPaper = ArticleDataFeatcherForNewsPaper(it, opMode)
+                            articleDataFetcherMap.put(it.id, articleDataFeatcherForNewsPaper)
+                            articleDataFeatcherForNewsPaper.start()
+                        }
+                    }else{
+                        if (articleDataFetcherMap.containsKey(it.id)){
+                            articleDataFetcherMap.get(it.id)!!.interrupt()
+                            articleDataFetcherMap.remove(it.id)
+                            ParserExceptionHandler.handleException(ParserStoppedException(it))
+                        }
+                    }
+                }
                 session.close()
                 Thread.sleep(ITERATION_DELAY)
             } catch (ex: InterruptedException) {
