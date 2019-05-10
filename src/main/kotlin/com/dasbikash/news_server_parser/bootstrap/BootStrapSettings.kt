@@ -21,7 +21,24 @@ object BootstrapSettings {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        loadSettingsFromLocalJson()
+//        loadSettingsFromLocalJson()
+//        displayAll()
+        loadPageGroupData()
+    }
+
+    fun loadPageGroupData() {
+        val session = DbSessionManager.getNewSession()
+        val pages= DatabaseUtils.getAllPages(session)
+
+        session.beginTransaction()
+
+        FileReaderUtils.jsonFileToEntityList("/page_group_data.json", PageGroups::class.java)
+                .pageGroups!!.asSequence().forEach {
+            it.setPages(pages)
+            session.save(it)
+        }
+        session.transaction.commit()
+        session.close()
         displayAll()
     }
 
