@@ -1,7 +1,6 @@
 # Article data parser for News-Server project
-Cack-end console application for Article data parsering of NewsServer Project. The app is written in Kotlin and mysql 
-database is used for data storage. This app is designed to run continuously in back-end server in order to parse latest 
-article data from designated News-paper web sites and store in database. Then the parsed article data (and also newspaer settings data)
+Back-end console application for Article data parsering of [NewsServer Reloaded](https://github.com/dasBikash84/NewsServer_reloaded_master) Project. The app is written in Kotlin and mysql database is used
+for data storage. This app is designed to run continuously in back-end server in order to parse latest article data from designated News-paper web sites and store in database. Then the parsed article data (and also newspaer settings data)
 is presented to [`coordinator`](https://github.com/dasBikash84/news_server_data_coordinator) app via a [`rest service`](https://github.com/dasBikash84/news_server_parser_rest_end_point).
 
 Key classes and respective functionality of this app are as below:
