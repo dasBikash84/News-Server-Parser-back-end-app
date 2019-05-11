@@ -102,17 +102,23 @@ class ArticleDataFeatcherForNewsPaper(
             //Mark pages with articles as active
             pageListForParsing.asSequence()
                     .forEach {
-                        if (!it.isTopLevelPage()) {
-                            if (it.articleList != null) {
-                                it.active = it.articleList!!.size > 0
+                        if(!it.active){
+
+                            if (!it.isTopLevelPage()) {
+                                if (it.articleList != null) {
+                                    it.active = it.articleList!!.size > 0
+                                } else {
+                                    it.active = false
+                                }
                             } else {
-                                it.active = false
+                                it.active = true
                             }
-                        } else {
-                            it.active = true
-                        }
-                        DatabaseUtils.runDbTransection(getDatabaseSession()) {
-                            getDatabaseSession().update(it)
+                            if(it.active) {
+                                DatabaseUtils.runDbTransection(getDatabaseSession()) {
+                                    getDatabaseSession().update(it)
+                                }
+                            }
+
                         }
                     }
 

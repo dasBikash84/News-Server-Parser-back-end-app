@@ -1,4 +1,4 @@
-@file:JvmName("com.dasbikash.news_server_parser.DataParseringCoordinator")
+@file:JvmName("com.dasbikash.news_server_parser.DataParsingCoordinator")
 
 /*
  * Copyright 2019 das.bikash.dev@gmail.com. All rights reserved.
@@ -32,7 +32,7 @@ enum class ParserMode {
     RUNNING, GET_SYNCED
 }
 
-object DataParseringCoordinator {
+object DataParsingCoordinator {
 
     private val opMode = ParserMode.RUNNING
 
