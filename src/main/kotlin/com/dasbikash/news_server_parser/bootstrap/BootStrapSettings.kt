@@ -21,9 +21,9 @@ object BootstrapSettings {
 
     @JvmStatic
     fun main(args: Array<String>) {
-//        loadSettingsFromLocalJson()
-//        displayAll()
-        loadPageGroupData()
+        loadSettingsFromLocalJson()
+        displayAll()
+//        loadPageGroupData()
     }
 
     fun loadPageGroupData() {

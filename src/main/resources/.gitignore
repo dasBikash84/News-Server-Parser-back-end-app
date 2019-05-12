@@ -2,3 +2,4 @@
 *.sql
 hibernate.cfg.xml
 !mysql_init_db_and_user.sql
+!NewsServerParser-1.0-SNAPSHOT-settings-bootstrap.jar
