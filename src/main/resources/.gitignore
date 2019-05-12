@@ -1,3 +1,4 @@
 *.json
 *.sql
 hibernate.cfg.xml
+!mysql_init_db_and_user.sql
