@@ -172,6 +172,8 @@ grant select,insert,update,delete on news_server_parser2.* to 'nsp_app_user'@'lo
 
 grant select on news_server_parser2.* to 'nsp_rest_user'@'localhost';
 grant insert,update on news_server_parser2.tokens to 'nsp_rest_user'@'localhost';
+grant update on news_server_parser2.newspapers to 'nsp_rest_user'@'localhost';
+grant insert on news_server_parser2.general_log to 'nsp_rest_user'@'localhost';
 grant delete on news_server_parser2.general_log to 'nsp_rest_user'@'localhost';
 grant delete on news_server_parser2.exception_log to 'nsp_rest_user'@'localhost';
 grant delete on news_server_parser2.page_parsing_history to 'nsp_rest_user'@'localhost';
