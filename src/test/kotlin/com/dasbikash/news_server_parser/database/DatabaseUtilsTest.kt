@@ -31,4 +31,14 @@ internal class DatabaseUtilsTest {
 //    fun readArticleCountForPage(){
 //        println(DatabaseUtils.getArticleCountForPage(DbSessionManager.getNewSession(),"PAGE_ID_619"))
 //    }
+
+    @Test
+    fun readArticleCountForPage(){
+        val session = DbSessionManager.getNewSession()
+
+        println(DatabaseUtils.getArticleCountForPage(session,"PAGE_ID_1"))
+
+        session.close()
+    }
+
 }

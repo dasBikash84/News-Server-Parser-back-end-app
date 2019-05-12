@@ -106,7 +106,7 @@ class ArticleDataFeatcherForNewsPaper(
 
                             if (!it.isTopLevelPage()) {
                                 if (it.articleList != null) {
-                                    it.active = it.articleList!!.size > 0
+                                    it.active = DatabaseUtils.getArticleCountForPage(getDatabaseSession(),it.id)>0//it.articleList!!.size > 0
                                 } else {
                                     it.active = false
                                 }

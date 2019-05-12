@@ -102,12 +102,12 @@ object DatabaseUtils {
         return null
     }
 
-    /*fun getArticleCountForPage(session: Session, pageId:String):Int{
-        val sql = "SELECT COUNT(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME} WHERE pageId='${pageId}' and articleText is not null"
-        val result = session.createNativeQuery(sql, Article::class.java).resultList as List<Int>
-        if (result.size > 0){
+    fun getArticleCountForPage(session: Session, pageId:String):Int{
+        val sql = "SELECT COUNT(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME} WHERE pageId='${pageId}'"
+        val result = session.createNativeQuery(sql).list() as List<Int>
+        if (result.size ==1 ){
             return result.get(0)
         }
         return 0
-    }*/
+    }
 }
