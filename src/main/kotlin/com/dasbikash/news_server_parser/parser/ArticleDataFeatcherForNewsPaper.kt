@@ -172,7 +172,7 @@ class ArticleDataFeatcherForNewsPaper(
                     println("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
                     ParserExceptionHandler.handleException(e)
                     if (opMode == ParserMode.RUNNING) {
-                        savePageParsingHistory(currentPage, currentPageNumber, 0, parsingResult?.second ?: "")
+                        emptyPageAction(currentPage,parsingResult?.second ?: "")
                         continue
                     }
                 } catch (e: Throwable) {
@@ -222,6 +222,10 @@ class ArticleDataFeatcherForNewsPaper(
                         currentPage, currentPageNumber, parseableArticleList.size, parsingResult?.second ?: "")
             }
         } while (pageListForParsing.size > 0)
+    }
+
+    private fun emptyPageAction(currentPage: Page, parsingLogMessage: String) {
+        savePageParsingHistory(currentPage, 0, 0, "No article found." + parsingLogMessage)
     }
 
     private fun allArticleRepeatAction(currentPage: Page, parsingLogMessage: String) {

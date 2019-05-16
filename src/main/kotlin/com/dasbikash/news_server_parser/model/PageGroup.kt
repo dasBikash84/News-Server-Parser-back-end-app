@@ -13,7 +13,6 @@
 
 package com.dasbikash.news_server_parser.model
 
-import com.dasbikash.news_server_parser.model.DatabaseTableNames
 import com.dasbikash.news_server_parser.model.Page
 import javax.persistence.*
 
