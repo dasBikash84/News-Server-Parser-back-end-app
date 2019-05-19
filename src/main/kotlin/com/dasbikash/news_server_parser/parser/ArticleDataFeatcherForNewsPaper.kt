@@ -97,6 +97,12 @@ class ArticleDataFeatcherForNewsPaper(
             }
             i++
         }
+        pageListForParsing.asSequence()
+                .forEach {
+                    if (opMode == ParserMode.RUNNING) {
+                        emptyPageAction(it, "Reset on start.")
+                    }
+                }
 
         do {
             //Mark pages with articles as active
@@ -118,10 +124,6 @@ class ArticleDataFeatcherForNewsPaper(
                                     getDatabaseSession().update(it)
                                 }
                             }
-
-                        }
-                        if (opMode==ParserMode.RUNNING){
-                            emptyPageAction(it,"Reset on start.")
                         }
                     }
 
