@@ -120,6 +120,9 @@ class ArticleDataFeatcherForNewsPaper(
                             }
 
                         }
+                        if (opMode==ParserMode.RUNNING){
+                            emptyPageAction(it,"Reset on start.")
+                        }
                     }
 
             println("Going to parse ${pageListForParsing.size} pages for Np: ${newspaper.name}")
