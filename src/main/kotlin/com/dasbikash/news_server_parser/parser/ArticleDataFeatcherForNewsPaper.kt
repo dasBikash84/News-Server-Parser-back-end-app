@@ -36,7 +36,7 @@ class ArticleDataFeatcherForNewsPaper(
 ) : Thread() {
 
     private var lastNetworkRequestTS = 0L
-    private val MIN_DELAY_BETWEEN_NETWORK_REQUESTS = 10 * 1000L //10 secs
+    private val MIN_DELAY_BETWEEN_NETWORK_REQUESTS = 5 * 1000L //5 secs
     private val PAGE_NUMBER_NOT_APPLICABLE = 0
 
     private val SQL_FOR_LAST_PARSED_PAGE_NUMBER = "FROM PageParsingHistory where pageId=:currentPageId order by created desc"
@@ -44,6 +44,8 @@ class ArticleDataFeatcherForNewsPaper(
     private val topLevelPages = mutableListOf<Page>()
     private val childPageMap = mutableMapOf<Page, ArrayList<Page>>()
     lateinit var dbSession: Session
+
+    private val ALL_PAGE_PARSING_PERIOD = 3*60*60*1000L // 3 hours
 
     override fun run() {
         sleep(Random(System.currentTimeMillis()).nextLong(MIN_DELAY_BETWEEN_NETWORK_REQUESTS))
@@ -104,6 +106,8 @@ class ArticleDataFeatcherForNewsPaper(
                     }
                 }
 
+        val delayBetweenPages = ALL_PAGE_PARSING_PERIOD/pageListForParsing.size
+
         do {
             //Mark pages with articles as active
             pageListForParsing.asSequence()
@@ -112,7 +116,7 @@ class ArticleDataFeatcherForNewsPaper(
 
                             if (!it.isTopLevelPage()) {
                                 if (it.articleList != null) {
-                                    it.active = DatabaseUtils.getArticleCountForPage(getDatabaseSession(),it.id)>0//it.articleList!!.size > 0
+                                    it.active = DatabaseUtils.getArticleCountForPage(getDatabaseSession(),it.id)>0
                                 } else {
                                     it.active = false
                                 }
@@ -129,7 +133,15 @@ class ArticleDataFeatcherForNewsPaper(
 
             println("Going to parse ${pageListForParsing.size} pages for Np: ${newspaper.name}")
 
-            for (currentPage in pageListForParsing) {
+            val shuffledPages = pageListForParsing.shuffled()
+
+            for (currentPage in shuffledPages) {
+
+                try {
+                    sleep(delayBetweenPages)
+                }catch (ex:InterruptedException){
+                    return
+                }
 
                 val currentPageNumber: Int
 
@@ -139,12 +151,12 @@ class ArticleDataFeatcherForNewsPaper(
                     currentPageNumber = PAGE_NUMBER_NOT_APPLICABLE
                 }
 
-                try {
-                    waitForFareNetworkUsage()
-                } catch (ex: InterruptedException) {
-                    ex.printStackTrace()
-                    return
-                }
+//                try {
+//                    waitForFareNetworkUsage()
+//                } catch (ex: InterruptedException) {
+//                    ex.printStackTrace()
+//                    return
+//                }
 
                 val articleList: MutableList<Article> = mutableListOf()
 
