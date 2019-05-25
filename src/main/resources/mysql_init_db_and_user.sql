@@ -179,6 +179,17 @@ CREATE TABLE `news_server_parser2`.`rest_activity_log`
 ) ENGINE = MyISAM
   DEFAULT CHARSET = utf8;
 
+CREATE TABLE `news_server_parser2`.`np_opmode_entry`
+(
+    `id`         int(11)  NOT NULL AUTO_INCREMENT,
+    `opMode` enum ('RUNNING','GET_SYNCED') NOT NULL,
+    `newsPaperId`            varchar(255) DEFAULT NULL,
+    `created`    datetime DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT `np_opmode_entry_newsPaperId_fkey_constraint` FOREIGN KEY (`newsPaperId`) REFERENCES `newspapers` (`id`),
+    PRIMARY KEY (`id`)
+) ENGINE = MyISAM
+  DEFAULT CHARSET = utf8;
+
 drop user if exists 'nsp_app_user'@'localhost';
 drop user if exists 'nsp_rest_user'@'localhost';
 
@@ -190,6 +201,7 @@ grant select,insert,update,delete on news_server_parser2.* to 'nsp_app_user'@'lo
 grant select on news_server_parser2.* to 'nsp_rest_user'@'localhost';
 grant insert,update on news_server_parser2.tokens to 'nsp_rest_user'@'localhost';
 grant insert on news_server_parser2.rest_activity_log to 'nsp_rest_user'@'localhost';
+grant insert on news_server_parser2.np_opmode_entry to 'nsp_rest_user'@'localhost';
 grant update on news_server_parser2.newspapers to 'nsp_rest_user'@'localhost';
 grant insert on news_server_parser2.general_log to 'nsp_rest_user'@'localhost';
 grant delete on news_server_parser2.general_log to 'nsp_rest_user'@'localhost';

@@ -13,15 +13,11 @@
 
 package com.dasbikash.news_server_parser.parser
 
-import com.dasbikash.news_server_parser.ParserMode
 import com.dasbikash.news_server_parser.database.DatabaseUtils
 import com.dasbikash.news_server_parser.database.DbSessionManager
 import com.dasbikash.news_server_parser.exceptions.*
 import com.dasbikash.news_server_parser.exceptions.handler.ParserExceptionHandler
-import com.dasbikash.news_server_parser.model.Article
-import com.dasbikash.news_server_parser.model.Newspaper
-import com.dasbikash.news_server_parser.model.Page
-import com.dasbikash.news_server_parser.model.PageParsingHistory
+import com.dasbikash.news_server_parser.model.*
 import com.dasbikash.news_server_parser.parser.article_body_parsers.ArticleBodyParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser
 import com.dasbikash.news_server_parser.utils.LoggerUtils
@@ -30,9 +26,9 @@ import java.net.URISyntaxException
 import java.util.*
 import kotlin.random.Random
 
-class ArticleDataFeatcherForNewsPaper(
-        private val newspaper: Newspaper, //caller must end session before sending Newspaper object
-        private val opMode: ParserMode
+class ArticleDataFetcherForNewsPaper(
+        val newspaper: Newspaper, //caller must end session before sending Newspaper object
+        val opMode: ParserMode
 ) : Thread() {
 
     private var lastNetworkRequestTS = 0L
@@ -45,7 +41,7 @@ class ArticleDataFeatcherForNewsPaper(
     private val childPageMap = mutableMapOf<Page, ArrayList<Page>>()
     lateinit var dbSession: Session
 
-    private val ALL_PAGE_PARSING_PERIOD = 3*60*60*1000L // 3 hours
+    private val ALL_PAGE_PARSING_PERIOD = 3 * 60 * 60 * 1000L // 3 hours
 
     override fun run() {
         sleep(Random(System.currentTimeMillis()).nextLong(MIN_DELAY_BETWEEN_NETWORK_REQUESTS))
@@ -101,29 +97,27 @@ class ArticleDataFeatcherForNewsPaper(
         }
         pageListForParsing.asSequence()
                 .forEach {
-                    if (opMode == ParserMode.RUNNING) {
-                        emptyPageAction(it, "Reset on start.")
-                    }
+                    emptyPageAction(it, "Reset on start.")
                 }
 
-        val delayBetweenPages = ALL_PAGE_PARSING_PERIOD/pageListForParsing.size
+        val delayBetweenPages = ALL_PAGE_PARSING_PERIOD / pageListForParsing.size
 
         do {
             //Mark pages with articles as active
             pageListForParsing.asSequence()
                     .forEach {
-                        if(!it.active){
+                        if (!it.active) {
 
                             if (!it.isTopLevelPage()) {
                                 if (it.articleList != null) {
-                                    it.active = DatabaseUtils.getArticleCountForPage(getDatabaseSession(),it.id)>0
+                                    it.active = DatabaseUtils.getArticleCountForPage(getDatabaseSession(), it.id) > 0
                                 } else {
                                     it.active = false
                                 }
                             } else {
                                 it.active = true
                             }
-                            if(it.active) {
+                            if (it.active) {
                                 DatabaseUtils.runDbTransection(getDatabaseSession()) {
                                     getDatabaseSession().update(it)
                                 }
@@ -138,8 +132,13 @@ class ArticleDataFeatcherForNewsPaper(
             for (currentPage in shuffledPages) {
 
                 try {
-                    sleep(delayBetweenPages)
-                }catch (ex:InterruptedException){
+                    if (opMode == ParserMode.RUNNING) {
+                        sleep(delayBetweenPages)
+                    }else{
+                        waitForFareNetworkUsage()
+                    }
+                } catch (ex: InterruptedException) {
+                    println("Exiting ${this::class.java.simpleName} for ${newspaper.name}")
                     return
                 }
 
@@ -151,15 +150,7 @@ class ArticleDataFeatcherForNewsPaper(
                     currentPageNumber = PAGE_NUMBER_NOT_APPLICABLE
                 }
 
-//                try {
-//                    waitForFareNetworkUsage()
-//                } catch (ex: InterruptedException) {
-//                    ex.printStackTrace()
-//                    return
-//                }
-
                 val articleList: MutableList<Article> = mutableListOf()
-
 
                 var parsingResult: Pair<MutableList<Article>, String>? = null
                 try {
@@ -168,10 +159,12 @@ class ArticleDataFeatcherForNewsPaper(
                 } catch (e: NewsPaperNotFoundForPageException) {
                     println("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
                     ParserExceptionHandler.handleException(e)
+                    println("Exiting ${this::class.java.simpleName} for ${newspaper.name}")
                     return
                 } catch (e: ParserNotFoundException) {
                     println("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
                     ParserExceptionHandler.handleException(e)
+                    println("Exiting ${this::class.java.simpleName} for ${newspaper.name}")
                     return
                 } catch (e: PageLinkGenerationException) {
                     println("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
@@ -189,9 +182,9 @@ class ArticleDataFeatcherForNewsPaper(
                     println("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
                     ParserExceptionHandler.handleException(e)
                     if (opMode == ParserMode.RUNNING) {
-                        emptyPageAction(currentPage,parsingResult?.second ?: "")
-                        continue
+                        emptyPageAction(currentPage, parsingResult?.second ?: "")
                     }
+                    continue
                 } catch (e: Throwable) {
                     println("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
                     ParserExceptionHandler.handleException(ParserException(e))
@@ -218,6 +211,7 @@ class ArticleDataFeatcherForNewsPaper(
                         waitForFareNetworkUsage()
                     } catch (ex: InterruptedException) {
                         ex.printStackTrace()
+                        println("Exiting ${this::class.java.simpleName} for ${newspaper.name}")
                         return
                     }
                     try {

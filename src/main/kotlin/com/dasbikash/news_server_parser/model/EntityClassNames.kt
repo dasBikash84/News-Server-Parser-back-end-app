@@ -20,4 +20,5 @@ object EntityClassNames {
     const val PAGE = "Page";
     const val ARTICLE = "Article";
     const val PAGE_GROUP = "PageGroup";
+    const val NEWS_PAPER_OP_MODE_ENTRY = "NewspaperOpModeEntry";
 }

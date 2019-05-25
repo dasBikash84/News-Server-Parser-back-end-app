@@ -35,7 +35,7 @@ internal class ArticleDataFeatcherForNewsPaperTest {
         val thList = mutableListOf<Thread>()
         *//*newsPapers.filter { true }.forEach {
             println(it.name)
-            val thread = Thread(ArticleDataFeatcherForNewsPaper(it))
+            val thread = Thread(ArticleDataFetcherForNewsPaper(it))
             thread.start()
             thList.add(thread)
             //thread.join()

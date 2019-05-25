@@ -110,4 +110,24 @@ object DatabaseUtils {
         }
         return 0
     }
+    private fun insertDefaultEntryForNewspaper(session: Session,newspaper: Newspaper):NewspaperOpModeEntry?{
+        val newspaperOpModeEntry = NewspaperOpModeEntry.getDefaultEntryForNewspaper(newspaper)
+        if (runDbTransection(session){ session.save(newspaperOpModeEntry)}) {
+            return newspaperOpModeEntry
+        }
+        return null
+    }
+    fun getNewspaperOpModeEntry(session: Session,newspaper: Newspaper):NewspaperOpModeEntry?{
+        val sql = "SELECT * FROM ${DatabaseTableNames.NEWS_PAPER_OP_MODE_ENTRY_NAME} WHERE " +
+                            "newsPaperId='${newspaper.id}' order by created desc"
+        try {
+            val result = session.createNativeQuery(sql,NewspaperOpModeEntry::class.java).resultList as List<NewspaperOpModeEntry>
+            if (result.size > 0) {
+                return result.get(0)
+            }
+        }catch (ex:Exception){
+            ex.printStackTrace()
+        }
+        return insertDefaultEntryForNewspaper(session,newspaper)
+    }
 }

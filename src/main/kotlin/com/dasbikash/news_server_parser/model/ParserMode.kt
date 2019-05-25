@@ -13,12 +13,6 @@
 
 package com.dasbikash.news_server_parser.model
 
-object DatabaseTableNames {
-    const val COUNTRY_TABLE_NAME = "countries"
-    const val LANGUAGE_TABLE_NAME = "languages"
-    const val NEWSPAPER_TABLE_NAME = "newspapers"
-    const val PAGE_TABLE_NAME = "pages"
-    const val ARTICLE_TABLE_NAME = "articles"
-    const val PAGE_GROUP_TABLE_NAME = "page_groups"
-    const val NEWS_PAPER_OP_MODE_ENTRY_NAME = "np_opmode_entry"
+enum class ParserMode {
+    RUNNING, GET_SYNCED
 }

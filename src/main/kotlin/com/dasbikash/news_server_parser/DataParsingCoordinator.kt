@@ -22,24 +22,18 @@ import com.dasbikash.news_server_parser.exceptions.HighestLevelException
 import com.dasbikash.news_server_parser.exceptions.ParserRestartedException
 import com.dasbikash.news_server_parser.exceptions.ParserStoppedException
 import com.dasbikash.news_server_parser.exceptions.handler.ParserExceptionHandler
-import com.dasbikash.news_server_parser.model.EntityClassNames
 import com.dasbikash.news_server_parser.model.Newspaper
-import com.dasbikash.news_server_parser.parser.ArticleDataFeatcherForNewsPaper
-import com.dasbikash.news_server_parser.utils.LoggerUtils
+import com.dasbikash.news_server_parser.model.ParserMode
+import com.dasbikash.news_server_parser.parser.ArticleDataFetcherForNewsPaper
+import org.hibernate.Session
 
-
-enum class ParserMode {
-    RUNNING, GET_SYNCED
-}
 
 object DataParsingCoordinator {
-
-    private val opMode = ParserMode.RUNNING
 
     private val ITERATION_DELAY = 15 * 60 * 1000L //15 mins
 
     private val articleDataFetcherMap
-            = mutableMapOf<String, ArticleDataFeatcherForNewsPaper>()
+            = mutableMapOf<String, ArticleDataFetcherForNewsPaper>()
 
 
     @JvmStatic
@@ -56,17 +50,18 @@ object DataParsingCoordinator {
                             articleDataFetcherMap.remove(it.id)
                             ParserExceptionHandler.handleException(ParserRestartedException(it))
                         }
+                        val currentOpMode = getOpModeForNewsPaper(session,it)
                         if (!articleDataFetcherMap.containsKey(it.id)) {
-                            session.detach(it)
-                            val articleDataFeatcherForNewsPaper = ArticleDataFeatcherForNewsPaper(it, opMode)
-                            articleDataFetcherMap.put(it.id, articleDataFeatcherForNewsPaper)
-                            articleDataFeatcherForNewsPaper.start()
+                            startArticleDataFetcherForNewspaper(session, it,currentOpMode)
+                        }else{
+                            if (currentOpMode != articleDataFetcherMap.get(it.id)!!.opMode){
+                                stopParserForNewspaper(it)
+                                startArticleDataFetcherForNewspaper(session, it,currentOpMode)
+                            }
                         }
                     }else{
                         if (articleDataFetcherMap.containsKey(it.id)){
-                            articleDataFetcherMap.get(it.id)!!.interrupt()
-                            articleDataFetcherMap.remove(it.id)
-                            ParserExceptionHandler.handleException(ParserStoppedException(it))
+                            stopParserForNewspaper(it)
                         }
                     }
                 }
@@ -77,6 +72,25 @@ object DataParsingCoordinator {
                 handleException(ex)
             }
         } while (true)
+    }
+
+    private fun stopParserForNewspaper(newspaper: Newspaper) {
+        articleDataFetcherMap.get(newspaper.id)!!.interrupt()
+        articleDataFetcherMap.remove(newspaper.id)
+        ParserExceptionHandler.handleException(ParserStoppedException(newspaper))
+    }
+
+    private fun startArticleDataFetcherForNewspaper(session: Session, it: Newspaper,currentOpMode:ParserMode) {
+        val articleDataFetcherForNewsPaper = ArticleDataFetcherForNewsPaper(it, currentOpMode)
+        articleDataFetcherMap.put(it.id, articleDataFetcherForNewsPaper)
+        session.detach(it)
+        articleDataFetcherForNewsPaper.start()
+    }
+
+    private fun getOpModeForNewsPaper(session: Session,newspaper: Newspaper): ParserMode {
+        val newspaperOpModeEntry = DatabaseUtils.getNewspaperOpModeEntry(session, newspaper)!!
+        println(newspaperOpModeEntry)
+        return newspaperOpModeEntry.opMode!!
     }
 
     private fun handleException(ex: InterruptedException) {

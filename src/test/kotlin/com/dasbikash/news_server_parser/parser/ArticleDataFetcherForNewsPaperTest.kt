@@ -3,7 +3,7 @@ package com.dasbikash.news_server_parser.parser
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
-class ArticleDataFeatcherForNewsPaperTest {
+class ArticleDataFetcherForNewsPaperTest {
 
     @BeforeEach
     fun setUp() {
@@ -29,7 +29,7 @@ class ArticleDataFeatcherForNewsPaperTest {
             true//it.id == NEWS_PAPER_ID.THE_GUARDIAN.id
         }
         .forEach {
-            thread = Thread(ArticleDataFeatcherForNewsPaper(it))
+            thread = Thread(ArticleDataFetcherForNewsPaper(it))
             thread?.start()
         }
         thread?.join()*//*
