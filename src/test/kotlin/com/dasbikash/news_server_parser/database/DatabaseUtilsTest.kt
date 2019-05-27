@@ -13,9 +13,11 @@
 
 package com.dasbikash.news_server_parser.database
 
+import com.dasbikash.news_server_parser.utils.DateUtils
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.util.*
 
 internal class DatabaseUtilsTest {
 
@@ -48,6 +50,22 @@ internal class DatabaseUtilsTest {
 //            DatabaseUtils.getNewspaperOpModeEntry(session,it)?.let {
 //                println(it)
 //            }
+//        }
+//    }
+//    @Test
+//    fun testGetArticleCountForPageOfDay(){
+//        val session = DbSessionManager.getNewSession()
+//        val calendar = Calendar.getInstance()
+//        calendar.set(Calendar.MONTH,Calendar.JUNE)
+//        calendar.set(Calendar.DAY_OF_MONTH,1)
+//        DatabaseUtils.getAllPages(session).get(155).apply {
+//            println(this)
+//            println(DatabaseUtils.getArticleCountForPage(session,this.id))
+//            println(DatabaseUtils.getArticleCountForPageOfYesterday(session,this,calendar.time))
+//            println(DatabaseUtils.getArticleCountForPageOfLastWeek(session,this,calendar.time))
+//            println(DatabaseUtils.getArticleCountForPageOfLastMonth(session,this,calendar.time))
+//            println(DateUtils.isFirstDayOfWeek(calendar.time))
+//            println(DateUtils.isFirstDayOfMonth(calendar.time))
 //        }
 //    }
 
