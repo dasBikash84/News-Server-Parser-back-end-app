@@ -25,7 +25,11 @@ import com.dasbikash.news_server_parser.exceptions.handler.ParserExceptionHandle
 import com.dasbikash.news_server_parser.model.Newspaper
 import com.dasbikash.news_server_parser.model.ParserMode
 import com.dasbikash.news_server_parser.parser.ArticleDataFetcherForNewsPaper
+import com.dasbikash.news_server_parser.utils.DateUtils
+import com.dasbikash.news_server_parser.utils.FileUtils
+import com.dasbikash.news_server_parser.utils.ReportGenerationUtils
 import org.hibernate.Session
+import java.util.*
 
 
 object DataParsingCoordinator {
@@ -35,9 +39,12 @@ object DataParsingCoordinator {
     private val articleDataFetcherMap
             = mutableMapOf<String, ArticleDataFetcherForNewsPaper>()
 
+    private lateinit var currentDate:Calendar
+
 
     @JvmStatic
     fun main(args: Array<String>) {
+        currentDate = Calendar.getInstance()
         do {
             try {
                 val session = DbSessionManager.getNewSession()
@@ -65,6 +72,25 @@ object DataParsingCoordinator {
                         }
                     }
                 }
+
+                val now = Calendar.getInstance()
+                if (now.get(Calendar.YEAR)> currentDate.get(Calendar.YEAR) ||
+                        now.get(Calendar.DAY_OF_YEAR)> currentDate.get(Calendar.DAY_OF_YEAR)){
+
+                    generateAndDistributeDailyReport(now.time!!,session)
+
+                    if (DateUtils.isFirstDayOfWeek(now.time)){
+                        generateAndDistributeWeeklyReport(now.time,session)
+                    }
+
+                    if (DateUtils.isFirstDayOfMonth(now.time)){
+                        generateAndDistributeMonthlyReport(now.time,session)
+                    }
+
+                    currentDate = now
+                }
+
+
                 session.close()
                 Thread.sleep(ITERATION_DELAY)
             } catch (ex: InterruptedException) {
@@ -72,6 +98,20 @@ object DataParsingCoordinator {
                 handleException(ex)
             }
         } while (true)
+    }
+
+    private fun generateAndDistributeDailyReport(today: Date,session: Session) {
+        val reportFilePath = FileUtils.getDailyReportFilePath(today)
+        ReportGenerationUtils.prepareDailyReport(reportFilePath, today, session)
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    private fun generateAndDistributeMonthlyReport(today: Date,session: Session) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    private fun generateAndDistributeWeeklyReport(today: Date,session: Session) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     private fun stopParserForNewspaper(newspaper: Newspaper) {

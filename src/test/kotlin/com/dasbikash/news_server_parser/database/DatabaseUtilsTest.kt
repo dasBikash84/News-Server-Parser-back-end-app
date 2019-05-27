@@ -54,24 +54,24 @@ internal class DatabaseUtilsTest {
 //            }
 //        }
 //    }
-//    @Test
-//    fun testGetArticleCountForPageOfDay(){
-//        val session = DbSessionManager.getNewSession()
-//        val calendar = Calendar.getInstance()
-//        calendar.set(Calendar.MONTH,Calendar.JUNE)
-//        calendar.set(Calendar.DAY_OF_MONTH,1)
-//        DatabaseUtils.getAllPages(session).get(155).apply {
-//            println(this)
-//            println(DatabaseUtils.getArticleCountForPage(session,this.id))
-//            println(DatabaseUtils.getArticleCountForPageOfYesterday(session,this,calendar.time))
-//            println(DatabaseUtils.getArticleCountForPageOfLastWeek(session,this,calendar.time))
-//            println(DatabaseUtils.getArticleCountForPageOfLastMonth(session,this,calendar.time))
-//            println(DateUtils.isFirstDayOfWeek(calendar.time))
-//            println(DateUtils.isFirstDayOfMonth(calendar.time))
-//            File(FileUtils.getDailyReportFilePath(calendar.time)).appendText("\n"+FileUtils.getDailyReportFilePath(calendar.time))
-//            File(FileUtils.getWeeklyReportFilePath(calendar.time)).appendText("\n"+FileUtils.getWeeklyReportFilePath(calendar.time))
-//            File(FileUtils.getMonthlyReportFilePath(calendar.time)).appendText("\n"+FileUtils.getMonthlyReportFilePath(calendar.time))
-//        }
-//    }
+    @Test
+    fun testGetArticleCountForPageOfDay(){
+        val session = DbSessionManager.getNewSession()
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.MONTH,Calendar.JUNE)
+        calendar.set(Calendar.DAY_OF_MONTH,1)
+        DatabaseUtils.getAllPages(session).get(155).apply {
+            println(this)
+            println(DatabaseUtils.getArticleCountForPage(session,this.id))
+            println(DatabaseUtils.getArticleCountForPageOfYesterday(session,this,calendar.time))
+            println(DatabaseUtils.getArticleCountForPageOfLastWeek(session,this,calendar.time))
+            println(DatabaseUtils.getArticleCountForPageOfLastMonth(session,this,calendar.time))
+            println(DateUtils.isFirstDayOfWeek(calendar.time))
+            println(DateUtils.isFirstDayOfMonth(calendar.time))
+            File(FileUtils.getDailyReportFilePath(calendar.time)).appendText("\n"+FileUtils.getDailyReportFilePath(calendar.time))
+            File(FileUtils.getWeeklyReportFilePath(calendar.time)).appendText("\n"+FileUtils.getWeeklyReportFilePath(calendar.time))
+            File(FileUtils.getMonthlyReportFilePath(calendar.time)).appendText("\n"+FileUtils.getMonthlyReportFilePath(calendar.time))
+        }
+    }
 
 }

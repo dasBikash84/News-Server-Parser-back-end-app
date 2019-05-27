@@ -13,6 +13,7 @@
 
 package com.dasbikash.news_server_parser.utils
 
+import java.io.File
 import java.util.*
 
 object FileUtils {
@@ -22,16 +23,22 @@ object FileUtils {
     private val MONTHLY_REPORT_FILE_NAME_PREFIX = " parser_monthly_report_"
     private val REPORT_FILE_NAME_EXT = ".csv"
     private val HOME_DIR_PATH:String
+    private val PROJECT_HOME_DIR_PATH:String
     private val PROJECT_DIR_NAME = ".ns-parser"
+
     init {
-        HOME_DIR_PATH = System.getProperty("user.home")+"/"+ PROJECT_DIR_NAME+"/"
+        HOME_DIR_PATH = System.getProperty("user.home")
+        PROJECT_HOME_DIR_PATH = HOME_DIR_PATH+"/"+ PROJECT_DIR_NAME+"/"
+        if (!File(PROJECT_HOME_DIR_PATH).exists()){
+            File(PROJECT_HOME_DIR_PATH).mkdir()
+        }
     }
 
     fun getDailyReportFilePath(today: Date):String{
         val yesterDay = Calendar.getInstance()
         yesterDay.time = today
         yesterDay.add(Calendar.DAY_OF_YEAR,-1)
-        return StringBuilder(HOME_DIR_PATH).append(DAILY_REPORT_FILE_NAME_PREFIX)
+        return StringBuilder(PROJECT_HOME_DIR_PATH).append(DAILY_REPORT_FILE_NAME_PREFIX)
                 .append(DateUtils.getDateStringForDb(yesterDay.time)).append(REPORT_FILE_NAME_EXT)
                 .toString()
     }
@@ -45,7 +52,7 @@ object FileUtils {
         lastWeekLastDay.time = thisWeekFirstDay
         lastWeekLastDay.add(Calendar.DAY_OF_YEAR,-1)
 
-        return StringBuilder(HOME_DIR_PATH).append(WEEKLY_REPORT_FILE_NAME_PREFIX)
+        return StringBuilder(PROJECT_HOME_DIR_PATH).append(WEEKLY_REPORT_FILE_NAME_PREFIX)
                 .append(DateUtils.getDateStringForDb(lastWeekFirstDay.time))
                 .append("_to_")
                 .append(DateUtils.getDateStringForDb(lastWeekLastDay.time))
@@ -56,7 +63,7 @@ object FileUtils {
     fun getMonthlyReportFilePath(thisMonthFirstDay: Date):String{
         val lastMonthFirstDay = DateUtils.getFirstDayOfLastMonth(thisMonthFirstDay)
 
-        return StringBuilder(HOME_DIR_PATH).append(MONTHLY_REPORT_FILE_NAME_PREFIX)
+        return StringBuilder(PROJECT_HOME_DIR_PATH).append(MONTHLY_REPORT_FILE_NAME_PREFIX)
                 .append(DateUtils.getYearMonthStr(lastMonthFirstDay))
                 .append(REPORT_FILE_NAME_EXT)
                 .toString()

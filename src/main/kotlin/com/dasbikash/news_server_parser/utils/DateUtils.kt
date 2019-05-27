@@ -36,7 +36,8 @@ object DateUtils {
         val firstDayOfNextMonth = Calendar.getInstance()
         firstDayOfNextMonth.time = anyDayOfMonth
         firstDayOfNextMonth.set(Calendar.DAY_OF_MONTH,1)
-        firstDayOfNextMonth.add(Calendar.MONTH,-1)
+        firstDayOfNextMonth.add(Calendar.DAY_OF_YEAR,-1)
+        firstDayOfNextMonth.set(Calendar.DAY_OF_MONTH,1)
         return firstDayOfNextMonth.time
     }
 
