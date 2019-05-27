@@ -18,9 +18,12 @@ import java.util.*
 
 object DateUtils {
     private const val DB_DATE_STRING_FORMAT = "YYYY-MM-dd"
-    private val simpleDateFormat = SimpleDateFormat(DB_DATE_STRING_FORMAT)
+    private const val MONTH_YEAR_STRING_FORMAT = "MMM-YYYY"
+    private val simpleDateFormatForDb = SimpleDateFormat(DB_DATE_STRING_FORMAT)
+    private val simpleDateFormatForYearMonthStr = SimpleDateFormat(MONTH_YEAR_STRING_FORMAT)
 
-    fun getDateStringForDb(date: Date):String = simpleDateFormat.format(date)
+    fun getDateStringForDb(date: Date):String = simpleDateFormatForDb.format(date)
+    fun getYearMonthStr(date: Date):String = simpleDateFormatForYearMonthStr.format(date)
 
     fun getFirstDayOfMonth(anyDayOfMonth: Date):Date{
         val firstDayOfMonth = Calendar.getInstance()

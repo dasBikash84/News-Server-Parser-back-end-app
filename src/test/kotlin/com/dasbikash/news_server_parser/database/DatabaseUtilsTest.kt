@@ -14,9 +14,11 @@
 package com.dasbikash.news_server_parser.database
 
 import com.dasbikash.news_server_parser.utils.DateUtils
+import com.dasbikash.news_server_parser.utils.FileUtils
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.io.File
 import java.util.*
 
 internal class DatabaseUtilsTest {
@@ -66,6 +68,9 @@ internal class DatabaseUtilsTest {
 //            println(DatabaseUtils.getArticleCountForPageOfLastMonth(session,this,calendar.time))
 //            println(DateUtils.isFirstDayOfWeek(calendar.time))
 //            println(DateUtils.isFirstDayOfMonth(calendar.time))
+//            File(FileUtils.getDailyReportFilePath(calendar.time)).appendText("\n"+FileUtils.getDailyReportFilePath(calendar.time))
+//            File(FileUtils.getWeeklyReportFilePath(calendar.time)).appendText("\n"+FileUtils.getWeeklyReportFilePath(calendar.time))
+//            File(FileUtils.getMonthlyReportFilePath(calendar.time)).appendText("\n"+FileUtils.getMonthlyReportFilePath(calendar.time))
 //        }
 //    }
 
