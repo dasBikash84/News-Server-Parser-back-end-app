@@ -13,13 +13,8 @@
 
 package com.dasbikash.news_server_parser.utils
 
-import com.dasbikash.news_server_parser.database.DbSessionManager
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
-import java.util.*
 
 internal class ReportGenerationUtilsTest {
 
@@ -31,27 +26,30 @@ internal class ReportGenerationUtilsTest {
     fun tearDown() {
     }
 
-    @Test
-    fun prepareDailyReportTest(){
-        val session = DbSessionManager.getNewSession()
-        val today = Date()
-        ReportGenerationUtils.prepareDailyReport(FileUtils.getDailyReportFilePath(today),today, session)
-    }
-
-    @Test
-    fun prepareWeeklyReportTest(){
-        val session = DbSessionManager.getNewSession()
-        val today = Date()
-        ReportGenerationUtils.prepareWeeklyReport(FileUtils.getWeeklyReportFilePath(today),today, session)
-    }
-
-    @Test
-    fun prepareMonthlyReportTest(){
-        val session = DbSessionManager.getNewSession()
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.MONTH,Calendar.JUNE)
-        calendar.set(Calendar.DAY_OF_MONTH,15)
-        val today = calendar.time
-        ReportGenerationUtils.prepareMonthlyReport(FileUtils.getMonthlyReportFilePath(today),today, session)
-    }
+//    @Test
+//    fun prepareDailyReportTest(){
+//        val session = DbSessionManager.getNewSession()
+//        val today = Date()
+//        ReportGenerationUtils.prepareDailyReport(today, session)
+//        ReportGenerationUtils.emailDailyReport(today)
+//    }
+//
+//    @Test
+//    fun prepareWeeklyReportTest(){
+//        val session = DbSessionManager.getNewSession()
+//        val today = Date()
+//        ReportGenerationUtils.prepareWeeklyReport(today, session)
+//        ReportGenerationUtils.emailWeeklyReport(today)
+//    }
+//
+//    @Test
+//    fun prepareMonthlyReportTest(){
+//        val session = DbSessionManager.getNewSession()
+//        val calendar = Calendar.getInstance()
+//        calendar.set(Calendar.MONTH,Calendar.JUNE)
+//        calendar.set(Calendar.DAY_OF_MONTH,15)
+//        val today = calendar.time
+//        ReportGenerationUtils.prepareMonthlyReport(today, session)
+//        ReportGenerationUtils.emailMonthlyReport(today)
+//    }
 }

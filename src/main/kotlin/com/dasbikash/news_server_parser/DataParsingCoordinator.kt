@@ -21,12 +21,12 @@ import com.dasbikash.news_server_parser.database.DbSessionManager
 import com.dasbikash.news_server_parser.exceptions.HighestLevelException
 import com.dasbikash.news_server_parser.exceptions.ParserRestartedException
 import com.dasbikash.news_server_parser.exceptions.ParserStoppedException
+import com.dasbikash.news_server_parser.exceptions.ReportGenerationException
 import com.dasbikash.news_server_parser.exceptions.handler.ParserExceptionHandler
 import com.dasbikash.news_server_parser.model.Newspaper
 import com.dasbikash.news_server_parser.model.ParserMode
 import com.dasbikash.news_server_parser.parser.ArticleDataFetcherForNewsPaper
 import com.dasbikash.news_server_parser.utils.DateUtils
-import com.dasbikash.news_server_parser.utils.FileUtils
 import com.dasbikash.news_server_parser.utils.ReportGenerationUtils
 import org.hibernate.Session
 import java.util.*
@@ -76,18 +76,23 @@ object DataParsingCoordinator {
                 val now = Calendar.getInstance()
                 if (now.get(Calendar.YEAR)> currentDate.get(Calendar.YEAR) ||
                         now.get(Calendar.DAY_OF_YEAR)> currentDate.get(Calendar.DAY_OF_YEAR)){
+                    try {
 
-                    generateAndDistributeDailyReport(now.time!!,session)
+                        generateAndDistributeDailyReport(now.time!!, session)
 
-                    if (DateUtils.isFirstDayOfWeek(now.time)){
-                        generateAndDistributeWeeklyReport(now.time,session)
+                        if (DateUtils.isFirstDayOfWeek(now.time)) {
+                            generateAndDistributeWeeklyReport(now.time, session)
+                        }
+
+                        if (DateUtils.isFirstDayOfMonth(now.time)) {
+                            generateAndDistributeMonthlyReport(now.time, session)
+                        }
+
+                        currentDate = now
+                    }catch (ex:Throwable){
+                        ex.printStackTrace()
+                        ParserExceptionHandler.handleException(ReportGenerationException(ex))
                     }
-
-                    if (DateUtils.isFirstDayOfMonth(now.time)){
-                        generateAndDistributeMonthlyReport(now.time,session)
-                    }
-
-                    currentDate = now
                 }
 
 
@@ -101,17 +106,18 @@ object DataParsingCoordinator {
     }
 
     private fun generateAndDistributeDailyReport(today: Date,session: Session) {
-        val reportFilePath = FileUtils.getDailyReportFilePath(today)
-        ReportGenerationUtils.prepareDailyReport(reportFilePath, today, session)
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    private fun generateAndDistributeMonthlyReport(today: Date,session: Session) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        ReportGenerationUtils.prepareDailyReport(today, session)
+        ReportGenerationUtils.emailDailyReport(today)
     }
 
     private fun generateAndDistributeWeeklyReport(today: Date,session: Session) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        ReportGenerationUtils.prepareWeeklyReport(today, session)
+        ReportGenerationUtils.emailWeeklyReport(today)
+    }
+
+    private fun generateAndDistributeMonthlyReport(today: Date,session: Session) {
+        ReportGenerationUtils.prepareMonthlyReport(today, session)
+        ReportGenerationUtils.emailMonthlyReport(today)
     }
 
     private fun stopParserForNewspaper(newspaper: Newspaper) {
