@@ -52,4 +52,18 @@ object DateUtils {
         calendar.time = date
         return calendar.get(Calendar.DAY_OF_MONTH) == 1
     }
+
+    fun getYesterDay(today:Date):Date{
+        val yesterDay = Calendar.getInstance()
+        yesterDay.time = today
+        yesterDay.add(Calendar.DAY_OF_YEAR, -1)
+        return yesterDay.time
+    }
+
+    fun getLastWeekSameDay(today:Date):Date{
+        val lastWeekSameDay = Calendar.getInstance()
+        lastWeekSameDay.time = today
+        lastWeekSameDay.add(Calendar.DAY_OF_YEAR, -7)
+        return lastWeekSameDay.time
+    }
 }

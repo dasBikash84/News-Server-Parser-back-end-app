@@ -137,13 +137,12 @@ object DatabaseUtils {
         return insertDefaultEntryForNewspaper(session, newspaper)
     }
 
-    fun getArticleCountForPageOfYesterday(session: Session, page: Page, day: Date):Int {
-        val yesterday = Calendar.getInstance()
-        yesterday.time = day
-        yesterday.add(Calendar.DAY_OF_YEAR,-1)
+    fun getArticleCountForPageOfYesterday(session: Session, page: Page, today: Date):Int {
+        val yesterday = DateUtils.getYesterDay(today)
         val sqlBuilder = StringBuilder("SELECT COUNT(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
                                             .append(" WHERE pageId='${page.id}' ")
-                                            .append("AND DATE_FORMAT(modified,'%Y-%m-%d')='${DateUtils.getDateStringForDb(yesterday.time)}'")
+                                            .append("AND modified>='${DateUtils.getDateStringForDb(yesterday)}'")
+                                            .append("AND modified<'${DateUtils.getDateStringForDb(today)}'")
         println(sqlBuilder.toString())
         val result = session.createNativeQuery(sqlBuilder.toString()).singleResult
         return (result as BigInteger).toInt()
@@ -156,7 +155,7 @@ object DatabaseUtils {
 
         val sqlBuilder = StringBuilder("SELECT COUNT(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
                                             .append(" WHERE pageId='${page.id}' ")
-                                            .append("AND modified>'${DateUtils.getDateStringForDb(lastWeekFirstDay.time)}'")
+                                            .append("AND modified>='${DateUtils.getDateStringForDb(lastWeekFirstDay.time)}'")
                                             .append("AND modified<'${DateUtils.getDateStringForDb(thisWeekFirstDay)}'")
         println(sqlBuilder.toString())
         val result = session.createNativeQuery(sqlBuilder.toString()).singleResult
@@ -169,7 +168,7 @@ object DatabaseUtils {
 
         val sqlBuilder = StringBuilder("SELECT COUNT(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
                                             .append(" WHERE pageId='${page.id}' ")
-                                            .append("AND modified>'${DateUtils.getDateStringForDb(firstDayOfLastMonth)}'")
+                                            .append("AND modified>='${DateUtils.getDateStringForDb(firstDayOfLastMonth)}'")
                                             .append("AND modified<'${DateUtils.getDateStringForDb(firstDayOfMonth)}'")
         println(sqlBuilder.toString())
         val result = session.createNativeQuery(sqlBuilder.toString()).singleResult

@@ -33,7 +33,7 @@ internal class ReportGenerationUtilsTest {
 //        ReportGenerationUtils.prepareDailyReport(today, session)
 //        ReportGenerationUtils.emailDailyReport(today)
 //    }
-//
+
 //    @Test
 //    fun prepareWeeklyReportTest(){
 //        val session = DbSessionManager.getNewSession()
@@ -41,7 +41,7 @@ internal class ReportGenerationUtilsTest {
 //        ReportGenerationUtils.prepareWeeklyReport(today, session)
 //        ReportGenerationUtils.emailWeeklyReport(today)
 //    }
-//
+
 //    @Test
 //    fun prepareMonthlyReportTest(){
 //        val session = DbSessionManager.getNewSession()
