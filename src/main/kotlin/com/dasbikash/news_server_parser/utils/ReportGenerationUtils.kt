@@ -22,7 +22,7 @@ import java.util.*
 object ReportGenerationUtils {
 
     fun getTableHeader(): String {
-        return "Sl,Page Name,Page Id,Parent Page Id,Newspaper,Article Download Count"
+        return "Sl,Page Name,Weekly,Page Id,Parent Page Id,Newspaper,Article Download Count"
     }
 
     fun prepareDailyReport(today: Date, session: Session) {
@@ -34,22 +34,16 @@ object ReportGenerationUtils {
         val reportFile = File(reportFilePath)
         val yesterDay = DateUtils.getYesterDay(today)
 
-        reportFile.appendText("Date: ${DateUtils.getDateStringForDb(yesterDay)}\n\n")
-        reportFile.appendText("Today's parsing Report:\n\n")
-        reportFile.appendText("${getTableHeader()}\n")
+        reportFile.appendText("Article parsing report of: ${DateUtils.getDateStringForDb(yesterDay)}\n\n")
 
         val pages = DatabaseUtils.getAllPages(session)
-
-        var sln = 0
-        var totalArticleCountOfYesterday = 0
+        val pageArticleCountMap = mutableMapOf<Page,Int>()
         pages.asSequence().filter { it.hasData() }.sortedBy { it.newspaper!!.name!! }.forEach {
             val articleCountOfYesterday = DatabaseUtils.getArticleCountForPageOfYesterday(session, it, today)
-            totalArticleCountOfYesterday += articleCountOfYesterday
-            reportFile.appendText("${++sln},${it.name},${it.id},${getProperParentPageId(it)},${it.newspaper!!.name},${articleCountOfYesterday}\n")
+            pageArticleCountMap.put(it,articleCountOfYesterday)
         }
-        reportFile.appendText(",,,,Total,${totalArticleCountOfYesterday}\n\n\n")
-
-        addFromBeginningReport(reportFile, pages, session)
+        addReportDataToFile(reportFile, pageArticleCountMap)
+//        addFromBeginningReport(reportFile, pages, session)
     }
 
     fun prepareWeeklyReport(today: Date, session: Session) {
@@ -64,24 +58,18 @@ object ReportGenerationUtils {
         val lastWeekFirstDay = DateUtils.getLastWeekSameDay(today)
         val lastWeekLastDay = DateUtils.getYesterDay(today)
 
-        reportFile.appendText("Week: ${DateUtils.getDateStringForDb(lastWeekFirstDay)} to " +
-                "${DateUtils.getDateStringForDb(lastWeekLastDay)}\n\n")
-
-        reportFile.appendText("Last week's parsing Report:\n\n")
-        reportFile.appendText("${getTableHeader()}\n")
+        reportFile.appendText("Article parsing report of week: ${DateUtils.getDateStringForDb(lastWeekFirstDay)} to "+
+                                "${DateUtils.getDateStringForDb(lastWeekLastDay)}\n\n")
 
         val pages = DatabaseUtils.getAllPages(session)
-
-        var sln = 0
-        var totalArticleCountOfLastWeek = 0
+        val pageArticleCountMap = mutableMapOf<Page,Int>()
         pages.asSequence().filter { it.hasData() }.sortedBy { it.newspaper!!.name!! }.forEach {
             val articleCountOfLastWeek = DatabaseUtils.getArticleCountForPageOfLastWeek(session, it, today)
-            totalArticleCountOfLastWeek += articleCountOfLastWeek
-            reportFile.appendText("${++sln},${it.name},${it.id},${getProperParentPageId(it)},${it.newspaper!!.name},${articleCountOfLastWeek}\n")
+            pageArticleCountMap.put(it,articleCountOfLastWeek)
         }
-        reportFile.appendText(",,,,Total,${totalArticleCountOfLastWeek}\n\n\n")
 
-        addFromBeginningReport(reportFile, pages, session)
+        addReportDataToFile(reportFile, pageArticleCountMap)
+//        addFromBeginningReport(reportFile, pages, session)
     }
 
     fun prepareMonthlyReport(today: Date, session: Session) {
@@ -92,27 +80,47 @@ object ReportGenerationUtils {
             File(reportFilePath).delete()
         }
         val reportFile = File(reportFilePath)
-
         val firstDayOfLastMonth = DateUtils.getFirstDayOfLastMonth(today)
 
-        reportFile.appendText("Month: ${DateUtils.getYearMonthStr(firstDayOfLastMonth)}\n\n")
-
-        reportFile.appendText("Last month’s parsing Report:\n\n")
-        reportFile.appendText("${getTableHeader()}\n")
+        reportFile.appendText("Article parsing report of: ${DateUtils.getYearMonthStr(firstDayOfLastMonth)}\n\n")
 
         val pages = DatabaseUtils.getAllPages(session)
+        val pageArticleCountMap = mutableMapOf<Page,Int>()
+
+        pages.asSequence().filter { it.hasData() }.sortedBy { it.newspaper!!.name!! }.forEach {
+            val articleCountOfLastMonth = DatabaseUtils.getArticleCountForPageOfLastMonth(session, it, today)
+            pageArticleCountMap.put(it,articleCountOfLastMonth)
+        }
+
+        addReportDataToFile(reportFile, pageArticleCountMap)
+        addFromBeginningReport(reportFile, pages, session)
+    }
+
+    private fun addReportDataToFile(reportFile: File, pageArticleCountMap: MutableMap<Page, Int>) {
+        reportFile.appendText("For pages with articles:\n")
+        reportFile.appendText("${getTableHeader()}\n")
 
         var sln = 0
         var totalArticleCountOfLastMonth = 0
-        pages.asSequence().filter { it.hasData() }.sortedBy { it.newspaper!!.name!! }.forEach {
-            val articleCountOfLastMonth = DatabaseUtils.getArticleCountForPageOfLastMonth(session, it, today)
-            totalArticleCountOfLastMonth += articleCountOfLastMonth
-            reportFile.appendText("${++sln},${it.name},${it.id},${getProperParentPageId(it)},${it.newspaper!!.name},${articleCountOfLastMonth}\n")
-        }
-        reportFile.appendText(",,,,Total,${totalArticleCountOfLastMonth}\n\n\n")
 
-        addFromBeginningReport(reportFile, pages, session)
+        pageArticleCountMap.keys.asSequence().filter { pageArticleCountMap.get(it) != 0 }.forEach {
+            val articleCountOfLastMonth = pageArticleCountMap.get(it)!!
+            totalArticleCountOfLastMonth += articleCountOfLastMonth
+            reportFile.appendText("${++sln},${it.name},${getIsWeeklyText(it)},${it.id},${getParentPageIdText(it)},${it.newspaper!!.name},${articleCountOfLastMonth}\n")
+        }
+        reportFile.appendText(",,,,Total,${totalArticleCountOfLastMonth}\n\n")
+
+        reportFile.appendText("For pages without any article:\n")
+        reportFile.appendText("${getTableHeader()}\n")
+        sln = 0
+
+        pageArticleCountMap.keys.asSequence().filter { pageArticleCountMap.get(it) == 0 }.forEach {
+            val articleCountOfLastMonth = pageArticleCountMap.get(it)!!
+            reportFile.appendText("${++sln},${it.name},${getIsWeeklyText(it)},${it.id},${getParentPageIdText(it)},${it.newspaper!!.name},${articleCountOfLastMonth}\n")
+        }
     }
+
+
 
     fun emailDailyReport(today: Date) {
         val reportFilePath = FileUtils.getDailyReportFilePath(today)
@@ -143,24 +151,27 @@ object ReportGenerationUtils {
     }
 
     private fun addFromBeginningReport(reportFile: File, pages: List<Page>, session: Session) {
-        var sln = 0
-        reportFile.appendText("Parsing report from Beginning:\n\n")
-        reportFile.appendText("${getTableHeader()}\n")
+        reportFile.appendText("\n\nParsing report from Beginning:\n\n")
 
-        sln = 0
-        var totalArticleCountFromBeginning = 0
+        val pageArticleCountMap = mutableMapOf<Page,Int>()
         pages.asSequence().filter { it.hasData() }.sortedBy { it.newspaper!!.name!! }.forEach {
             val articleCountFromBeginning = DatabaseUtils.getArticleCountForPage(session, it.id)
-            totalArticleCountFromBeginning += articleCountFromBeginning
-            reportFile.appendText("${++sln},${it.name},${it.id},${getProperParentPageId(it)},${it.newspaper!!.name},${articleCountFromBeginning}\n")
+            pageArticleCountMap.put(it,articleCountFromBeginning)
         }
-        reportFile.appendText(",,,,Total,${totalArticleCountFromBeginning}")
+        addReportDataToFile(reportFile, pageArticleCountMap)
     }
 
-    private fun getProperParentPageId(page:Page):String{
+    private fun getParentPageIdText(page:Page):String{
         if (page.isTopLevelPage()){
             return "-"
         }
         return page.parentPageId!!
+    }
+
+    private fun getIsWeeklyText(page:Page):String{
+        if (page.weekly){
+            return "Y"
+        }
+        return "-"
     }
 }

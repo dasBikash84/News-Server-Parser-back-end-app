@@ -13,8 +13,11 @@
 
 package com.dasbikash.news_server_parser.utils
 
+import com.dasbikash.news_server_parser.database.DbSessionManager
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import java.util.*
 
 internal class ReportGenerationUtilsTest {
 
@@ -33,7 +36,7 @@ internal class ReportGenerationUtilsTest {
 //        ReportGenerationUtils.prepareDailyReport(today, session)
 //        ReportGenerationUtils.emailDailyReport(today)
 //    }
-
+//
 //    @Test
 //    fun prepareWeeklyReportTest(){
 //        val session = DbSessionManager.getNewSession()
@@ -41,12 +44,12 @@ internal class ReportGenerationUtilsTest {
 //        ReportGenerationUtils.prepareWeeklyReport(today, session)
 //        ReportGenerationUtils.emailWeeklyReport(today)
 //    }
-
+//
 //    @Test
 //    fun prepareMonthlyReportTest(){
 //        val session = DbSessionManager.getNewSession()
 //        val calendar = Calendar.getInstance()
-//        calendar.set(Calendar.MONTH,Calendar.JUNE)
+//        calendar.set(Calendar.MONTH, Calendar.JUNE)
 //        calendar.set(Calendar.DAY_OF_MONTH,15)
 //        val today = calendar.time
 //        ReportGenerationUtils.prepareMonthlyReport(today, session)
