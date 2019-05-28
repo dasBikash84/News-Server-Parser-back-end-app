@@ -106,18 +106,27 @@ object DataParsingCoordinator {
     }
 
     private fun generateAndDistributeDailyReport(today: Date,session: Session) {
+        println("Starting daily article parsing report generation.")
         ReportGenerationUtils.prepareDailyReport(today, session)
+        println("Daily article parsing report generated.")
         ReportGenerationUtils.emailDailyReport(today)
+        println("Daily article parsing report distributed.")
     }
 
     private fun generateAndDistributeWeeklyReport(today: Date,session: Session) {
+        println("Starting weekly article parsing report generation.")
         ReportGenerationUtils.prepareWeeklyReport(today, session)
+        println("Weekly article parsing report generated.")
         ReportGenerationUtils.emailWeeklyReport(today)
+        println("Weekly article parsing report distributed.")
     }
 
     private fun generateAndDistributeMonthlyReport(today: Date,session: Session) {
+        println("Starting monthly article parsing report generation.")
         ReportGenerationUtils.prepareMonthlyReport(today, session)
+        println("Monthly article parsing report generated.")
         ReportGenerationUtils.emailMonthlyReport(today)
+        println("Monthly article parsing report distributed.")
     }
 
     private fun stopParserForNewspaper(newspaper: Newspaper) {

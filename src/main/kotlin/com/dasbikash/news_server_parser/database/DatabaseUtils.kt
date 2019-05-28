@@ -143,7 +143,6 @@ object DatabaseUtils {
                                             .append(" WHERE pageId='${page.id}' ")
                                             .append("AND modified>='${DateUtils.getDateStringForDb(yesterday)}'")
                                             .append("AND modified<'${DateUtils.getDateStringForDb(today)}'")
-        println(sqlBuilder.toString())
         val result = session.createNativeQuery(sqlBuilder.toString()).singleResult
         return (result as BigInteger).toInt()
     }
@@ -157,7 +156,6 @@ object DatabaseUtils {
                                             .append(" WHERE pageId='${page.id}' ")
                                             .append("AND modified>='${DateUtils.getDateStringForDb(lastWeekFirstDay.time)}'")
                                             .append("AND modified<'${DateUtils.getDateStringForDb(thisWeekFirstDay)}'")
-        println(sqlBuilder.toString())
         val result = session.createNativeQuery(sqlBuilder.toString()).singleResult
         return (result as BigInteger).toInt()
     }
@@ -170,7 +168,6 @@ object DatabaseUtils {
                                             .append(" WHERE pageId='${page.id}' ")
                                             .append("AND modified>='${DateUtils.getDateStringForDb(firstDayOfLastMonth)}'")
                                             .append("AND modified<'${DateUtils.getDateStringForDb(firstDayOfMonth)}'")
-        println(sqlBuilder.toString())
         val result = session.createNativeQuery(sqlBuilder.toString()).singleResult
         return (result as BigInteger).toInt()
     }
