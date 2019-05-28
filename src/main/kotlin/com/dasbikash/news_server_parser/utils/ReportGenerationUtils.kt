@@ -108,7 +108,7 @@ object ReportGenerationUtils {
             totalArticleCountOfLastMonth += articleCountOfLastMonth
             reportFile.appendText("${++sln},${it.name},${getIsWeeklyText(it)},${it.id},${getParentPageIdText(it)},${it.newspaper!!.name},${articleCountOfLastMonth}\n")
         }
-        reportFile.appendText(",,,,Total,${totalArticleCountOfLastMonth}\n\n")
+        reportFile.appendText(",,,,,Total,${totalArticleCountOfLastMonth}\n\n")
 
         reportFile.appendText("For pages without any article:\n")
         reportFile.appendText("${getTableHeader()}\n")

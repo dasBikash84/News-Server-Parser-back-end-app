@@ -20,7 +20,7 @@ object FileUtils {
 
     private val DAILY_REPORT_FILE_NAME_PREFIX = "parser_daily_report_"
     private val WEEKLY_REPORT_FILE_NAME_PREFIX = "parser_weekly_report_"
-    private val MONTHLY_REPORT_FILE_NAME_PREFIX = " parser_monthly_report_"
+    private val MONTHLY_REPORT_FILE_NAME_PREFIX = "parser_monthly_report_"
     private val REPORT_FILE_NAME_EXT = ".csv"
     private val HOME_DIR_PATH:String
     private val PROJECT_HOME_DIR_PATH:String

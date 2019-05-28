@@ -139,35 +139,26 @@ object DatabaseUtils {
 
     fun getArticleCountForPageOfYesterday(session: Session, page: Page, today: Date):Int {
         val yesterday = DateUtils.getYesterDay(today)
-        val sqlBuilder = StringBuilder("SELECT COUNT(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
-                                            .append(" WHERE pageId='${page.id}' ")
-                                            .append("AND modified>='${DateUtils.getDateStringForDb(yesterday)}'")
-                                            .append("AND modified<'${DateUtils.getDateStringForDb(today)}'")
-        val result = session.createNativeQuery(sqlBuilder.toString()).singleResult
-        return (result as BigInteger).toInt()
+        return getArticleCountForPageBetweenTwoDates(page, yesterday, today, session)
     }
 
     fun getArticleCountForPageOfLastWeek(session: Session, page: Page, thisWeekFirstDay: Date):Int {
-        val lastWeekFirstDay = Calendar.getInstance()
-        lastWeekFirstDay.time = thisWeekFirstDay
-        lastWeekFirstDay.add(Calendar.DAY_OF_YEAR,-7)
-
-        val sqlBuilder = StringBuilder("SELECT COUNT(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
-                                            .append(" WHERE pageId='${page.id}' ")
-                                            .append("AND modified>='${DateUtils.getDateStringForDb(lastWeekFirstDay.time)}'")
-                                            .append("AND modified<'${DateUtils.getDateStringForDb(thisWeekFirstDay)}'")
-        val result = session.createNativeQuery(sqlBuilder.toString()).singleResult
-        return (result as BigInteger).toInt()
+        val lastWeekFirstDay = DateUtils.getLastWeekSameDay(thisWeekFirstDay)
+        return getArticleCountForPageBetweenTwoDates(page, lastWeekFirstDay, thisWeekFirstDay, session)
     }
 
     fun getArticleCountForPageOfLastMonth(session: Session, page: Page, anyDayOfMonth: Date):Int {
         val firstDayOfMonth = DateUtils.getFirstDayOfMonth(anyDayOfMonth)
         val firstDayOfLastMonth = DateUtils.getFirstDayOfLastMonth(anyDayOfMonth)
 
+        return getArticleCountForPageBetweenTwoDates(page, firstDayOfLastMonth, firstDayOfMonth, session)
+    }
+
+    private fun getArticleCountForPageBetweenTwoDates(page: Page, startDate: Date, endDate: Date, session: Session): Int {
         val sqlBuilder = StringBuilder("SELECT COUNT(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
-                                            .append(" WHERE pageId='${page.id}' ")
-                                            .append("AND modified>='${DateUtils.getDateStringForDb(firstDayOfLastMonth)}'")
-                                            .append("AND modified<'${DateUtils.getDateStringForDb(firstDayOfMonth)}'")
+                .append(" WHERE pageId='${page.id}' ")
+                .append("AND modified>='${DateUtils.getDateStringForDb(startDate)}'")
+                .append("AND modified<'${DateUtils.getDateStringForDb(endDate)}'")
         val result = session.createNativeQuery(sqlBuilder.toString()).singleResult
         return (result as BigInteger).toInt()
     }
