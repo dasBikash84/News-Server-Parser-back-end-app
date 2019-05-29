@@ -15,14 +15,15 @@ package com.dasbikash.news_server_parser.parser
 
 import com.dasbikash.news_server_parser.database.DatabaseUtils
 import com.dasbikash.news_server_parser.database.DbSessionManager
-import com.dasbikash.news_server_parser.exceptions.*
+import com.dasbikash.news_server_parser.exceptions.NewsPaperNotFoundForPageException
+import com.dasbikash.news_server_parser.exceptions.ParserException
+import com.dasbikash.news_server_parser.exceptions.ParserNotFoundException
 import com.dasbikash.news_server_parser.exceptions.handler.ParserExceptionHandler
 import com.dasbikash.news_server_parser.model.*
 import com.dasbikash.news_server_parser.parser.article_body_parsers.ArticleBodyParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser
 import com.dasbikash.news_server_parser.utils.LoggerUtils
 import org.hibernate.Session
-import java.net.URISyntaxException
 import java.util.*
 import kotlin.random.Random
 
@@ -97,7 +98,7 @@ class ArticleDataFetcherForNewsPaper(
         }
         pageListForParsing.asSequence()
                 .forEach {
-                    emptyPageAction(it, "Reset on start.")
+                    emptyPageAction(it, "Reset on start.",true)
                 }
 
         val delayBetweenPages = ALL_PAGE_PARSING_PERIOD / pageListForParsing.size
@@ -166,28 +167,15 @@ class ArticleDataFetcherForNewsPaper(
                     ParserExceptionHandler.handleException(e)
                     println("Exiting ${this::class.java.simpleName} for ${newspaper.name}")
                     return
-                } catch (e: PageLinkGenerationException) {
+                }catch (e: Throwable) {
                     println("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
-                    ParserExceptionHandler.handleException(e)
-                    continue
-                } catch (e: URISyntaxException) {
-                    println("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
-                    ParserExceptionHandler.handleException(ParserException(e))
-                    continue
-                } catch (e: EmptyJsoupDocumentException) {
-                    println("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
-                    ParserExceptionHandler.handleException(e)
-                    continue
-                } catch (e: EmptyArticlePreviewPageException) {
-                    println("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
-                    ParserExceptionHandler.handleException(e)
-                    if (opMode == ParserMode.RUNNING) {
+                    when(e){
+                        is ParserException  -> ParserExceptionHandler.handleException(e)
+                        else                -> ParserExceptionHandler.handleException(ParserException(e))
+                    }
+                    if (opMode == ParserMode.RUNNING && (e is ParserException)) {
                         emptyPageAction(currentPage, parsingResult?.second ?: "")
                     }
-                    continue
-                } catch (e: Throwable) {
-                    println("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
-                    ParserExceptionHandler.handleException(ParserException(e))
                     continue
                 }
 
@@ -235,19 +223,25 @@ class ArticleDataFetcherForNewsPaper(
         } while (pageListForParsing.size > 0)
     }
 
-    private fun emptyPageAction(currentPage: Page, parsingLogMessage: String) {
-        savePageParsingHistory(currentPage, 0, 0, "No article found." + parsingLogMessage)
+    private fun emptyPageAction(currentPage: Page, parsingLogMessage: String,resetOnStart:Boolean=false) {
+        savePageParsingHistory(currentPage, 0, 0,
+                "No article found." + parsingLogMessage,resetOnStart)
     }
 
     private fun allArticleRepeatAction(currentPage: Page, parsingLogMessage: String) {
         savePageParsingHistory(currentPage, 0, 0, "All articles are repeated." + parsingLogMessage)
     }
 
-    private fun savePageParsingHistory(currentPage: Page, currentPageNumber: Int, articleCount: Int, parsingLogMessage: String = "") {
-        if (articleCount > 0) {
-            println("${articleCount} new article found for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
-        } else {
-            println("No new article found for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
+    private fun savePageParsingHistory(currentPage: Page, currentPageNumber: Int, articleCount: Int
+                                       , parsingLogMessage: String = "",resetOnStart:Boolean=false) {
+        if (!resetOnStart) {
+            if (articleCount > 0) {
+                println("${articleCount} new article found for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
+            } else {
+                println("No new article found for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
+            }
+        }else{
+            println("Parser reset on start for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
         }
         DatabaseUtils.runDbTransection(getDatabaseSession()) {
             getDatabaseSession().save(PageParsingHistory(page = currentPage, pageNumber = currentPageNumber,
