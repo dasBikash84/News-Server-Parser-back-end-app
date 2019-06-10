@@ -17,13 +17,18 @@ import com.dasbikash.news_server_parser.database.DatabaseUtils
 import com.dasbikash.news_server_parser.model.ErrorLog
 import com.dasbikash.news_server_parser.model.GeneralLog
 import org.hibernate.Session
+import java.util.*
 
 object LoggerUtils {
 
-    fun logMessage(message: String, session: Session) {
+    fun logOnDb(message: String, session: Session) {
         DatabaseUtils.runDbTransection(session) {
             session.save(GeneralLog(message))
         }
+    }
+
+    fun logOnConsole(message: String) {
+        println("${Date()}: ${message}")
     }
 
     fun logError( exception: Throwable,session: Session){

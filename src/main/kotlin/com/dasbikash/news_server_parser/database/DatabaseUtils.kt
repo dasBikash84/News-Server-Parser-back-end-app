@@ -52,7 +52,7 @@ object DatabaseUtils {
             if (!session.transaction.isActive) {
                 session.beginTransaction()
             }
-            LoggerUtils.logMessage("Message: ${exception.message} Cause: ${exception.cause?.message} StackTrace: ${stackTrace}", session)
+            LoggerUtils.logOnDb("Message: ${exception.message} Cause: ${exception.cause?.message} StackTrace: ${stackTrace}", session)
             session.transaction.commit()
         } catch (ex: Exception) {
             ex.printStackTrace()

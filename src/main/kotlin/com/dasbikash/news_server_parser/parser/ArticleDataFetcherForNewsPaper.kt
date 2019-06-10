@@ -33,7 +33,7 @@ class ArticleDataFetcherForNewsPaper(
 ) : Thread() {
 
     private var lastNetworkRequestTS = 0L
-    private val MIN_DELAY_BETWEEN_NETWORK_REQUESTS = 5 * 1000L //5 secs
+    private val MIN_DELAY_BETWEEN_NETWORK_REQUESTS = 10 * 1000L //10 secs
     private val PAGE_NUMBER_NOT_APPLICABLE = 0
 
     private val SQL_FOR_LAST_PARSED_PAGE_NUMBER = "FROM PageParsingHistory where pageId=:currentPageId order by created desc"
@@ -42,12 +42,12 @@ class ArticleDataFetcherForNewsPaper(
     private val childPageMap = mutableMapOf<Page, ArrayList<Page>>()
     lateinit var dbSession: Session
 
-    private val ALL_PAGE_PARSING_PERIOD = 3 * 60 * 60 * 1000L // 3 hours
+//    private val ALL_PAGE_PARSING_PERIOD = 3 * 60 * 60 * 1000L // 3 hours
 
     override fun run() {
         sleep(Random(System.currentTimeMillis()).nextLong(MIN_DELAY_BETWEEN_NETWORK_REQUESTS))
-        println("Parser for ${newspaper.name} started at ${Date()}")
-        LoggerUtils.logMessage("Parser for ${newspaper.name} started", getDatabaseSession())
+        LoggerUtils.logOnConsole("Parser for ${newspaper.name} started.")
+        LoggerUtils.logOnDb("Parser for ${newspaper.name} started", getDatabaseSession())
 
         getDatabaseSession().update(newspaper) //take newspaper in active state
 
@@ -101,7 +101,7 @@ class ArticleDataFetcherForNewsPaper(
                     emptyPageAction(it, "Reset on start.",true)
                 }
 
-        val delayBetweenPages = ALL_PAGE_PARSING_PERIOD / pageListForParsing.size
+//        val delayBetweenPages = ALL_PAGE_PARSING_PERIOD / pageListForParsing.size
 
         do {
             //Mark pages with articles as active
@@ -126,20 +126,20 @@ class ArticleDataFetcherForNewsPaper(
                         }
                     }
 
-            println("Going to parse ${pageListForParsing.size} pages for Np: ${newspaper.name}")
+            LoggerUtils.logOnConsole("Going to parse ${pageListForParsing.size} pages for Np: ${newspaper.name}")
 
-            val shuffledPages = pageListForParsing.shuffled()
+//            val shuffledPages = pageListForParsing.shuffled()
 
-            for (currentPage in shuffledPages) {
+            for (currentPage in pageListForParsing) {
 
                 try {
-                    if (opMode == ParserMode.RUNNING) {
-                        sleep(delayBetweenPages)
-                    }else{
+//                    if (opMode == ParserMode.RUNNING) {
+//                        sleep(delayBetweenPages)
+//                    }else{
                         waitForFareNetworkUsage()
-                    }
+//                    }
                 } catch (ex: InterruptedException) {
-                    println("Exiting ${this::class.java.simpleName} for ${newspaper.name}")
+                    LoggerUtils.logOnConsole("Exiting ${this::class.java.simpleName} for ${newspaper.name}")
                     return
                 }
 
@@ -158,17 +158,17 @@ class ArticleDataFetcherForNewsPaper(
                     parsingResult = PreviewPageParser.parsePreviewPageForArticles(currentPage, currentPageNumber)
                     articleList.addAll(parsingResult.first)
                 } catch (e: NewsPaperNotFoundForPageException) {
-                    println("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
+                    LoggerUtils.logOnConsole("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
                     ParserExceptionHandler.handleException(e)
-                    println("Exiting ${this::class.java.simpleName} for ${newspaper.name}")
+                    LoggerUtils.logOnConsole("Exiting ${this::class.java.simpleName} for ${newspaper.name}")
                     return
                 } catch (e: ParserNotFoundException) {
-                    println("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
+                    LoggerUtils.logOnConsole("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
                     ParserExceptionHandler.handleException(e)
-                    println("Exiting ${this::class.java.simpleName} for ${newspaper.name}")
+                    LoggerUtils.logOnConsole("Exiting ${this::class.java.simpleName} for ${newspaper.name}")
                     return
                 }catch (e: Throwable) {
-                    println("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
+                    LoggerUtils.logOnConsole("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
                     when(e){
                         is ParserException  -> ParserExceptionHandler.handleException(e)
                         else                -> ParserExceptionHandler.handleException(ParserException(e))
@@ -199,7 +199,7 @@ class ArticleDataFetcherForNewsPaper(
                         waitForFareNetworkUsage()
                     } catch (ex: InterruptedException) {
                         ex.printStackTrace()
-                        println("Exiting ${this::class.java.simpleName} for ${newspaper.name}")
+                        LoggerUtils.logOnConsole("Exiting ${this::class.java.simpleName} for ${newspaper.name}")
                         return
                     }
                     try {
@@ -236,12 +236,12 @@ class ArticleDataFetcherForNewsPaper(
                                        , parsingLogMessage: String = "",resetOnStart:Boolean=false) {
         if (!resetOnStart) {
             if (articleCount > 0) {
-                println("${articleCount} new article found for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
+                LoggerUtils.logOnConsole("${articleCount} new article found for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
             } else {
-                println("No new article found for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
+                LoggerUtils.logOnConsole("No new article found for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
             }
         }else{
-            println("Parser reset on start for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
+            LoggerUtils.logOnConsole("Parser reset on start for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
         }
         DatabaseUtils.runDbTransection(getDatabaseSession()) {
             getDatabaseSession().save(PageParsingHistory(page = currentPage, pageNumber = currentPageNumber,
