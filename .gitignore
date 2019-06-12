@@ -1,4 +1,5 @@
 #List of folders containing temporary files for development assistance
+*FirebaseCredentials*
 /dontTrack
 ### Java template
 *.class
