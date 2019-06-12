@@ -42,8 +42,6 @@ class ArticleDataFetcherForNewsPaper(
     private val childPageMap = mutableMapOf<Page, ArrayList<Page>>()
     lateinit var dbSession: Session
 
-//    private val ALL_PAGE_PARSING_PERIOD = 3 * 60 * 60 * 1000L // 3 hours
-
     override fun run() {
         sleep(Random(System.currentTimeMillis()).nextLong(MIN_DELAY_BETWEEN_NETWORK_REQUESTS))
         LoggerUtils.logOnConsole("Parser for ${newspaper.name} started.")
@@ -98,23 +96,16 @@ class ArticleDataFetcherForNewsPaper(
         }
         pageListForParsing.asSequence()
                 .forEach {
-                    emptyPageAction(it, "Reset on start.",true)
+                    emptyPageAction(it, "Reset on start.", true)
                 }
-
-//        val delayBetweenPages = ALL_PAGE_PARSING_PERIOD / pageListForParsing.size
 
         do {
             //Mark pages with articles as active
             pageListForParsing.asSequence()
                     .forEach {
                         if (!it.active) {
-
                             if (!it.isTopLevelPage()) {
-                                if (it.articleList != null) {
-                                    it.active = DatabaseUtils.getArticleCountForPage(getDatabaseSession(), it.id) > 0
-                                } else {
-                                    it.active = false
-                                }
+                                it.active = DatabaseUtils.getArticleCountForPage(getDatabaseSession(), it.id) > 0
                             } else {
                                 it.active = true
                             }
@@ -128,16 +119,10 @@ class ArticleDataFetcherForNewsPaper(
 
             LoggerUtils.logOnConsole("Going to parse ${pageListForParsing.size} pages for Np: ${newspaper.name}")
 
-//            val shuffledPages = pageListForParsing.shuffled()
-
             for (currentPage in pageListForParsing) {
 
                 try {
-//                    if (opMode == ParserMode.RUNNING) {
-//                        sleep(delayBetweenPages)
-//                    }else{
-                        waitForFareNetworkUsage()
-//                    }
+                    waitForFareNetworkUsage()
                 } catch (ex: InterruptedException) {
                     LoggerUtils.logOnConsole("Exiting ${this::class.java.simpleName} for ${newspaper.name}")
                     return
@@ -167,11 +152,11 @@ class ArticleDataFetcherForNewsPaper(
                     ParserExceptionHandler.handleException(e)
                     LoggerUtils.logOnConsole("Exiting ${this::class.java.simpleName} for ${newspaper.name}")
                     return
-                }catch (e: Throwable) {
+                } catch (e: Throwable) {
                     LoggerUtils.logOnConsole("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
-                    when(e){
-                        is ParserException  -> ParserExceptionHandler.handleException(e)
-                        else                -> ParserExceptionHandler.handleException(ParserException(e))
+                    when (e) {
+                        is ParserException -> ParserExceptionHandler.handleException(e)
+                        else -> ParserExceptionHandler.handleException(ParserException(e))
                     }
                     if (opMode == ParserMode.RUNNING && (e is ParserException)) {
                         emptyPageAction(currentPage, parsingResult?.second ?: "")
@@ -223,9 +208,9 @@ class ArticleDataFetcherForNewsPaper(
         } while (pageListForParsing.size > 0)
     }
 
-    private fun emptyPageAction(currentPage: Page, parsingLogMessage: String,resetOnStart:Boolean=false) {
+    private fun emptyPageAction(currentPage: Page, parsingLogMessage: String, resetOnStart: Boolean = false) {
         savePageParsingHistory(currentPage, 0, 0,
-                "No article found." + parsingLogMessage,resetOnStart)
+                "No article found." + parsingLogMessage, resetOnStart)
     }
 
     private fun allArticleRepeatAction(currentPage: Page, parsingLogMessage: String) {
@@ -233,14 +218,14 @@ class ArticleDataFetcherForNewsPaper(
     }
 
     private fun savePageParsingHistory(currentPage: Page, currentPageNumber: Int, articleCount: Int
-                                       , parsingLogMessage: String = "",resetOnStart:Boolean=false) {
+                                       , parsingLogMessage: String = "", resetOnStart: Boolean = false) {
         if (!resetOnStart) {
             if (articleCount > 0) {
                 LoggerUtils.logOnConsole("${articleCount} new article found for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
             } else {
                 LoggerUtils.logOnConsole("No new article found for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
             }
-        }else{
+        } else {
             LoggerUtils.logOnConsole("Parser reset on start for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
         }
         DatabaseUtils.runDbTransection(getDatabaseSession()) {
