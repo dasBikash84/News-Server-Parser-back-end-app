@@ -179,6 +179,8 @@ class ArticleDataFetcherForNewsPaper(
 
                 //Now go for article data fetching
 
+                var newArticleCount = 0
+
                 for (article in parseableArticleList) {
                     try {
                         waitForFareNetworkUsage()
@@ -193,7 +195,10 @@ class ArticleDataFetcherForNewsPaper(
                             if (article.previewImageLink == null && article.imageLinkList.size > 0) {
                                 article.previewImageLink = article.imageLinkList.get(0).link
                             }
-                            DatabaseUtils.runDbTransection(getDatabaseSession()) { getDatabaseSession().save(article) }
+                            DatabaseUtils.runDbTransection(getDatabaseSession()) {
+                                getDatabaseSession().save(article)
+                                newArticleCount++
+                            }
                         }
                     } catch (ex: ParserException) {
                         ParserExceptionHandler.handleException(ex)
@@ -203,7 +208,7 @@ class ArticleDataFetcherForNewsPaper(
                 }
 
                 savePageParsingHistory(
-                        currentPage, currentPageNumber, parseableArticleList.size, parsingResult?.second ?: "")
+                        currentPage, currentPageNumber, newArticleCount, parsingResult?.second ?: "")
             }
         } while (pageListForParsing.size > 0)
     }
@@ -223,7 +228,7 @@ class ArticleDataFetcherForNewsPaper(
             if (articleCount > 0) {
                 LoggerUtils.logOnConsole("${articleCount} new article found for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
             } else {
-                LoggerUtils.logOnConsole("No new article found for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
+//                LoggerUtils.logOnConsole("No new article found for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
             }
         } else {
             LoggerUtils.logOnConsole("Parser reset on start for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
