@@ -21,4 +21,6 @@ object DatabaseTableNames {
     const val ARTICLE_TABLE_NAME = "articles"
     const val PAGE_GROUP_TABLE_NAME = "page_groups"
     const val NEWS_PAPER_OP_MODE_ENTRY_NAME = "np_opmode_entry"
+    const val PAGE_PARSING_INTERVAL_TABLE_NAME = "page_parsing_interval"
+    const val PAGE_PARSING_HISTORY_TABLE_NAME = "page_parsing_history"
 }

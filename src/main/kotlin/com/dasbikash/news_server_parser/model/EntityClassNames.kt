@@ -14,11 +14,12 @@
 package com.dasbikash.news_server_parser.model
 
 object EntityClassNames {
-    const val COUNTRY = "Country";
-    const val LANGUAGE = "Language";
-    const val NEWSPAPER = "Newspaper";
-    const val PAGE = "Page";
-    const val ARTICLE = "Article";
-    const val PAGE_GROUP = "PageGroup";
-    const val NEWS_PAPER_OP_MODE_ENTRY = "NewspaperOpModeEntry";
+    const val COUNTRY = "Country"
+    const val LANGUAGE = "Language"
+    const val NEWSPAPER = "Newspaper"
+    const val PAGE = "Page"
+    const val ARTICLE = "Article"
+    const val PAGE_GROUP = "PageGroup"
+    const val NEWS_PAPER_OP_MODE_ENTRY = "NewspaperOpModeEntry"
+    const val PAGE_PARSING_INTERVAL = "PageParsingInterval"
 }

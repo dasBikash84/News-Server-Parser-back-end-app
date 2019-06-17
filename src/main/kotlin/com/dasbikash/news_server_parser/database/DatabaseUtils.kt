@@ -96,6 +96,32 @@ object DatabaseUtils {
         return query.list() as List<PageGroup>
     }
 
+    fun getPageParsingIntervals(session: Session): List<PageParsingInterval> {
+        val hql = "FROM ${EntityClassNames.PAGE_PARSING_INTERVAL}"
+        val query = session.createQuery(hql, PageParsingInterval::class.java)
+        return query.list() as List<PageParsingInterval>
+    }
+
+    fun getPageParsingIntervalForPage(session: Session,page: Page): PageParsingInterval? {
+        val sql = "SELECT * FROM ${DatabaseTableNames.PAGE_PARSING_INTERVAL_TABLE_NAME} WHERE pageId='${page.id}'"
+        @Suppress("UNCHECKED_CAST")
+        val result = session.createNativeQuery(sql,PageParsingInterval::class.java).resultList as List<PageParsingInterval>
+        if (result.size == 1) {
+            return result.get(0)
+        }
+        return null
+    }
+
+    fun getLatestPageParsingHistoryForPage(session: Session,page: Page): PageParsingHistory?{
+        val sql = "SELECT * FROM ${DatabaseTableNames.PAGE_PARSING_HISTORY_TABLE_NAME} WHERE pageId='${page.id}' order by created desc limit 1"
+        @Suppress("UNCHECKED_CAST")
+        val result = session.createNativeQuery(sql,PageParsingHistory::class.java).resultList as List<PageParsingHistory>
+        if (result.size == 1) {
+            return result.get(0)
+        }
+        return null
+    }
+
     fun findArticleById(session: Session, id: String): Article? {
         val hql = "FROM ${EntityClassNames.ARTICLE} where id='${id}'"
         val query = session.createQuery(hql, Article::class.java)

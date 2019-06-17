@@ -22,13 +22,13 @@ import kotlin.collections.ArrayList
 @Entity
 @Table(name = DatabaseTableNames.ARTICLE_TABLE_NAME)
 @NamedNativeQuery(name = DbNamedNativeQueries.UN_PARSERD_ARTICLES_BY_NEWSPAPER_ID_NAME,
-                query = DbNamedNativeQueries.UN_PARSERD_ARTICLES_BY_NEWSPAPER_ID_QUERY,
-                resultClass = Article::class)
+        query = DbNamedNativeQueries.UN_PARSERD_ARTICLES_BY_NEWSPAPER_ID_QUERY,
+        resultClass = Article::class)
 data class Article(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        var serial:Int?=null,
-        var id: String="",
+        var serial: Int? = null,
+        var id: String = "",
 
         @ManyToOne(targetEntity = Page::class, fetch = FetchType.EAGER)
         @JoinColumn(name = "pageId")
@@ -50,28 +50,32 @@ data class Article(
         var previewImageLink: String? = null,
 
         @Column(columnDefinition = "text")
-        var articleLink: String? = null
-){
-        @Transient
-        fun isDownloaded():Boolean{
-                return articleText != null
-        }
+        var articleLink: String? = null,
 
-        override fun toString(): String {
-                return "Article(id='$id', page=${page}, title=$title, modificationTS=$modificationTS, publicationTS=$publicationTS, " +
-                        "articleText=$articleText,previewImageLink=$previewImageLink, articleLink=$articleLink)"
-        }
+        @Temporal(TemporalType.TIMESTAMP)
+        @Column(name = "modified", nullable = false, updatable = false,insertable = false)
+        var modified: Date? = null
+) {
+    @Transient
+    fun isDownloaded(): Boolean {
+        return articleText != null
+    }
 
-        fun setPublicationTs(publicationTS: Long){
-                val calander = Calendar.getInstance()
-                calander.timeInMillis = publicationTS
-                this.publicationTS = calander.time
-        }
+    override fun toString(): String {
+        return "Article(id='$id', page=${page?.id}, " +
+                "modified=$modified"
+    }
 
-        fun setModificationTs(modificationTS: Long){
-                val calander = Calendar.getInstance()
-                calander.timeInMillis = modificationTS
-                this.modificationTS = calander.time
-        }
+    fun setPublicationTs(publicationTS: Long) {
+        val calander = Calendar.getInstance()
+        calander.timeInMillis = publicationTS
+        this.publicationTS = calander.time
+    }
+
+    fun setModificationTs(modificationTS: Long) {
+        val calander = Calendar.getInstance()
+        calander.timeInMillis = modificationTS
+        this.modificationTS = calander.time
+    }
 
 }

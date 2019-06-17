@@ -68,7 +68,7 @@ data class Page(
     }
 
     override fun toString(): String {
-        return "Page(id='$id', newspaper=${newspaper?.name}, parentPageId=$parentPageId, name=$name, linkFormat=$linkFormat, linkVariablePartFormat=$linkVariablePartFormat, firstEditionDateString=$firstEditionDateString, weekly=$weekly, weeklyPublicationDay=$weeklyPublicationDay, active=$active)"
+        return "Page(id='$id', newspaper=${newspaper?.name}, parentPageId=$parentPageId, name=$name, weekly=$weekly)"
     }
 
     fun setNewspaper(newspapers: List<Newspaper>) {

@@ -196,7 +196,7 @@ abstract public class PreviewPageParser {
             articles.add(
                     new Article(
                             null,HashUtils.INSTANCE.hash(articleLink).toString(),mCurrentPage,articleTitle,modificationDate,
-                            publicationDate,null,new ArrayList<>(),previewImageLink,articleLink
+                            publicationDate,null,new ArrayList<>(),previewImageLink,articleLink,null
                     )
             );
         }
@@ -237,19 +237,23 @@ abstract public class PreviewPageParser {
             currentTime.setTimeZone(TimeZone.getTimeZone(mCurrentPage.getNewspaper().getCountry().getTimeZone()));
 
             if (mCurrentPage.getWeekly()){
-                do {
+                if (mCurrentPage.getWeeklyPublicationDay() == null ||
+                        mCurrentPage.getWeeklyPublicationDay() != currentTime.get(Calendar.DAY_OF_WEEK)) {
+                    return null;
+                }
+                /*do {
                     if (mCurrentPage.getWeeklyPublicationDay() == currentTime.get(Calendar.DAY_OF_WEEK)) {
                         break;
                     }
-                    currentTime.add(Calendar.DAY_OF_MONTH, -1);
+                    currentTime.add(Calendar.DAY_OF_YEAR, -1);
                 } while (true);
-                currentTime.add(Calendar.DAY_OF_YEAR,-1*(mCurrentPageNumber-1)*7);
+                currentTime.add(Calendar.DAY_OF_YEAR,-1*(mCurrentPageNumber-1)*7);*/
             } else {
                 currentTime.add(Calendar.DAY_OF_YEAR, -1 * (mCurrentPageNumber - 1));
             }
 
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat(mCurrentPage.getLinkVariablePartFormat());
-            simpleDateFormat.setTimeZone(TimeZone.getTimeZone(mCurrentPage.getNewspaper().getCountry().getTimeZone()));
+            simpleDateFormat.setTimeZone(currentTime.getTimeZone());
 
             return mCurrentPage.getLinkFormat().replace(
                     mCurrentPage.getLinkVariablePartFormat(),

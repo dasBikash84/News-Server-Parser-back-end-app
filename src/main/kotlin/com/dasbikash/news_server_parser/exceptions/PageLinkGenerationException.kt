@@ -15,7 +15,7 @@ package com.dasbikash.news_server_parser.exceptions
 
 import com.dasbikash.news_server_parser.model.Page
 
-class PageLinkGenerationException:HighestLevelException {
+class PageLinkGenerationException:ParserException {
 
     constructor(page: Page) : super(causePreamble+"${page.name} with id: ${page.id}")
     constructor() : super()

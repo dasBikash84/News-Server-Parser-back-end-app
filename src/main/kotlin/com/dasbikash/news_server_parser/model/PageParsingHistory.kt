@@ -17,21 +17,23 @@ import java.util.*
 import javax.persistence.*
 
 @Entity
-@Table(name = "page_parsing_history")
+@Table(name = DatabaseTableNames.PAGE_PARSING_HISTORY_TABLE_NAME)
 data class PageParsingHistory(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         var id: Int? = null,
-        @ManyToOne(targetEntity = Page::class, fetch = FetchType.LAZY)
+        @ManyToOne(targetEntity = Page::class, fetch = FetchType.EAGER)
         @JoinColumn(name = "pageId")
         var page: Page? = null,
         var pageNumber: Int = 0,
         var articleCount: Int = 0,
         @Column(columnDefinition = "text")
         var parsingLogMessage: String = "",
-        var created: Date? = Date()
+        @Temporal(TemporalType.TIMESTAMP)
+        @Column(name = "created", nullable = false, updatable=false,insertable = false)
+        var created: Date? = null
 ) {
     override fun toString(): String {
-        return "PageParsingHistory(id=$id, page=${page?.name}, pageNumber=$pageNumber, articleCount=$articleCount, created=$created)"
+        return "PageParsingHistory(id=$id, pageName=${page?.name}, pageId=${page?.id}, pageNumber=$pageNumber, articleCount=$articleCount, created=$created)"
     }
 }

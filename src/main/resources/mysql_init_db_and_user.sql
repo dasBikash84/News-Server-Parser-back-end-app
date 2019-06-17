@@ -155,40 +155,56 @@ CREATE TABLE `news_server_parser2`.`page_parsing_history`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
-CREATE TABLE `news_server_parser2`.`tokens` (
-  `token` varchar(255) NOT NULL,
-  `expiresOn` datetime NOT NULL,
-  `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`token`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE `news_server_parser2`.`tokens`
+(
+    `token`     varchar(255) NOT NULL,
+    `expiresOn` datetime     NOT NULL,
+    `created`   datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`token`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE `news_server_parser2`.`rest_activity_log`
 (
-    `id`         int(11)  NOT NULL AUTO_INCREMENT,
-    `requestURL` varchar(255)  NOT NULL,
-    `requestMethod` varchar(255)  NOT NULL,
-    `remoteHost` varchar(255)  NOT NULL,
-    `methodSignature` varchar(255)  NOT NULL,
-    `exceptionClassName` varchar(255)  DEFAULT NULL,
-    `timeTakenMs` int(5)  NOT NULL,
-    `returnedEntiryCount` int(3)  DEFAULT 0,
-    `acceptHeader` VARCHAR(45) DEFAULT NULL,
-    `userAgentHeader` VARCHAR(255) DEFAULT NULL,
-    `created`    datetime DEFAULT CURRENT_TIMESTAMP,
+    `id`                  int(11)      NOT NULL AUTO_INCREMENT,
+    `requestURL`          varchar(255) NOT NULL,
+    `requestMethod`       varchar(255) NOT NULL,
+    `remoteHost`          varchar(255) NOT NULL,
+    `methodSignature`     varchar(255) NOT NULL,
+    `exceptionClassName`  varchar(255) DEFAULT NULL,
+    `timeTakenMs`         int(5)       NOT NULL,
+    `returnedEntiryCount` int(3)       DEFAULT 0,
+    `acceptHeader`        VARCHAR(45)  DEFAULT NULL,
+    `userAgentHeader`     VARCHAR(255) DEFAULT NULL,
+    `created`             datetime     DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
 ) ENGINE = MyISAM
   DEFAULT CHARSET = utf8;
 
 CREATE TABLE `news_server_parser2`.`np_opmode_entry`
 (
-    `id`         int(11)  NOT NULL AUTO_INCREMENT,
-    `opMode` enum ('RUNNING','GET_SYNCED') NOT NULL,
-    `newsPaperId`            varchar(255) DEFAULT NULL,
-    `created`    datetime DEFAULT CURRENT_TIMESTAMP,
+    `id`          int(11)                       NOT NULL AUTO_INCREMENT,
+    `opMode`      enum ('RUNNING','GET_SYNCED') NOT NULL,
+    `newsPaperId` varchar(255) DEFAULT NULL,
+    `created`     datetime     DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT `np_opmode_entry_newsPaperId_fkey_constraint` FOREIGN KEY (`newsPaperId`) REFERENCES `newspapers` (`id`),
     PRIMARY KEY (`id`)
 ) ENGINE = MyISAM
   DEFAULT CHARSET = utf8;
+
+CREATE TABLE `news_server_parser2`.`page_parsing_interval`
+(
+    `id`                INT(4)      NOT NULL AUTO_INCREMENT,
+    `pageId`            VARCHAR(45) NOT NULL,
+    `parsingIntervalMS` INT(11)     NOT NULL,
+    `modified`          DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `pageId_UNIQUE` (`pageId` ASC),
+    CONSTRAINT `fk_page_parsing_interval_pageID` FOREIGN KEY (`pageId`) REFERENCES `news_server_parser2`.`pages` (`id`)
+        ON DELETE NO ACTION
+        ON UPDATE NO ACTION
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
 
 drop user if exists 'nsp_app_user'@'localhost';
 drop user if exists 'nsp_rest_user'@'localhost';
@@ -196,10 +212,10 @@ drop user if exists 'nsp_rest_user'@'localhost';
 create user 'nsp_app_user'@'localhost' identified by 'nsp_app_user';
 create user 'nsp_rest_user'@'localhost' identified by 'nsp_rest_user';
 
-grant select,insert,update,delete on news_server_parser2.* to 'nsp_app_user'@'localhost';
+grant select, insert, update, delete on news_server_parser2.* to 'nsp_app_user'@'localhost';
 
 grant select on news_server_parser2.* to 'nsp_rest_user'@'localhost';
-grant insert,update on news_server_parser2.tokens to 'nsp_rest_user'@'localhost';
+grant insert, update on news_server_parser2.tokens to 'nsp_rest_user'@'localhost';
 grant insert on news_server_parser2.rest_activity_log to 'nsp_rest_user'@'localhost';
 grant insert on news_server_parser2.np_opmode_entry to 'nsp_rest_user'@'localhost';
 grant update on news_server_parser2.newspapers to 'nsp_rest_user'@'localhost';
