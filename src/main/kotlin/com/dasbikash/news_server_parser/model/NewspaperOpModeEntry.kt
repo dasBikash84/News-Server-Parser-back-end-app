@@ -23,7 +23,7 @@ data class NewspaperOpModeEntry(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         var id: Int? = null,
-        @Column(columnDefinition = "enum('RUNNING','GET_SYNCED')")
+        @Column(columnDefinition = "enum('RUNNING','GET_SYNCED','PARSE_THROUGH_CLIENT')")
         @Enumerated(EnumType.STRING)
         var opMode: ParserMode? = null,
 

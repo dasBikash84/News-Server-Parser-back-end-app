@@ -25,11 +25,16 @@ import com.dasbikash.news_server_parser.model.ParserMode
 import com.dasbikash.news_server_parser.parser.article_body_parsers.ArticleBodyParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser
 import com.dasbikash.news_server_parser.utils.LoggerUtils
+import java.lang.IllegalStateException
 
 class ArticleDataFetcherSelf(newspaper: Newspaper,opMode: ParserMode)
     : ArticleDataFetcherForNewsPaper(newspaper, opMode) {
 
     override fun doParsingForPages(pageListForParsing: List<Page>) {
+
+        if (opMode !=ParserMode.GET_SYNCED && opMode!=ParserMode.RUNNING){
+            throw IllegalStateException()
+        }
 
         for (currentPage in pageListForParsing) {
 

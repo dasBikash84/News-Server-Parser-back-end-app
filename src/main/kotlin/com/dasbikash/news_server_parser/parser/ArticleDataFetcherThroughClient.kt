@@ -25,6 +25,7 @@ import com.dasbikash.news_server_parser.model.ParserMode
 import com.dasbikash.news_server_parser.parser.article_body_parsers.ArticleBodyParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser
 import com.dasbikash.news_server_parser.utils.LoggerUtils
+import java.lang.IllegalStateException
 
 class ArticleDataFetcherThroughClient(
         newspaper: Newspaper,
@@ -33,6 +34,10 @@ class ArticleDataFetcherThroughClient(
 
 
     override fun doParsingForPages(pageListForParsing: List<Page>) {
+
+        if (opMode !=ParserMode.PARSE_THROUGH_CLIENT){
+            throw IllegalStateException()
+        }
 
         /*for (currentPage in pageListForParsing) {
 
