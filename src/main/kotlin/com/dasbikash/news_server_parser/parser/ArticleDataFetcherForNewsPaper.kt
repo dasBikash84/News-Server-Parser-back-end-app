@@ -137,7 +137,7 @@ abstract class ArticleDataFetcherForNewsPaper(
                             }
                         } else if (pageParsingInterval.needRecalculation()) {
                             val newInterval = PageParsingInterval.recalculate(it)
-                            pageParsingInterval.parsingIntervalMS = newInterval.parsingIntervalMS
+                            pageParsingInterval.parsingIntervalMS = newInterval.parsingIntervalMS!!+1
                             DatabaseUtils.runDbTransection(getDatabaseSession()) {
                                 getDatabaseSession().update(pageParsingInterval)
                                 LoggerUtils.logOnConsole("PageParsingInterval updated to: ${pageParsingInterval.parsingIntervalMS} " +
