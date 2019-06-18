@@ -26,6 +26,8 @@ import com.dasbikash.news_server_parser.exceptions.handler.ParserExceptionHandle
 import com.dasbikash.news_server_parser.model.Newspaper
 import com.dasbikash.news_server_parser.model.ParserMode
 import com.dasbikash.news_server_parser.parser.ArticleDataFetcherForNewsPaper
+import com.dasbikash.news_server_parser.parser.ArticleDataFetcherSelf
+import com.dasbikash.news_server_parser.parser.ArticleDataFetcherThroughClient
 import com.dasbikash.news_server_parser.utils.DateUtils
 import com.dasbikash.news_server_parser.utils.ReportGenerationUtils
 import org.hibernate.Session
@@ -135,10 +137,18 @@ object DataParsingCoordinator {
         ParserExceptionHandler.handleException(ParserStoppedException(newspaper))
     }
 
-    private fun startArticleDataFetcherForNewspaper(session: Session, it: Newspaper,currentOpMode:ParserMode) {
-        val articleDataFetcherForNewsPaper = ArticleDataFetcherForNewsPaper(it, currentOpMode)
-        articleDataFetcherMap.put(it.id, articleDataFetcherForNewsPaper)
-        session.detach(it)
+    private fun startArticleDataFetcherForNewspaper(session: Session, newspaper: Newspaper, currentOpMode:ParserMode) {
+
+        val articleDataFetcherForNewsPaper: ArticleDataFetcherForNewsPaper
+
+        if (currentOpMode==ParserMode.PARSE_THROUGH_CLIENT){
+            articleDataFetcherForNewsPaper = ArticleDataFetcherThroughClient(newspaper, currentOpMode)
+        }else {
+            articleDataFetcherForNewsPaper = ArticleDataFetcherSelf(newspaper, currentOpMode)
+        }
+
+        articleDataFetcherMap.put(newspaper.id, articleDataFetcherForNewsPaper)
+        session.detach(newspaper)
         articleDataFetcherForNewsPaper.start()
     }
 
