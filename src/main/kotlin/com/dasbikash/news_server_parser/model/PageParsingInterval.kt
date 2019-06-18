@@ -66,8 +66,8 @@ data class PageParsingInterval(
                 for (index in sortedArticles.indices){
                     if (index == 0){
                         continue
-                    }else if (sortedArticles[index].modified!!.time - sortedArticles[index-1].modified!!.time > SUCCESIVE_ARTICLE_PARSING_INTERVAL){
-                        totalParsingIntervalMs += (sortedArticles[index].modified!!.time - sortedArticles[index-1].modified!!.time).toFloat()
+                    }else if ((sortedArticles[index].modified?.time ?: 0L) - (sortedArticles[index-1].modified?.time ?: 0L) > SUCCESIVE_ARTICLE_PARSING_INTERVAL){
+                        totalParsingIntervalMs += ((sortedArticles[index].modified?.time ?: 0L) - (sortedArticles[index-1].modified?.time ?: 0L)).toFloat()
                         totalItemsConsidered +=1
                     }
                 }
