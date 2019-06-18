@@ -31,9 +31,9 @@ class BdPratidinPreviewPageParser : PreviewPageParser() {
         return mSiteBaseAddress
     }
 
-    override fun getPageLink(): String? {
+    override fun calculatePageLink(): String? {
         mCurrentPageNumber = (mCurrentPageNumber - 1) * 12
-        return super.getPageLink()
+        return super.calculatePageLink()
     }
 
     override fun getArticlePublicationDatetimeFormat(): String? {

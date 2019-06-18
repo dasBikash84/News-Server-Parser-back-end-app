@@ -79,6 +79,9 @@ data class PageDownloadRequestEntry(
         }
 
     }
+    fun deactivate(){
+        active=false
+    }
 
     override fun toString(): String {
         return "PageDownloadRequestEntry(id=$id, serverNodeName=$serverNodeName, page=${page?.id}, responseContent=${getResponseContentAsString()}, modified=$modified)"

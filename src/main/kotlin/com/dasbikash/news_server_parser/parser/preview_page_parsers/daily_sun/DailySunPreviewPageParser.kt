@@ -24,9 +24,9 @@ class DailySunPreviewPageParser : PreviewPageParser() {
 
     private val mSiteBaseAddress = "https://www.daily-sun.com"
 
-    override fun getPageLink(): String? {
+    override fun calculatePageLink(): String? {
         mCurrentPageNumber = (mCurrentPageNumber - 1) * DailySunPreviewPageParserInfo.ARTICLE_PREVIEW_COUNT_PER_PAGE
-        return super.getPageLink()
+        return super.calculatePageLink()
     }
 
     override fun getSiteBaseAddress(): String {

@@ -27,9 +27,9 @@ class KalerKanthoPreviewPageParser : PreviewPageParser() {
         return mSiteBaseAddress
     }
 
-    override fun getPageLink(): String? {
+    override fun calculatePageLink(): String? {
         mCurrentPageNumber = (mCurrentPageNumber - 1) * ARTICLE_PREVIEW_COUNT_PER_PAGE
-        return super.getPageLink()
+        return super.calculatePageLink()
     }
 
     override fun getArticlePublicationDatetimeFormat(): String? {

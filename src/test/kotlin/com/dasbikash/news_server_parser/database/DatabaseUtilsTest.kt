@@ -13,13 +13,9 @@
 
 package com.dasbikash.news_server_parser.database
 
-import com.dasbikash.news_server_parser.utils.DateUtils
-import com.dasbikash.news_server_parser.utils.FileUtils
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.io.File
-import java.util.*
 
 internal class DatabaseUtilsTest {
 
@@ -78,7 +74,7 @@ internal class DatabaseUtilsTest {
 
         val session = DbSessionManager.getNewSession()
         DatabaseUtils.getAllPages(session).first().apply {
-            DatabaseUtils.findPendingPageDownloadRequestEntryForPage(session,this)
+            DatabaseUtils.findActivePageDownloadRequestEntryForPage(session,this)
                     .asSequence().forEach {
                         println("${it.serverNodeName} ${it.getResponseContentAsString()?.length ?:0}")
                     }

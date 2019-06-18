@@ -28,7 +28,7 @@ class TheTimesOfIndiaPreviewPageParser : PreviewPageParser() {
         return mSiteBaseAddress
     }
 
-    override fun getPageLink(): String? {
+    override fun calculatePageLink(): String? {
 
         if (mCurrentPage.linkFormat!!.matches(REGEX_FOR_ENT_LIFESTYLE_LINK.toRegex())) {
             mArticleParserIndex = ENT_LIFESTYLE_ARTICLE_PARSER_INDEX
@@ -41,7 +41,7 @@ class TheTimesOfIndiaPreviewPageParser : PreviewPageParser() {
                 return mCurrentPage.linkFormat!!.replace(mCurrentPage.linkVariablePartFormat!!, "")
             }
         }
-        return super.getPageLink()
+        return super.calculatePageLink()
     }
 
     override fun getArticlePublicationDatetimeFormat(): String {

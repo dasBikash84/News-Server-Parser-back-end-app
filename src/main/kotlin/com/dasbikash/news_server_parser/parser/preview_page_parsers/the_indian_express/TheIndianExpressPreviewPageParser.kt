@@ -29,7 +29,7 @@ class TheIndianExpressPreviewPageParser : PreviewPageParser() {
     }
 
 
-    override fun getPageLink(): String? {
+    override fun calculatePageLink(): String? {
 
         if (mCurrentPage.linkFormat!!.matches(REGEX_FOR_OP_ED_LINK.toRegex())) {
             mArticleParserIndex = OP_ED_ARTICLE_PARSER_INDEX
@@ -41,7 +41,7 @@ class TheIndianExpressPreviewPageParser : PreviewPageParser() {
             mCurrentPageNumber++
         }
 
-        return super.getPageLink()
+        return super.calculatePageLink()
     }
 
     override fun getArticlePublicationDatetimeFormat(): String {

@@ -24,9 +24,9 @@ class NewAgePreviewPageParser : PreviewPageParser() {
 
     private val mSiteBaseAddress = "http://www.newagebd.net"
 
-    override fun getPageLink(): String? {
+    override fun calculatePageLink(): String? {
         mCurrentPageNumber = (mCurrentPageNumber - 1) * NewAgePreviewPageParserInfo.ARTICLE_PREVIEW_COUNT_PER_PAGE
-        return super.getPageLink()
+        return super.calculatePageLink()
     }
 
     override fun getSiteBaseAddress(): String {

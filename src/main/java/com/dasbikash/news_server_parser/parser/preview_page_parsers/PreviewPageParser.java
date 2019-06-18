@@ -20,6 +20,8 @@ import com.dasbikash.news_server_parser.parser.JsoupConnector;
 import com.dasbikash.news_server_parser.utils.HashUtils;
 import com.dasbikash.news_server_parser.utils.LinkProcessUtils;
 import kotlin.Pair;
+import org.jetbrains.annotations.NotNull;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -49,18 +51,62 @@ abstract public class PreviewPageParser {
             throws NewsPaperNotFoundForPageException, ParserNotFoundException, PageLinkGenerationException,
             URISyntaxException, EmptyJsoupDocumentException, EmptyArticlePreviewPageException {
 
-        if (page.getNewspaper() ==null){
+        PreviewPageParser previewPageParser = getPreviewPageParser(page);
+
+        return previewPageParser.getArticlePreviews(page,pageNumber);
+    }
+
+    @NotNull
+    private static PreviewPageParser getPreviewPageParser(Page page) throws NewsPaperNotFoundForPageException, ParserNotFoundException {
+        if (page.getNewspaper() == null) {
             throw new NewsPaperNotFoundForPageException(page);
         }
 
         PreviewPageParser previewPageParser = PreviewPageParserFactory.INSTANCE
-                                                        .getPreviewPageParserByNewsPaper(page.getNewspaper());
+                .getPreviewPageParserByNewsPaper(page.getNewspaper());
 
-        if (previewPageParser ==null){
+        if (previewPageParser == null) {
             throw new ParserNotFoundException(page.getNewspaper());
         }
+        return previewPageParser;
+    }
 
-        return previewPageParser.getArticlePreviews(page,pageNumber);
+    public static String getPageLinkByPageNumber(Page page, int pageNumber)
+            throws NewsPaperNotFoundForPageException, ParserNotFoundException {
+
+        PreviewPageParser previewPageParser = getPreviewPageParser(page);
+        previewPageParser.mCurrentPage = page;
+        previewPageParser.mCurrentPageNumber = pageNumber;
+        return previewPageParser.calculatePageLink();
+    }
+
+    public static Pair<List<Article>,String> parsePreviewPageForArticles(Page page, int pageNumber,String documentBody)
+            throws NewsPaperNotFoundForPageException, ParserNotFoundException, PageLinkGenerationException,
+            EmptyJsoupDocumentException, URISyntaxException, EmptyArticlePreviewPageException {
+        PreviewPageParser previewPageParser = getPreviewPageParser(page);
+        previewPageParser.mCurrentPage = page;
+        previewPageParser.mCurrentPageNumber = pageNumber;
+
+        previewPageParser.mPageLink = previewPageParser.calculatePageLink();
+
+        //System.out.println("mPageLink: "+ mPageLink);
+
+        if (previewPageParser.mPageLink == null) {
+            throw new PageLinkGenerationException(previewPageParser.mCurrentPage);
+        }
+
+        previewPageParser.mDocument = Jsoup.parse(documentBody,previewPageParser.mPageLink);
+
+        if (previewPageParser.mDocument == null){
+            //noinspection SingleStatementInBlock
+            throw new EmptyJsoupDocumentException("Np: "+previewPageParser.mCurrentPage.getNewspaper().getName()+
+                                        ", Page: "+previewPageParser.mCurrentPage.getName()+
+                                        ", Link: "+previewPageParser.mPageLink);
+        }
+
+        //System.out.println("Document title: "+ mDocument.title());
+
+        return previewPageParser.parseDocument();
     }
 
     private Pair<List<Article>,String> getArticlePreviews(Page page, int pageNumber)
@@ -74,12 +120,12 @@ abstract public class PreviewPageParser {
         //System.out.println("mCurrentPageNumber:"+mCurrentPageNumber);
 
 
-        mPageLink = getPageLink();
+        mPageLink = calculatePageLink();
 
         //System.out.println("mPageLink: "+ mPageLink);
 
         if (mPageLink == null) {
-            throw new PageLinkGenerationException(page);
+            throw new PageLinkGenerationException(mCurrentPage);
         }
         mDocument = JsoupConnector.INSTANCE.getDocument(mPageLink);
 
@@ -210,7 +256,7 @@ abstract public class PreviewPageParser {
         return new Pair(articles,parsingLogMessage.toString());
     }
     @SuppressWarnings("MagicConstant")
-    protected String getPageLink(){
+    protected String calculatePageLink(){
 
         if (mCurrentPage == null || mCurrentPage.getLinkFormat() == null){
             //System.out.println("mCurrentPage == null || mCurrentPage.getLinkFormat() == null");
