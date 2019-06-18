@@ -205,6 +205,27 @@ CREATE TABLE `news_server_parser2`.`page_parsing_interval`
         ON UPDATE NO ACTION
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+CREATE TABLE `news_server_parser2`.`page_download_request`
+(
+    `id`                      INT(11)                                       NOT NULL AUTO_INCREMENT,
+    `pageId`                  VARCHAR(45)                                   NOT NULL,
+    `link`                    VARCHAR(5000)                                 NOT NULL,
+    `pageDownloadRequestMode` ENUM ('ARTICLE_BODY', 'ARTICLE_PREVIEW_PAGE') NOT NULL,
+    `serverNodeName`          VARCHAR(255)                                  NOT NULL,
+    `active`                  BIT(1)                                        NOT NULL DEFAULT b'1',
+    `responseContent`         TEXT                                          NULL,
+    `created`                 DATETIME                                      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `modified`                DATETIME                                      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `serverNodeName_UNIQUE` (`serverNodeName` ASC),
+    INDEX `fk_page_download_request_pageId_idx` (`pageId` ASC),
+    CONSTRAINT `fk_page_download_request_pageId`
+        FOREIGN KEY (`pageId`)
+            REFERENCES `news_server_parser2`.`pages` (`id`)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
 
 drop user if exists 'nsp_app_user'@'localhost';
 drop user if exists 'nsp_rest_user'@'localhost';

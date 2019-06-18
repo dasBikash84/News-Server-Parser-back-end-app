@@ -39,9 +39,19 @@ class ArticleDataFetcherThroughClient(
             throw IllegalStateException()
         }
 
-        /*for (currentPage in pageListForParsing) {
+        for (currentPage in pageListForParsing) {
 
-            if (opMode != ParserMode.GET_SYNCED && !goForPageParsing(currentPage)) {
+            //first check if any page download request is pending or not
+            //if pending then get details of that which will contain server address for
+            //downloaded request
+
+            //in case of pending download request check server if requested page downloaded or not.
+            //if downloaded then process the response
+
+            //if no download request pending then check and add new download request if required
+
+
+            /*if (opMode != ParserMode.GET_SYNCED && !goForPageParsing(currentPage)) {
                 continue
             }
 
@@ -127,7 +137,7 @@ class ArticleDataFetcherThroughClient(
             }
 
             savePageParsingHistory(
-                    currentPage, currentPageNumber, newArticleCount, parsingResult?.second ?: "")
-        }*/
+                    currentPage, currentPageNumber, newArticleCount, parsingResult?.second ?: "")*/
+        }
     }
 }
