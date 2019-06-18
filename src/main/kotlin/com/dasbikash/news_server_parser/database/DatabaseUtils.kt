@@ -199,8 +199,8 @@ object DatabaseUtils {
 
     fun findPageDownloadRequestEntryBYServerNodeName(session: Session, serverNodeName: String): PageDownloadRequestEntry? {
         val sql = "SELECT * FROM ${DatabaseTableNames.PAGE_DOWNLOAD_REQUEST_ENTRY_TABLE_NAME} WHERE " +
-                                "serverNodeName='${serverNodeName}' limit 1"
-        LoggerUtils.logOnConsole(sql)
+                "serverNodeName='${serverNodeName}' limit 1"
+//        LoggerUtils.logOnConsole(sql)
         try {
             val result = session.createNativeQuery(sql, PageDownloadRequestEntry::class.java).resultList as List<PageDownloadRequestEntry>
             if (result.size > 0) {
@@ -210,5 +210,17 @@ object DatabaseUtils {
             ex.printStackTrace()
         }
         return null
+    }
+
+    fun findPendingPageDownloadRequestEntryForPage(session: Session, page: Page): List<PageDownloadRequestEntry> {
+        val sql = "SELECT * FROM ${DatabaseTableNames.PAGE_DOWNLOAD_REQUEST_ENTRY_TABLE_NAME} WHERE " +
+                                "pageId='${page.id}' and active=true"
+//        LoggerUtils.logOnConsole(sql)
+        try {
+            return session.createNativeQuery(sql, PageDownloadRequestEntry::class.java).resultList as List<PageDownloadRequestEntry>
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+        return emptyList()
     }
 }

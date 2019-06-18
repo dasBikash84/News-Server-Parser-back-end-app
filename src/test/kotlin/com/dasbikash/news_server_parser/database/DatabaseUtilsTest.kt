@@ -73,5 +73,16 @@ internal class DatabaseUtilsTest {
 //            File(FileUtils.getMonthlyReportFilePath(calendar.time)).appendText("\n"+FileUtils.getMonthlyReportFilePath(calendar.time))
 //        }
 //    }
+    @Test
+    fun findPendingPageDownloadRequestEntryForPage(){
+
+        val session = DbSessionManager.getNewSession()
+        DatabaseUtils.getAllPages(session).first().apply {
+            DatabaseUtils.findPendingPageDownloadRequestEntryForPage(session,this)
+                    .asSequence().forEach {
+                        println("${it.serverNodeName} ${it.getResponseContentAsString()?.length ?:0}")
+                    }
+        }
+    }
 
 }

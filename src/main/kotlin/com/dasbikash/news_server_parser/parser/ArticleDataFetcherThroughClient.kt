@@ -18,10 +18,7 @@ import com.dasbikash.news_server_parser.exceptions.NewsPaperNotFoundForPageExcep
 import com.dasbikash.news_server_parser.exceptions.ParserException
 import com.dasbikash.news_server_parser.exceptions.ParserNotFoundException
 import com.dasbikash.news_server_parser.exceptions.handler.ParserExceptionHandler
-import com.dasbikash.news_server_parser.model.Article
-import com.dasbikash.news_server_parser.model.Newspaper
-import com.dasbikash.news_server_parser.model.Page
-import com.dasbikash.news_server_parser.model.ParserMode
+import com.dasbikash.news_server_parser.model.*
 import com.dasbikash.news_server_parser.parser.article_body_parsers.ArticleBodyParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser
 import com.dasbikash.news_server_parser.utils.LoggerUtils
@@ -40,6 +37,31 @@ class ArticleDataFetcherThroughClient(
         }
 
         for (currentPage in pageListForParsing) {
+
+            val pendingPageDownloadRequestEntries =
+                    DatabaseUtils.findPendingPageDownloadRequestEntryForPage(getDatabaseSession(),currentPage)
+
+            if (pendingPageDownloadRequestEntries.isNotEmpty()){
+
+                if (pendingPageDownloadRequestEntries.filter { it.pageDownloadRequestMode==PageDownloadRequestMode.ARTICLE_PREVIEW_PAGE }.count()>0){
+
+                    val articlePreviewPagepageDownloadRequestEntry =
+                            pendingPageDownloadRequestEntries.filter { it.pageDownloadRequestMode==PageDownloadRequestMode.ARTICLE_PREVIEW_PAGE }.first()
+
+                    if (articlePreviewPagepageDownloadRequestEntry.responseContent!=null){
+                        //parse preview page and place article download request if needed
+                    }
+                }else if (pendingPageDownloadRequestEntries.filter { it.pageDownloadRequestMode==PageDownloadRequestMode.ARTICLE_BODY }.count()>0){
+                    pendingPageDownloadRequestEntries.filter { it.pageDownloadRequestMode==PageDownloadRequestMode.ARTICLE_BODY && it.responseContent!=null }
+                            .asSequence().forEach {
+                                //parse and save articles
+                            }
+                }
+            }else{
+                if (goForPageParsing(currentPage)){
+                    //place preview page download request.
+                }
+            }
 
             //first check if any page download request is pending or not
             //if pending then get details of that which will contain server address for
