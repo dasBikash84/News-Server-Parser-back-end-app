@@ -13,9 +13,10 @@
 
 package com.dasbikash.news_server_parser.model
 
-import com.google.firebase.database.Exclude
+import java.sql.Blob
 import java.util.*
 import javax.persistence.*
+import javax.sql.rowset.serial.SerialBlob
 
 @Entity
 @Table(name = DatabaseTableNames.PAGE_DOWNLOAD_REQUEST_ENTRY_TABLE_NAME)
@@ -32,32 +33,55 @@ data class PageDownloadRequestEntry(
         @ManyToOne(targetEntity = Page::class, fetch = FetchType.EAGER)
         @JoinColumn(name = "pageId")
         var page: Page? = null,
-        var active:Boolean=true,
-        @Column(columnDefinition = "text")
-        var responseContent:String?=null,
+        var active: Boolean = true,
+        @Lob
+        @Column(columnDefinition = "MEDIUMBLOB")
+        var responseContent: Blob? = null,
 
         @Temporal(TemporalType.TIMESTAMP)
-        @Column(nullable = false, updatable = false,insertable = false)
+        @Column(nullable = false, updatable = false, insertable = false)
         var modified: Date? = null
-){
-        companion object{
+) {
+    companion object {
 
-                private fun getPageDownloadRequestEntryForPage(page: Page,pageDownloadRequestMode: PageDownloadRequestMode,link: String)
-                        :PageDownloadRequestEntry{
-                        return PageDownloadRequestEntry(page = page,pageDownloadRequestMode = pageDownloadRequestMode,link = link)
-                }
-
-                fun getArticleBodyDownloadRequestEntryForPage(page: Page,link: String)
-                        :PageDownloadRequestEntry{
-                        return getPageDownloadRequestEntryForPage(page,PageDownloadRequestMode.ARTICLE_BODY,link)
-                }
-
-                fun getArticlePreviewPageDownloadRequestEntryForPage(page: Page,link: String)
-                        :PageDownloadRequestEntry{
-                        return getPageDownloadRequestEntryForPage(page,PageDownloadRequestMode.ARTICLE_PREVIEW_PAGE,link)
-                }
+        private fun getPageDownloadRequestEntryForPage(page: Page, pageDownloadRequestMode: PageDownloadRequestMode, link: String)
+                : PageDownloadRequestEntry {
+            return PageDownloadRequestEntry(page = page, pageDownloadRequestMode = pageDownloadRequestMode, link = link)
         }
-        @Transient
-        fun getPageDownLoadRequest():PageDownLoadRequest =
-                PageDownLoadRequest(newsPaperId = page!!.newspaper!!.id,link = link!!)
+
+        fun getArticleBodyDownloadRequestEntryForPage(page: Page, link: String)
+                : PageDownloadRequestEntry {
+            return getPageDownloadRequestEntryForPage(page, PageDownloadRequestMode.ARTICLE_BODY, link)
+        }
+
+        fun getArticlePreviewPageDownloadRequestEntryForPage(page: Page, link: String)
+                : PageDownloadRequestEntry {
+            return getPageDownloadRequestEntryForPage(page, PageDownloadRequestMode.ARTICLE_PREVIEW_PAGE, link)
+        }
+    }
+
+    @Transient
+    fun getPageDownLoadRequest(): PageDownloadRequest =
+            PageDownloadRequest(newsPaperId = page!!.newspaper!!.id, link = link!!)
+
+    @Transient
+    fun getResponseContentAsString(): String? {
+        responseContent?.let {
+            return (String(it.getBytes(1, it.length().toInt()), Charsets.UTF_32))
+        }
+        return null
+    }
+
+    @Transient
+    fun setResponseContentFromServerResponse(pageDownLoadRequestResponse: PageDownLoadRequestResponse) {
+        pageDownLoadRequestResponse.pageContent?.let {
+            responseContent = SerialBlob(it.toByteArray(Charsets.UTF_32))
+        }
+
+    }
+
+    override fun toString(): String {
+        return "PageDownloadRequestEntry(id=$id, serverNodeName=$serverNodeName, page=${page?.id}, responseContent=${getResponseContentAsString()}, modified=$modified)"
+    }
+
 }

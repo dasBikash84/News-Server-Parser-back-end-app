@@ -15,8 +15,13 @@ package com.dasbikash.news_server_parser.model
 
 import com.google.cloud.Timestamp
 
-data class PageDownLoadRequest(
-        val newsPaperId: String,
-        val link: String,
-        val created: Timestamp = Timestamp.now()
-)
+data class PageDownLoadRequestResponse(
+        var link: String? = null,
+        var pageContent: String? = null,
+        var created: Timestamp? = null
+) {
+    override fun toString(): String {
+        return "PageDownLoadRequestResponse(link=$link, pageContent=${pageContent?.length
+                ?: 0}, created=${created?.toDate()})"
+    }
+}

@@ -213,7 +213,7 @@ CREATE TABLE `news_server_parser2`.`page_download_request`
     `pageDownloadRequestMode` ENUM ('ARTICLE_BODY', 'ARTICLE_PREVIEW_PAGE') NOT NULL,
     `serverNodeName`          VARCHAR(255)                                  NOT NULL,
     `active`                  BIT(1)                                        NOT NULL DEFAULT b'1',
-    `responseContent`         TEXT                                          NULL,
+    `responseContent`         MEDIUMBLOB                                          NULL,
     `created`                 DATETIME                                      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `modified`                DATETIME                                      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),

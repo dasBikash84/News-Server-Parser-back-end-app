@@ -102,22 +102,30 @@ object DatabaseUtils {
         return query.list() as List<PageParsingInterval>
     }
 
-    fun getPageParsingIntervalForPage(session: Session,page: Page): PageParsingInterval? {
+    fun getPageParsingIntervalForPage(session: Session, page: Page): PageParsingInterval? {
         val sql = "SELECT * FROM ${DatabaseTableNames.PAGE_PARSING_INTERVAL_TABLE_NAME} WHERE pageId='${page.id}'"
-        @Suppress("UNCHECKED_CAST")
-        val result = session.createNativeQuery(sql,PageParsingInterval::class.java).resultList as List<PageParsingInterval>
-        if (result.size == 1) {
-            return result.get(0)
+        try {
+            @Suppress("UNCHECKED_CAST")
+            val result = session.createNativeQuery(sql, PageParsingInterval::class.java).resultList as List<PageParsingInterval>
+            if (result.size == 1) {
+                return result.get(0)
+            }
+        } catch (ex: Exception) {
+            ex.printStackTrace()
         }
         return null
     }
 
-    fun getLatestPageParsingHistoryForPage(session: Session,page: Page): PageParsingHistory?{
+    fun getLatestPageParsingHistoryForPage(session: Session, page: Page): PageParsingHistory? {
         val sql = "SELECT * FROM ${DatabaseTableNames.PAGE_PARSING_HISTORY_TABLE_NAME} WHERE pageId='${page.id}' order by created desc limit 1"
-        @Suppress("UNCHECKED_CAST")
-        val result = session.createNativeQuery(sql,PageParsingHistory::class.java).resultList as List<PageParsingHistory>
-        if (result.size == 1) {
-            return result.get(0)
+        try {
+            @Suppress("UNCHECKED_CAST")
+            val result = session.createNativeQuery(sql, PageParsingHistory::class.java).resultList as List<PageParsingHistory>
+            if (result.size == 1) {
+                return result.get(0)
+            }
+        } catch (ex: Exception) {
+            ex.printStackTrace()
         }
         return null
     }
@@ -163,17 +171,17 @@ object DatabaseUtils {
         return insertDefaultEntryForNewspaper(session, newspaper)
     }
 
-    fun getArticleCountForPageOfYesterday(session: Session, page: Page, today: Date):Int {
+    fun getArticleCountForPageOfYesterday(session: Session, page: Page, today: Date): Int {
         val yesterday = DateUtils.getYesterDay(today)
         return getArticleCountForPageBetweenTwoDates(page, yesterday, today, session)
     }
 
-    fun getArticleCountForPageOfLastWeek(session: Session, page: Page, thisWeekFirstDay: Date):Int {
+    fun getArticleCountForPageOfLastWeek(session: Session, page: Page, thisWeekFirstDay: Date): Int {
         val lastWeekFirstDay = DateUtils.getLastWeekSameDay(thisWeekFirstDay)
         return getArticleCountForPageBetweenTwoDates(page, lastWeekFirstDay, thisWeekFirstDay, session)
     }
 
-    fun getArticleCountForPageOfLastMonth(session: Session, page: Page, anyDayOfMonth: Date):Int {
+    fun getArticleCountForPageOfLastMonth(session: Session, page: Page, anyDayOfMonth: Date): Int {
         val firstDayOfMonth = DateUtils.getFirstDayOfMonth(anyDayOfMonth)
         val firstDayOfLastMonth = DateUtils.getFirstDayOfLastMonth(anyDayOfMonth)
 
@@ -187,5 +195,20 @@ object DatabaseUtils {
                 .append("AND modified<'${DateUtils.getDateStringForDb(endDate)}'")
         val result = session.createNativeQuery(sqlBuilder.toString()).singleResult
         return (result as BigInteger).toInt()
+    }
+
+    fun findPageDownloadRequestEntryBYServerNodeName(session: Session, serverNodeName: String): PageDownloadRequestEntry? {
+        val sql = "SELECT * FROM ${DatabaseTableNames.PAGE_DOWNLOAD_REQUEST_ENTRY_TABLE_NAME} WHERE " +
+                                "serverNodeName='${serverNodeName}' limit 1"
+        LoggerUtils.logOnConsole(sql)
+        try {
+            val result = session.createNativeQuery(sql, PageDownloadRequestEntry::class.java).resultList as List<PageDownloadRequestEntry>
+            if (result.size > 0) {
+                return result.get(0)
+            }
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+        return null
     }
 }
