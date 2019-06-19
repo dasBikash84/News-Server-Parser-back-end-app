@@ -13,7 +13,6 @@
 
 package com.dasbikash.news_server_parser.model
 
-import com.dasbikash.news_server_parser.utils.LoggerUtils
 import java.util.*
 import javax.persistence.*
 
@@ -42,10 +41,10 @@ data class PageParsingInterval(
 
     companion object{
         const val MINIMUM_RECALCULATE_INTERVAL = 24*60*60*1000L //1 Day
-        const val SUCCESIVE_ARTICLE_PARSING_INTERVAL = 1*60*1000L //1 min
-        const val WEEKLY_ARTICLE_PARSING_INTERVAL = 60*60*1000L //1hr
-        const val MAX_ARTICLE_PARSING_INTERVAL = 6*60*60*1000L //6hr
-        const val MIN_ARTICLE_PARSING_INTERVAL = 30*60*1000L //30 min
+        const val MINIMUM_SUCCESIVE_ARTICLE_PARSING_INTERVAL = 5*60*1000L //5 min
+        const val WEEKLY_ARTICLE_PARSING_INTERVAL = 3*60*60*1000L //3hr
+        const val MAX_ARTICLE_PARSING_INTERVAL = 12*60*60*1000L //6hr
+        const val MIN_ARTICLE_PARSING_INTERVAL = 15*60*1000L //30 min
 
         private fun getInstanceForPage(page: Page,parsingIntervalMS: Int):
                 PageParsingInterval{
@@ -58,17 +57,30 @@ data class PageParsingInterval(
             }else if (page.articleList!!.isEmpty() || page.articleList!!.size==1){
                 return getInstanceForPage(page,MAX_ARTICLE_PARSING_INTERVAL.toInt())
             }else{
-                val sortedArticles = page.articleList!!.map {
-                    it
-                }.sortedBy { it.modified }.toList()
+                val articlePublicationTimeList =
+                        page.articleList!!.map {
+                            if (it.publicationTS!=null){
+                                return@map it.publicationTS!!
+                            }else if (it.modificationTS!=null){
+                                return@map it.modificationTS!!
+                            }else{
+                                return@map it.modified!!
+                            }
+                        }.sortedBy { it }.toList()
+
+
+                val sortedArticles: List<Article>
+                sortedArticles = page.articleList!!.sortedBy { it.modified }.toList()
                 var totalParsingIntervalMs = 0.0f
                 var totalItemsConsidered = 0
                 for (index in sortedArticles.indices){
                     if (index == 0){
                         continue
-                    }else if ((sortedArticles[index].modified?.time ?: 0L) - (sortedArticles[index-1].modified?.time ?: 0L) > SUCCESIVE_ARTICLE_PARSING_INTERVAL){
-                        totalParsingIntervalMs += ((sortedArticles[index].modified?.time ?: 0L) - (sortedArticles[index-1].modified?.time ?: 0L)).toFloat()
-                        totalItemsConsidered +=1
+                    }else {
+                        if (articlePublicationTimeList[index].time - articlePublicationTimeList[index-1].time > MINIMUM_SUCCESIVE_ARTICLE_PARSING_INTERVAL) {
+                            totalParsingIntervalMs += (articlePublicationTimeList[index].time - articlePublicationTimeList[index - 1].time).toFloat()
+                            totalItemsConsidered += 1
+                        }
                     }
                 }
                 if (totalItemsConsidered == 0){

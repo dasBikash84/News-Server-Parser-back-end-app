@@ -18,7 +18,6 @@ import com.dasbikash.news_server_parser.database.DbSessionManager
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 internal class PageParsingIntervalTest {
@@ -77,6 +76,14 @@ internal class PageParsingIntervalTest {
 //    @Test
 //    fun testRecalculate() {
 //        val session = DbSessionManager.getNewSession()
+//        DatabaseUtils.getPageParsingIntervals(session).sortedBy { it.page!!.newspaper!!.name }.asSequence().forEach {
+//            val newInteval = PageParsingInterval.recalculate(it.page!!)
+//            println()
+//            println("Np Name: ${it.page!!.newspaper?.name} name: ${it.page?.name} old: ${it.parsingIntervalMS} new: ${newInteval.parsingIntervalMS}" +
+//                    " diff: ${(it.parsingIntervalMS!! - newInteval.parsingIntervalMS!!)/1000/60}")
+//        }
+//
+//
 //        DatabaseUtils.getAllPages(session).filter { it.hasData() && it.active && !it.weekly }.sortedBy { it.newspaper!!.id }.asSequence()
 //                .map { PageParsingInterval.recalculate(it) }
 //                .forEach {
