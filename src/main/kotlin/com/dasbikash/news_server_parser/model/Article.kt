@@ -61,11 +61,6 @@ data class Article(
         return articleText != null
     }
 
-    override fun toString(): String {
-        return "Article(id='$id', page=${page?.id}, " +
-                "modified=$modified"
-    }
-
     fun setPublicationTs(publicationTS: Long) {
         val calander = Calendar.getInstance()
         calander.timeInMillis = publicationTS
@@ -76,6 +71,12 @@ data class Article(
         val calander = Calendar.getInstance()
         calander.timeInMillis = modificationTS
         this.modificationTS = calander.time
+    }
+
+    override fun toString(): String {
+        return "Article(serial=$serial, id='$id', page=${page?.id}, title=$title, modificationTS=$modificationTS, " +
+                "publicationTS=$publicationTS, articleText=${articleText?.length}, imageLinkList=${imageLinkList.size}, " +
+                "previewImageLink=$previewImageLink, articleLink=$articleLink)"
     }
 
 }

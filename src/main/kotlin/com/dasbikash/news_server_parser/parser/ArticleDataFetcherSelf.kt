@@ -82,7 +82,7 @@ class ArticleDataFetcherSelf(newspaper: Newspaper,opMode: ParserMode)
                 continue
             }
 
-            val parseableArticleList =
+            val parsableArticleList =
                     articleList
                             .asSequence()
                             .filter {
@@ -90,7 +90,7 @@ class ArticleDataFetcherSelf(newspaper: Newspaper,opMode: ParserMode)
                             }
                             .toCollection(mutableListOf())
             //For Full repeat
-            if (opMode != ParserMode.GET_SYNCED && parseableArticleList.size == 0) {
+            if (opMode != ParserMode.GET_SYNCED && parsableArticleList.size == 0) {
                 allArticleRepeatAction(currentPage, parsingResult?.second ?: "")
                 continue
             }
@@ -99,7 +99,7 @@ class ArticleDataFetcherSelf(newspaper: Newspaper,opMode: ParserMode)
 
             var newArticleCount = 0
 
-            for (article in parseableArticleList) {
+            for (article in parsableArticleList) {
                 try {
                     waitForFareNetworkUsage()
                 } catch (ex: InterruptedException) {
@@ -107,21 +107,21 @@ class ArticleDataFetcherSelf(newspaper: Newspaper,opMode: ParserMode)
                 }
                 try {
                     ArticleBodyParser.getArticleBody(article)
-                    if (article.isDownloaded()) {
-                        if (article.previewImageLink == null && article.imageLinkList.size > 0) {
-                            try {
-                                article.previewImageLink = article.imageLinkList.first { it.link!=null }.link
-                            }catch (ex:Throwable){}
-                        }
-                        DatabaseUtils.runDbTransection(getDatabaseSession()) {
-                            getDatabaseSession().save(article)
-                            newArticleCount++
-                        }
-                    }
                 } catch (ex: ParserException) {
                     ParserExceptionHandler.handleException(ex)
                 } catch (ex: Throwable) {
                     ParserExceptionHandler.handleException(ParserException(ex))
+                }
+                if (article.isDownloaded()) {
+                    if (article.previewImageLink == null && article.imageLinkList.size > 0) {
+                        try {
+                            article.previewImageLink = article.imageLinkList.first { it.link!=null }.link
+                        }catch (ex:Throwable){}
+                    }
+                    DatabaseUtils.runDbTransection(getDatabaseSession()) {
+                        getDatabaseSession().save(article)
+                        newArticleCount++
+                    }
                 }
             }
 

@@ -15,6 +15,7 @@ package com.dasbikash.news_server_parser.utils
 
 import com.dasbikash.news_server_parser.database.DatabaseUtils
 import com.dasbikash.news_server_parser.firebase.FireStoreDataUtils
+import com.dasbikash.news_server_parser.model.Article
 import com.dasbikash.news_server_parser.model.Page
 import com.dasbikash.news_server_parser.model.PageDownloadRequestEntry
 import org.hibernate.Session
@@ -24,17 +25,19 @@ object PageDownloadRequestUtils {
     fun addArticlePreviewPageDownloadRequestEntryForPage(session: Session, page: Page, link: String):Boolean {
         val pageDownloadRequestEntry =
                 PageDownloadRequestEntry.getArticlePreviewPageDownloadRequestEntryForPage(page, link)
+        LoggerUtils.logOnConsole("Article Preview Page Download Request added for page :${page.name} link: ${link}")
         return addPageDownloadRequest(session, pageDownloadRequestEntry)
     }
 
-    fun addArticleBodyDownloadRequestEntryForPage(session: Session, page: Page, link: String):Boolean {
+    fun addArticleBodyDownloadRequestEntryForPage(session: Session, page: Page, article: Article):Boolean {
         val pageDownloadRequestEntry =
-                PageDownloadRequestEntry.getArticleBodyDownloadRequestEntryForPage(page, link)
+                PageDownloadRequestEntry.getArticleBodyDownloadRequestEntryForPage(page, article.articleLink!!,article)
+        LoggerUtils.logOnConsole("Article body Download Request added for page :${page.name} article: ${article.id} link: ${article.articleLink!!}")
         return addPageDownloadRequest(session, pageDownloadRequestEntry)
     }
 
     private fun addPageDownloadRequest(session: Session, pageDownloadRequestEntry: PageDownloadRequestEntry):Boolean {
-        val documentId = FireStoreDataUtils.addPageDownloadRequest(pageDownloadRequestEntry.getPageDownLoadRequest())
+        val documentId = FireStoreDataUtils.addPageDownloadRequest(pageDownloadRequestEntry)
         documentId?.let {
             pageDownloadRequestEntry.serverNodeName = it
             DatabaseUtils.runDbTransection(session) { session.save(pageDownloadRequestEntry) }

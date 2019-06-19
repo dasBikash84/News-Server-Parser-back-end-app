@@ -17,6 +17,7 @@ import com.dasbikash.news_server_parser.database.DatabaseUtils
 import com.dasbikash.news_server_parser.database.DbSessionManager
 import com.dasbikash.news_server_parser.model.PageDownLoadRequestResponse
 import com.dasbikash.news_server_parser.model.PageDownloadRequest
+import com.dasbikash.news_server_parser.model.PageDownloadRequestEntry
 import com.dasbikash.news_server_parser.utils.LoggerUtils
 import com.google.cloud.firestore.DocumentChange
 import com.google.cloud.firestore.FirestoreException
@@ -29,8 +30,14 @@ object FireStoreDataUtils {
 
     private const val MAX_WAITING_TIME = 60*1000L
 
-    fun addPageDownloadRequest(pageDownloadRequest: PageDownloadRequest): String? {
-        val documentId = UUID.randomUUID().toString()
+    fun addPageDownloadRequest(pageDownloadRequestEntry: PageDownloadRequestEntry): String? {
+        val pageDownloadRequest = pageDownloadRequestEntry.getPageDownLoadRequest()
+        val documentId: String
+        if (pageDownloadRequestEntry.serverNodeName ==null) {
+            documentId = UUID.randomUUID().toString()
+        }else{
+            documentId = pageDownloadRequestEntry.serverNodeName!!
+        }
         val writeResult =  FireStoreRefUtils.getPageDownloadRequestCollectionRef()
                                                         .document(documentId)
                                                         .set(pageDownloadRequest)
@@ -52,6 +59,8 @@ object FireStoreDataUtils {
         return null
     }
 
+    fun nop(){}
+
     init {
         FireStoreRefUtils.getPageDownloadRequestResponseCollectionRef()
                 .addSnapshotListener(object : com.google.cloud.firestore.EventListener<QuerySnapshot> {
@@ -72,7 +81,7 @@ object FireStoreDataUtils {
                                         val pageDownloadRequestEntry = DatabaseUtils.findPageDownloadRequestEntryBYServerNodeName(session,document.id)
                                         pageDownloadRequestEntry?.let {
                                             it.setResponseContentFromServerResponse(pageDownLoadRequestResponse)
-                                            println(it)
+                                            LoggerUtils.logOnConsole(it.toString())
                                             DatabaseUtils.runDbTransection(session){
                                                 session.update(it)
                                             }

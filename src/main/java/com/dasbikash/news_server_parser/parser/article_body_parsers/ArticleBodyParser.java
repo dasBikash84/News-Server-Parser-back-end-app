@@ -19,6 +19,7 @@ import com.dasbikash.news_server_parser.model.ArticleImage;
 import com.dasbikash.news_server_parser.model.Country;
 import com.dasbikash.news_server_parser.parser.JsoupConnector;
 import com.dasbikash.news_server_parser.utils.LinkProcessUtils;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -108,21 +109,54 @@ abstract public class ArticleBodyParser {
         ArticleBodyParser articleBodyParser =
                 ArticleBodyParserFactory.INSTANCE.getArticleBodyParserForArticle(article);
         if (articleBodyParser==null) throw new ParserNotFoundException(Objects.requireNonNull(article.getPage().getNewspaper()));
-        articleBodyParser.parseArticleBody(article);
+
+        articleBodyParser.mArticle = article;
+
+        articleBodyParser.mDocument = JsoupConnector.INSTANCE.getDocument(Objects.requireNonNull(articleBodyParser.mArticle.getArticleLink()));
+
+        if (articleBodyParser.mDocument == null) {
+            throw new EmptyJsoupDocumentException("For article: "+articleBodyParser.mArticle.getArticleLink());
+        }
+
+        articleBodyParser.parseArticleBody();
     }
 
-    private void parseArticleBody(Article article) throws URISyntaxException, EmptyJsoupDocumentException, EmptyArticleBodyException, ArticleModificationTimeNotFoundException {
+    public static void getArticleBody(Article article,String articlePageContent) throws
+            EmptyArticleLinkException, ParserNotFoundException, EmptyJsoupDocumentException,
+            ArticleModificationTimeNotFoundException, EmptyArticleBodyException, URISyntaxException {
+
+        if (article.isDownloaded()) return;
+
+        if (article.getArticleLink() == null) throw new EmptyArticleLinkException(article);
+
+        ArticleBodyParser articleBodyParser =
+                ArticleBodyParserFactory.INSTANCE.getArticleBodyParserForArticle(article);
+        if (articleBodyParser==null) throw new ParserNotFoundException(Objects.requireNonNull(article.getPage().getNewspaper()));
+
+        articleBodyParser.mArticle = article;
+
+//        articleBodyParser.mDocument = JsoupConnector.INSTANCE.getDocument(Objects.requireNonNull(articleBodyParser.mArticle.getArticleLink()));
+        articleBodyParser.mDocument = Jsoup.parse(articlePageContent,articleBodyParser.mArticle.getArticleLink());
+
+        if (articleBodyParser.mDocument == null) {
+            throw new EmptyJsoupDocumentException("For article: "+articleBodyParser.mArticle.getArticleLink());
+        }
+
+        articleBodyParser.parseArticleBody();
+    }
+
+    private void parseArticleBody() throws URISyntaxException, EmptyJsoupDocumentException, EmptyArticleBodyException, ArticleModificationTimeNotFoundException {
 
         //System.out.println("Start of parsing");
 
-        mArticle = article;
+        /*mArticle = article;
 
         mDocument = JsoupConnector.INSTANCE.getDocument(Objects.requireNonNull(mArticle.getArticleLink()));
 
         if (mDocument == null) {
 //            throw new EmptyJsoupDocumentException(new URI(mArticle.getArticleLink()));
             throw new EmptyJsoupDocumentException("For article: "+mArticle.getArticleLink());
-        }
+        }*/
 
         //System.out.println("Article document title: "+mDocument.title());
 

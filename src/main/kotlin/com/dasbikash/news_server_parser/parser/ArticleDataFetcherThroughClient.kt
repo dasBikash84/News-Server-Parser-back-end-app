@@ -18,7 +18,9 @@ import com.dasbikash.news_server_parser.exceptions.NewsPaperNotFoundForPageExcep
 import com.dasbikash.news_server_parser.exceptions.ParserException
 import com.dasbikash.news_server_parser.exceptions.ParserNotFoundException
 import com.dasbikash.news_server_parser.exceptions.handler.ParserExceptionHandler
+import com.dasbikash.news_server_parser.firebase.FireStoreDataUtils
 import com.dasbikash.news_server_parser.model.*
+import com.dasbikash.news_server_parser.parser.article_body_parsers.ArticleBodyParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser
 import com.dasbikash.news_server_parser.utils.LoggerUtils
 import com.dasbikash.news_server_parser.utils.PageDownloadRequestUtils
@@ -29,36 +31,43 @@ class ArticleDataFetcherThroughClient(
         opMode: ParserMode
 ) : ArticleDataFetcherForNewsPaper(newspaper, opMode) {
 
+    init {
+        FireStoreDataUtils.nop()
+    }
 
     override fun doParsingForPages(pageListForParsing: List<Page>) {
 
-        if (opMode !=ParserMode.PARSE_THROUGH_CLIENT){
+        if (opMode != ParserMode.PARSE_THROUGH_CLIENT) {
             throw IllegalStateException()
         }
 
         for (currentPage in pageListForParsing) {
+            LoggerUtils.logOnConsole("Running Parser for page ${currentPage.name} of Np: ${newspaper.name}")
 
             val activePageDownloadRequestEntries =
-                    DatabaseUtils.findActivePageDownloadRequestEntryForPage(getDatabaseSession(),currentPage)
+                    DatabaseUtils.findActivePageDownloadRequestEntryForPage(getDatabaseSession(), currentPage)
+            activePageDownloadRequestEntries.asSequence().forEach { getDatabaseSession().refresh(it) }
 
-            if (activePageDownloadRequestEntries.isNotEmpty()){
+            if (activePageDownloadRequestEntries.isNotEmpty()) {
+                LoggerUtils.logOnConsole("activePageDownloadRequestEntries.size for page ${currentPage.name} of Np: ${activePageDownloadRequestEntries.size}")
 
-                if (activePageDownloadRequestEntries.filter { it.pageDownloadRequestMode==PageDownloadRequestMode.ARTICLE_PREVIEW_PAGE }.count()>0){
+                if (activePageDownloadRequestEntries.filter { it.pageDownloadRequestMode == PageDownloadRequestMode.ARTICLE_PREVIEW_PAGE }.count() ==1) {
 
-                    val articlePreviewPagepageDownloadRequestEntry =
-                            activePageDownloadRequestEntries.filter { it.pageDownloadRequestMode==PageDownloadRequestMode.ARTICLE_PREVIEW_PAGE }.first()
+                    val articlePreviewPageDownloadRequestEntry =
+                            activePageDownloadRequestEntries.find { it.pageDownloadRequestMode == PageDownloadRequestMode.ARTICLE_PREVIEW_PAGE }!!
 
-                    if (articlePreviewPagepageDownloadRequestEntry.responseContent!=null){
+                    if (articlePreviewPageDownloadRequestEntry.responseContent != null) {
                         //parse preview page and place article download request if needed
+                        LoggerUtils.logOnConsole("Preview page content found for page ${currentPage.name} of Np: ${newspaper.name}")
 
-                        val currentPageNumber: Int = getCurrentPageNumber(currentPage)
+                        val currentPageNumber = getCurrentPageNumber(currentPage)
                         val articleList: MutableList<Article> = mutableListOf()
 
                         var parsingResult: Pair<MutableList<Article>, String>? = null
                         try {
                             parsingResult = PreviewPageParser
-                                                .parsePreviewPageForArticles(currentPage, currentPageNumber,
-                                                        articlePreviewPagepageDownloadRequestEntry.getResponseContentAsString()!!)
+                                    .parsePreviewPageForArticles(currentPage, currentPageNumber,
+                                            articlePreviewPageDownloadRequestEntry.getResponseContentAsString()!!)
                             articleList.addAll(parsingResult.first)
                         } catch (e: NewsPaperNotFoundForPageException) {
                             LoggerUtils.logOnConsole("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
@@ -74,152 +83,92 @@ class ArticleDataFetcherThroughClient(
                                 is ParserException -> ParserExceptionHandler.handleException(e)
                                 else -> ParserExceptionHandler.handleException(ParserException(e))
                             }
-                            deactivatePageDownloadRequestEntry(articlePreviewPagepageDownloadRequestEntry)
+                            deactivatePageDownloadRequestEntry(articlePreviewPageDownloadRequestEntry)
                             emptyPageAction(currentPage, parsingResult?.second ?: "")
                             continue
                         }
+                        LoggerUtils.logOnConsole("${articleList.size} article preview found for page ${currentPage.name} of Np: ${newspaper.name}")
 
-                        val parseableArticleList =
+                        val parsableArticleList =
                                 articleList.asSequence()
-                                        .filter {DatabaseUtils.findArticleById(getDatabaseSession(), it.id) == null}
+                                        .filter { DatabaseUtils.findArticleById(getDatabaseSession(), it.id) == null }
                                         .toCollection(mutableListOf())
                         //For Full repeat
-                        if (parseableArticleList.size == 0 || parseableArticleList.map { it.articleLink!=null }.count() == 0) {
+                        LoggerUtils.logOnConsole("${parsableArticleList.size} new article preview found for page ${currentPage.name} of Np: ${newspaper.name}")
+
+
+                        if (parsableArticleList.size == 0) {
                             allArticleRepeatAction(currentPage, parsingResult?.second ?: "")
-                        }else{
-                            parseableArticleList.asSequence().forEach {
-                                it.articleLink?.let {
-                                    PageDownloadRequestUtils.addArticleBodyDownloadRequestEntryForPage(getDatabaseSession(), currentPage, it)
+                        } else {
+                            parsableArticleList.asSequence().forEach {
+                                DatabaseUtils.runDbTransection(getDatabaseSession()) {
+                                    getDatabaseSession().save(it)
+                                    LoggerUtils.logOnConsole("New article saved: ${it.id}")
                                 }
+                                PageDownloadRequestUtils
+                                        .addArticleBodyDownloadRequestEntryForPage(getDatabaseSession(), currentPage, it)
                             }
                         }
-                        deactivatePageDownloadRequestEntry(articlePreviewPagepageDownloadRequestEntry)
+                        deactivatePageDownloadRequestEntry(articlePreviewPageDownloadRequestEntry)
+                    }else{
+                        LoggerUtils.logOnConsole("No Preview page content for page ${currentPage.name} of Np: ${newspaper.name}")
                     }
-                }else if (activePageDownloadRequestEntries.filter { it.pageDownloadRequestMode==PageDownloadRequestMode.ARTICLE_BODY }.count()>0){
+                } else /*if (activePageDownloadRequestEntries.filter { it.pageDownloadRequestMode == PageDownloadRequestMode.ARTICLE_BODY }.count() > 0)*/ {
+                    LoggerUtils.logOnConsole("activePageDownloadRequestEntries.size for article for page ${currentPage.name} of Np: ${activePageDownloadRequestEntries.size}")
                     var processedArticleCount = 0
                     var newArticleCount = 0
-                    activePageDownloadRequestEntries.filter { it.pageDownloadRequestMode==PageDownloadRequestMode.ARTICLE_BODY && it.responseContent!=null }
+                    activePageDownloadRequestEntries
+                            .filter { it.pageDownloadRequestMode == PageDownloadRequestMode.ARTICLE_BODY && it.responseContent != null }
                             .asSequence().forEach {
-                                processedArticleCount++
                                 //parse and save articles
+                                LoggerUtils.logOnConsole(it.toString())
+                                var article: Article?=null
+                                try {
+                                    article = DatabaseUtils.findArticleById(getDatabaseSession(),it.serverNodeName!!)!!
+                                    ArticleBodyParser.getArticleBody(article,it.getResponseContentAsString()!!)
+                                } catch (ex: ParserException) {
+                                    ex.printStackTrace()
+                                    ParserExceptionHandler.handleException(ex)
+                                } catch (ex: Throwable) {
+                                    ParserExceptionHandler.handleException(ParserException(ex))
+                                }
+                                article?.let {
+                                    if (article.isDownloaded()) {
+                                        if (article.previewImageLink == null && article.imageLinkList.size > 0) {
+                                            try {
+                                                article.previewImageLink = article.imageLinkList.first { it.link != null }.link
+                                            } catch (ex: Throwable) {
+                                            }
+                                        }
+                                        DatabaseUtils.runDbTransection(getDatabaseSession()) {
+                                            getDatabaseSession().update(article)
+                                            LoggerUtils.logOnConsole("New article body saved for article with id: ${it.id}")
+                                            newArticleCount++
+                                        }
+                                    }
+                                }
+                                processedArticleCount++
+                                deactivatePageDownloadRequestEntry(it)
                             }
 
-                    if (activePageDownloadRequestEntries.filter { it.pageDownloadRequestMode==PageDownloadRequestMode.ARTICLE_BODY }.count() ==
-                            processedArticleCount){
+                    if (activePageDownloadRequestEntries.filter { it.pageDownloadRequestMode == PageDownloadRequestMode.ARTICLE_BODY }.count() ==
+                            processedArticleCount) {
                         savePageParsingHistory(currentPage, getCurrentPageNumber(currentPage), newArticleCount, "")
                     }
                 }
-            }else{
-                if (goForPageParsing(currentPage)){
-
-                    val currentPageNumber: Int = getCurrentPageNumber(currentPage)
-                    //place preview page download request.
-                    val pageLink = PreviewPageParser.getPageLinkByPageNumber(currentPage,currentPageNumber)
-                    if (pageLink!=null){
-                        PageDownloadRequestUtils.addArticlePreviewPageDownloadRequestEntryForPage(getDatabaseSession(),currentPage,pageLink)
-                    }else{
-                        emptyPageAction(currentPage,"")
-                    }
-                }
-            }
-
-            //first check if any page download request is pending or not
-            //if pending then get details of that which will contain server address for
-            //downloaded request
-
-            //in case of pending download request check server if requested page downloaded or not.
-            //if downloaded then process the response
-
-            //if no download request pending then check and add new download request if required
-
-
-            /*if (opMode != ParserMode.GET_SYNCED && !goForPageParsing(currentPage)) {
-                continue
-            }
-
-            try {
-                waitForFareNetworkUsage()
-            } catch (ex: InterruptedException) {
-                throw ex
-            }
-
-            val currentPageNumber: Int
-
-            if (currentPage.isPaginated()) {
-                currentPageNumber = getLastParsedPageNumber(currentPage) + 1
             } else {
-                currentPageNumber = PAGE_NUMBER_NOT_APPLICABLE
-            }
+                if (goForPageParsing(currentPage)) {
 
-            val articleList: MutableList<Article> = mutableListOf()
-
-            var parsingResult: Pair<MutableList<Article>, String>? = null
-            try {
-                parsingResult = PreviewPageParser.parsePreviewPageForArticles(currentPage, currentPageNumber)
-                articleList.addAll(parsingResult.first)
-            } catch (e: NewsPaperNotFoundForPageException) {
-                LoggerUtils.logOnConsole("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
-                ParserExceptionHandler.handleException(e)
-                throw InterruptedException()
-            } catch (e: ParserNotFoundException) {
-                LoggerUtils.logOnConsole("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
-                ParserExceptionHandler.handleException(e)
-                throw InterruptedException()
-            } catch (e: Throwable) {
-                LoggerUtils.logOnConsole("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
-                when (e) {
-                    is ParserException -> ParserExceptionHandler.handleException(e)
-                    else -> ParserExceptionHandler.handleException(ParserException(e))
-                }
-                if (opMode != ParserMode.GET_SYNCED && (e is ParserException)) {
-                    emptyPageAction(currentPage, parsingResult?.second ?: "")
-                }
-                continue
-            }
-
-            val parseableArticleList =
-                    articleList
-                            .asSequence()
-                            .filter {
-                                DatabaseUtils.findArticleById(getDatabaseSession(), it.id) == null
-                            }
-                            .toCollection(mutableListOf())
-            //For Full repeat
-            if (opMode != ParserMode.GET_SYNCED && parseableArticleList.size == 0) {
-                allArticleRepeatAction(currentPage, parsingResult?.second ?: "")
-                continue
-            }
-
-            //Now go for article data fetching
-
-            var newArticleCount = 0
-
-            for (article in parseableArticleList) {
-                try {
-                    waitForFareNetworkUsage()
-                } catch (ex: InterruptedException) {
-                    throw ex
-                }
-                try {
-                    ArticleBodyParser.getArticleBody(article)
-                    if (article.isDownloaded()) {
-                        if (article.previewImageLink == null && article.imageLinkList.size > 0) {
-                            article.previewImageLink = article.imageLinkList.get(0).link
-                        }
-                        DatabaseUtils.runDbTransection(getDatabaseSession()) {
-                            getDatabaseSession().save(article)
-                            newArticleCount++
-                        }
+                    val currentPageNumber = getCurrentPageNumber(currentPage)
+                    //place preview page download request.
+                    val pageLink = PreviewPageParser.getPageLinkByPageNumber(currentPage, currentPageNumber)
+                    if (pageLink != null) {
+                        PageDownloadRequestUtils.addArticlePreviewPageDownloadRequestEntryForPage(getDatabaseSession(), currentPage, pageLink)
+                    } else {
+                        emptyPageAction(currentPage, "")
                     }
-                } catch (ex: ParserException) {
-                    ParserExceptionHandler.handleException(ex)
-                } catch (ex: Throwable) {
-                    ParserExceptionHandler.handleException(ParserException(ex))
                 }
             }
-
-            savePageParsingHistory(
-                    currentPage, currentPageNumber, newArticleCount, parsingResult?.second ?: "")*/
         }
     }
 
