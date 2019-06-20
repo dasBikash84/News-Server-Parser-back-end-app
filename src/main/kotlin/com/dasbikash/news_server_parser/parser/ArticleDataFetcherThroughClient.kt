@@ -42,14 +42,14 @@ class ArticleDataFetcherThroughClient(
         }
 
         for (currentPage in pageListForParsing) {
-            LoggerUtils.logOnConsole("Running Parser for page ${currentPage.name} of Np: ${newspaper.name}")
+//            LoggerUtils.logOnConsole("Running Parser for page ${currentPage.name} of Np: ${newspaper.name}")
 
             val activePageDownloadRequestEntries =
                     DatabaseUtils.findActivePageDownloadRequestEntryForPage(getDatabaseSession(), currentPage)
             activePageDownloadRequestEntries.asSequence().forEach { getDatabaseSession().refresh(it) }
 
             if (activePageDownloadRequestEntries.isNotEmpty()) {
-                LoggerUtils.logOnConsole("activePageDownloadRequestEntries.size for page ${currentPage.name} of Np: ${activePageDownloadRequestEntries.size}")
+//                LoggerUtils.logOnConsole("activePageDownloadRequestEntries.size for page ${currentPage.name} of Np: ${activePageDownloadRequestEntries.size}")
 
                 if (activePageDownloadRequestEntries.filter { it.pageDownloadRequestMode == PageDownloadRequestMode.ARTICLE_PREVIEW_PAGE }.count() ==1) {
 
@@ -58,7 +58,7 @@ class ArticleDataFetcherThroughClient(
 
                     if (articlePreviewPageDownloadRequestEntry.responseContent != null) {
                         //parse preview page and place article download request if needed
-                        LoggerUtils.logOnConsole("Preview page content found for page ${currentPage.name} of Np: ${newspaper.name}")
+//                        LoggerUtils.logOnConsole("Preview page content found for page ${currentPage.name} of Np: ${newspaper.name}")
 
                         val currentPageNumber = getCurrentPageNumber(currentPage)
                         val articleList: MutableList<Article> = mutableListOf()
@@ -87,14 +87,14 @@ class ArticleDataFetcherThroughClient(
                             emptyPageAction(currentPage, parsingResult?.second ?: "")
                             continue
                         }
-                        LoggerUtils.logOnConsole("${articleList.size} article preview found for page ${currentPage.name} of Np: ${newspaper.name}")
+//                        LoggerUtils.logOnConsole("${articleList.size} article preview found for page ${currentPage.name} of Np: ${newspaper.name}")
 
                         val parsableArticleList =
                                 articleList.asSequence()
                                         .filter { DatabaseUtils.findArticleById(getDatabaseSession(), it.id) == null }
                                         .toCollection(mutableListOf())
                         //For Full repeat
-                        LoggerUtils.logOnConsole("${parsableArticleList.size} new article preview found for page ${currentPage.name} of Np: ${newspaper.name}")
+//                        LoggerUtils.logOnConsole("${parsableArticleList.size} new article preview found for page ${currentPage.name} of Np: ${newspaper.name}")
 
 
                         if (parsableArticleList.size == 0) {
@@ -103,7 +103,7 @@ class ArticleDataFetcherThroughClient(
                             parsableArticleList.asSequence().forEach {
                                 DatabaseUtils.runDbTransection(getDatabaseSession()) {
                                     getDatabaseSession().save(it)
-                                    LoggerUtils.logOnConsole("New article saved: ${it.id}")
+//                                    LoggerUtils.logOnConsole("New article saved: ${it.id}")
                                 }
                                 PageDownloadRequestUtils
                                         .addArticleBodyDownloadRequestEntryForPage(getDatabaseSession(), currentPage, it)
@@ -111,17 +111,17 @@ class ArticleDataFetcherThroughClient(
                         }
                         deactivatePageDownloadRequestEntry(articlePreviewPageDownloadRequestEntry)
                     }else{
-                        LoggerUtils.logOnConsole("No Preview page content for page ${currentPage.name} of Np: ${newspaper.name}")
+//                        LoggerUtils.logOnConsole("No Preview page content for page ${currentPage.name} of Np: ${newspaper.name}")
                     }
                 } else /*if (activePageDownloadRequestEntries.filter { it.pageDownloadRequestMode == PageDownloadRequestMode.ARTICLE_BODY }.count() > 0)*/ {
-                    LoggerUtils.logOnConsole("activePageDownloadRequestEntries.size for article for page ${currentPage.name} of Np: ${activePageDownloadRequestEntries.size}")
+//                    LoggerUtils.logOnConsole("activePageDownloadRequestEntries.size for article for page ${currentPage.name} of Np: ${activePageDownloadRequestEntries.size}")
                     var processedArticleCount = 0
                     var newArticleCount = 0
                     activePageDownloadRequestEntries
                             .filter { it.pageDownloadRequestMode == PageDownloadRequestMode.ARTICLE_BODY && it.responseContent != null }
                             .asSequence().forEach {
                                 //parse and save articles
-                                LoggerUtils.logOnConsole(it.toString())
+//                                LoggerUtils.logOnConsole(it.toString())
                                 var article: Article?=null
                                 try {
                                     article = DatabaseUtils.findArticleById(getDatabaseSession(),it.responseDocumentId!!)!!
@@ -142,7 +142,7 @@ class ArticleDataFetcherThroughClient(
                                         }
                                         DatabaseUtils.runDbTransection(getDatabaseSession()) {
                                             getDatabaseSession().update(article)
-                                            LoggerUtils.logOnConsole("New article body saved for article with id: ${it.id}")
+//                                            LoggerUtils.logOnConsole("New article body saved for article with id: ${it.id}")
                                             newArticleCount++
                                         }
                                     }
@@ -184,9 +184,9 @@ class ArticleDataFetcherThroughClient(
     }
 
     private fun deactivatePageDownloadRequestEntry(articlePreviewPagepageDownloadRequestEntry: PageDownloadRequestEntry) {
-        articlePreviewPagepageDownloadRequestEntry.deactivate()
+//        articlePreviewPagepageDownloadRequestEntry.deactivate()
         DatabaseUtils.runDbTransection(getDatabaseSession()) {
-            getDatabaseSession().update(articlePreviewPagepageDownloadRequestEntry)
+            getDatabaseSession().delete(articlePreviewPagepageDownloadRequestEntry)
         }
     }
 }
