@@ -15,6 +15,7 @@ package com.dasbikash.news_server_parser.utils
 
 import com.dasbikash.news_server_parser.database.DatabaseUtils
 import com.dasbikash.news_server_parser.firebase.FireStoreDataUtils
+import com.dasbikash.news_server_parser.firebase.RealTimeDbDataUtils
 import com.dasbikash.news_server_parser.model.Article
 import com.dasbikash.news_server_parser.model.Page
 import com.dasbikash.news_server_parser.model.PageDownloadRequestEntry
@@ -37,9 +38,9 @@ object PageDownloadRequestUtils {
     }
 
     private fun addPageDownloadRequest(session: Session, pageDownloadRequestEntry: PageDownloadRequestEntry):Boolean {
-        val documentId = FireStoreDataUtils.addPageDownloadRequest(pageDownloadRequestEntry)
+        val documentId = RealTimeDbDataUtils.addPageDownloadRequest(pageDownloadRequestEntry)
         documentId?.let {
-            pageDownloadRequestEntry.serverNodeName = it
+            pageDownloadRequestEntry.requestKey = it
             DatabaseUtils.runDbTransection(session) { session.save(pageDownloadRequestEntry) }
             return true
         }

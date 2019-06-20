@@ -11,10 +11,23 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_parser.model
+package com.dasbikash.news_server_parser.firebase
 
-data class PageDownloadRequest(
-        var newsPaperId: String?=null,
-        val link: String?=null,
-        val requestId: String?=null
-)
+import com.google.firebase.database.DatabaseReference
+
+object RealTimeDbRefUtils {
+
+    private const val PAGE_DOWNLOAD_REQUEST_NODE = "page_download_request"
+
+    private lateinit var mRootReference:DatabaseReference
+
+    internal fun getRootRef():DatabaseReference{
+        if (!::mRootReference.isInitialized){
+            mRootReference = FireBaseConUtils.mFirebaseDatabaseCon.reference
+        }
+        return mRootReference
+    }
+
+    internal fun getPageDownloadRequestRef():DatabaseReference = getRootRef().child(PAGE_DOWNLOAD_REQUEST_NODE)
+
+}

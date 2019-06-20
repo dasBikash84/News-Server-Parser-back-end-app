@@ -22,42 +22,12 @@ import com.dasbikash.news_server_parser.utils.LoggerUtils
 import com.google.cloud.firestore.DocumentChange
 import com.google.cloud.firestore.FirestoreException
 import com.google.cloud.firestore.QuerySnapshot
+import java.lang.IllegalStateException
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 
 object FireStoreDataUtils {
-
-    private const val MAX_WAITING_TIME = 60*1000L
-
-    fun addPageDownloadRequest(pageDownloadRequestEntry: PageDownloadRequestEntry): String? {
-        val pageDownloadRequest = pageDownloadRequestEntry.getPageDownLoadRequest()
-        val documentId: String
-        if (pageDownloadRequestEntry.serverNodeName ==null) {
-            documentId = UUID.randomUUID().toString()
-        }else{
-            documentId = pageDownloadRequestEntry.serverNodeName!!
-        }
-        val writeResult =  FireStoreRefUtils.getPageDownloadRequestCollectionRef()
-                                                        .document(documentId)
-                                                        .set(pageDownloadRequest)
-        try {
-            writeResult.get(MAX_WAITING_TIME,TimeUnit.MILLISECONDS)
-            val data =
-                    FireStoreRefUtils.getPageDownloadRequestCollectionRef()
-                            .document(documentId)
-                            .get()
-                            .get()
-                            .toObject(PageDownloadRequest::class.java)
-            data?.let {
-                return documentId
-            }
-        }catch (ex:Exception){
-            ex.printStackTrace()
-        }
-
-        return null
-    }
 
     fun nop(){}
 
@@ -74,20 +44,26 @@ object FireStoreDataUtils {
                                 when(it.type){
                                     DocumentChange.Type.ADDED ->{
                                         val document = it.document
-                                        val pageDownLoadRequestResponse = document.toObject(PageDownLoadRequestResponse::class.java)
+                                        val pageDownLoadRequestResponse =
+                                                document.toObject(PageDownLoadRequestResponse::class.java)
                                         LoggerUtils.logOnConsole("DocumentChange.Type.ADDED : ${document.id}")
                                         LoggerUtils.logOnConsole(pageDownLoadRequestResponse.toString())
                                         val session = DbSessionManager.getNewSession()
-                                        val pageDownloadRequestEntry = DatabaseUtils.findPageDownloadRequestEntryBYServerNodeName(session,document.id)
+                                        val pageDownloadRequestEntry =
+                                                DatabaseUtils.findPageDownloadRequestEntryBYServerNodeName(session,document.id)
                                         pageDownloadRequestEntry?.let {
-                                            it.setResponseContentFromServerResponse(pageDownLoadRequestResponse)
-                                            LoggerUtils.logOnConsole(it.toString())
-                                            DatabaseUtils.runDbTransection(session){
-                                                session.update(it)
+                                            if (it.requestKey.isBlank()){
+                                                throw IllegalStateException()
                                             }
+                                            RealTimeDbDataUtils.deleteRequest(it.requestKey)
                                             FireStoreRefUtils.getPageDownloadRequestResponseCollectionRef()
                                                     .document(document.id)
                                                     .delete()
+                                            it.setResponseContentFromServerResponse(pageDownLoadRequestResponse)
+                                            DatabaseUtils.runDbTransection(session){
+                                                session.update(it)
+                                            }
+                                            LoggerUtils.logOnConsole(it.toString())
                                         }
                                     }
                                     DocumentChange.Type.MODIFIED ->{

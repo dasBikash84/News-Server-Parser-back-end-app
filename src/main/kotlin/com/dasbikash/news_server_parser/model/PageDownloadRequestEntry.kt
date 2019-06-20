@@ -27,7 +27,8 @@ data class PageDownloadRequestEntry(
         @Column(columnDefinition = "enum('ARTICLE_BODY','ARTICLE_PREVIEW_PAGE')")
         @Enumerated(EnumType.STRING)
         var pageDownloadRequestMode: PageDownloadRequestMode? = null,
-        var serverNodeName: String? = null, //for article download request articleId
+        var responseDocumentId: String? = null, //for article download request articleId
+        var requestKey: String = "", //request key on realtime database
         var link: String? = null,
 
         @ManyToOne(targetEntity = Page::class, fetch = FetchType.EAGER)
@@ -47,18 +48,19 @@ data class PageDownloadRequestEntry(
         fun getArticleBodyDownloadRequestEntryForPage(page: Page, link: String,article: Article)
                 : PageDownloadRequestEntry {
             return PageDownloadRequestEntry(page = page, pageDownloadRequestMode = PageDownloadRequestMode.ARTICLE_BODY
-                                            , link = link,serverNodeName = article.id)
+                                            , link = link,responseDocumentId = article.id)
         }
 
         fun getArticlePreviewPageDownloadRequestEntryForPage(page: Page, link: String)
                 : PageDownloadRequestEntry {
-            return PageDownloadRequestEntry(page = page, pageDownloadRequestMode = PageDownloadRequestMode.ARTICLE_PREVIEW_PAGE, link = link)
+            return PageDownloadRequestEntry(page = page, pageDownloadRequestMode = PageDownloadRequestMode.ARTICLE_PREVIEW_PAGE
+                                            , link = link,responseDocumentId = UUID.randomUUID().toString())
         }
     }
 
     @Transient
     fun getPageDownLoadRequest(): PageDownloadRequest =
-            PageDownloadRequest(newsPaperId = page!!.newspaper!!.id, link = link!!)
+            PageDownloadRequest(newsPaperId = page!!.newspaper!!.id, link = link!!,requestId = responseDocumentId)
 
     @Transient
     fun getResponseContentAsString(): String? {
@@ -80,7 +82,7 @@ data class PageDownloadRequestEntry(
     }
 
     override fun toString(): String {
-        return "PageDownloadRequestEntry(id=$id, serverNodeName=$serverNodeName, page=${page?.id}, responseContent=${getResponseContentAsString()?.length ?: 0}, modified=$modified)"
+        return "PageDownloadRequestEntry(id=$id, responseDocumentId=$responseDocumentId, page=${page?.id}, responseContent=${getResponseContentAsString()?.length ?: 0}, modified=$modified)"
     }
 
 }

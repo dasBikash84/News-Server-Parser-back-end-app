@@ -197,9 +197,9 @@ object DatabaseUtils {
         return (result as BigInteger).toInt()
     }
 
-    fun findPageDownloadRequestEntryBYServerNodeName(session: Session, serverNodeName: String): PageDownloadRequestEntry? {
+    fun findPageDownloadRequestEntryBYServerNodeName(session: Session, responseDocumentId: String): PageDownloadRequestEntry? {
         val sql = "SELECT * FROM ${DatabaseTableNames.PAGE_DOWNLOAD_REQUEST_ENTRY_TABLE_NAME} WHERE " +
-                "serverNodeName='${serverNodeName}' limit 1"
+                            "responseDocumentId='${responseDocumentId}' limit 1"
         try {
             val result = session.createNativeQuery(sql, PageDownloadRequestEntry::class.java).resultList as List<PageDownloadRequestEntry>
             if (result.size > 0) {
@@ -214,6 +214,18 @@ object DatabaseUtils {
     fun findActivePageDownloadRequestEntryForPage(session: Session, page: Page): List<PageDownloadRequestEntry> {
         val sql = "SELECT * FROM ${DatabaseTableNames.PAGE_DOWNLOAD_REQUEST_ENTRY_TABLE_NAME} WHERE " +
                                 "pageId='${page.id}' and active=true"
+        try {
+            return session.createNativeQuery(sql, PageDownloadRequestEntry::class.java).resultList as List<PageDownloadRequestEntry>
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+        return emptyList()
+    }
+
+    fun getPageDownloadRequestEntries(session: Session, limit:Int = 10): List<PageDownloadRequestEntry> {
+
+        val sql = "SELECT * FROM ${DatabaseTableNames.PAGE_DOWNLOAD_REQUEST_ENTRY_TABLE_NAME} limit ${limit} "
+
         try {
             return session.createNativeQuery(sql, PageDownloadRequestEntry::class.java).resultList as List<PageDownloadRequestEntry>
         } catch (ex: Exception) {

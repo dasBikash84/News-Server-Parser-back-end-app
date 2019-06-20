@@ -15,6 +15,9 @@ package com.dasbikash.news_server_parser.utils
 
 import com.dasbikash.news_server_parser.database.DatabaseUtils
 import com.dasbikash.news_server_parser.database.DbSessionManager
+import com.dasbikash.news_server_parser.firebase.RealTimeDbDataUtils
+import com.dasbikash.news_server_parser.firebase.RealTimeDbRefUtils
+import com.dasbikash.news_server_parser.model.PageDownloadRequest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -30,6 +33,13 @@ internal class PageDownloadRequestUtilsTest {
 
     @AfterEach
     fun tearDown() {
+    }
+    @Test
+    fun pageDownloadRequestRDbWriteTest(){
+        val session = DbSessionManager.getNewSession()
+        DatabaseUtils.getPageDownloadRequestEntries(session,50).asSequence().forEach {
+                    println(RealTimeDbDataUtils.addPageDownloadRequest(it))
+                }
     }
 
 //    @Test

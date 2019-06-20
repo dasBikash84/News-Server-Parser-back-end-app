@@ -34,7 +34,7 @@ abstract class ArticleDataFetcherForNewsPaper(
     private val childPageMap = mutableMapOf<Page, ArrayList<Page>>()
     lateinit var dbSession: Session
 
-    private val DELEY_BETWEEN_ITERATION = 5 * 60 * 1000L //5 mins
+    private val DELEY_BETWEEN_ITERATION = 1 * 60 * 1000L //5 mins
 
     override fun run() {
         sleep(Random(System.currentTimeMillis()).nextLong(MIN_DELAY_BETWEEN_NETWORK_REQUESTS))

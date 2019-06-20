@@ -124,7 +124,7 @@ class ArticleDataFetcherThroughClient(
                                 LoggerUtils.logOnConsole(it.toString())
                                 var article: Article?=null
                                 try {
-                                    article = DatabaseUtils.findArticleById(getDatabaseSession(),it.serverNodeName!!)!!
+                                    article = DatabaseUtils.findArticleById(getDatabaseSession(),it.responseDocumentId!!)!!
                                     ArticleBodyParser.getArticleBody(article,it.getResponseContentAsString()!!)
                                 } catch (ex: ParserException) {
                                     ex.printStackTrace()

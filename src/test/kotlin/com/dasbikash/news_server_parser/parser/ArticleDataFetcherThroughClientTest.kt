@@ -16,9 +16,14 @@ package com.dasbikash.news_server_parser.parser
 import com.dasbikash.news_server_parser.database.DatabaseUtils
 import com.dasbikash.news_server_parser.database.DbSessionManager
 import com.dasbikash.news_server_parser.firebase.FireStoreDataUtils
+import com.dasbikash.news_server_parser.firebase.FireStoreRefUtils
+import com.dasbikash.news_server_parser.firebase.RealTimeDbDataUtils
+import com.dasbikash.news_server_parser.model.PageDownloadRequest
 import com.dasbikash.news_server_parser.model.PageDownloadRequestMode
 import com.dasbikash.news_server_parser.model.ParserMode
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser
+import com.google.api.gax.rpc.ApiStreamObserver
+import com.google.cloud.firestore.DocumentSnapshot
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -73,5 +78,42 @@ internal class ArticleDataFetcherThroughClientTest {
 //            articleDataFetcherThroughClient.start()
 //            articleDataFetcherThroughClient.join()
 //        }
+//    }
+//    @Test
+//    fun transferOldRequestsToRDb(){
+//        val session = DbSessionManager.getNewSession()
+//        FireStoreRefUtils.getPageDownloadRequestCollectionRef()
+//                .stream(object:ApiStreamObserver<DocumentSnapshot>{
+//                    override fun onNext(value: DocumentSnapshot?) {
+//                        value?.let {
+//                            println(it.id)
+//                            val pageDownloadRequest =  it.toObject(PageDownloadRequest::class.java)!!
+//                            println("PageDownloadRequest:${pageDownloadRequest}")
+//                            val pageDownloadRequestEntry =
+//                                    DatabaseUtils.findPageDownloadRequestEntryBYServerNodeName(session,it.id)
+//                            pageDownloadRequestEntry?.let{println("pageDownloadRequestEntry:${pageDownloadRequestEntry}")}
+//                            if (pageDownloadRequestEntry!=null) {
+//                                val requestKey = RealTimeDbDataUtils.addPageDownloadRequest(pageDownloadRequestEntry)
+//                                requestKey?.let {
+//                                    pageDownloadRequestEntry.requestKey = it
+//                                    DatabaseUtils.runDbTransection(session) {
+//                                        session.update(pageDownloadRequestEntry)
+//                                    }
+//                                }
+//                            }
+//                            val task = FireStoreRefUtils.getPageDownloadRequestCollectionRef().document(it.id).delete()
+//                            while (!task.isDone) {}
+//                        }
+//                    }
+//
+//                    override fun onError(t: Throwable?) {
+//                        println("onError:${t}")
+//                    }
+//
+//                    override fun onCompleted() {
+//                        println("onCompleted")
+//                    }
+//                })
+//        while (true){}
 //    }
 }
