@@ -13,6 +13,8 @@
 
 package com.dasbikash.news_server_parser.model
 
+import com.dasbikash.news_server_parser.database.DatabaseUtils
+import org.hibernate.Session
 import java.util.*
 import javax.persistence.*
 
@@ -35,7 +37,8 @@ data class PageParsingInterval(
     override fun toString(): String {
         return "PageParsingInterval(id=$id, Np=${page?.newspaper?.name},page=${page?.id}, pageName=${page?.name}, parsingIntervalMin=${parsingIntervalMS!!/ 60/1000}, modified=$modified)"
     }
-    fun needRecalculation():Boolean{
+    fun needRecalculation(session: Session):Boolean{
+        DatabaseUtils.runDbTransection(session){session.refresh(this)}
         return (System.currentTimeMillis() - this.modified!!.time)>MINIMUM_RECALCULATE_INTERVAL
     }
 

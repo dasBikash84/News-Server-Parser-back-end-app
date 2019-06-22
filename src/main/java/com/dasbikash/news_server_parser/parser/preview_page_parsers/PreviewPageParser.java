@@ -104,7 +104,7 @@ abstract public class PreviewPageParser {
                                         ", Link: "+previewPageParser.mPageLink);
         }
 
-        System.out.println("Document title: "+ previewPageParser.mDocument.title());
+//        System.out.println("Document title: "+ previewPageParser.mDocument.title());
 
         return previewPageParser.parseDocument();
     }

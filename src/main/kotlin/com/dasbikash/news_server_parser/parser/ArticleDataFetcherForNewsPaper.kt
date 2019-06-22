@@ -135,7 +135,7 @@ abstract class ArticleDataFetcherForNewsPaper(
                                 LoggerUtils.logOnConsole("PageParsingInterval set to: ${pageParsingInterval.parsingIntervalMS} " +
                                         "for page ${it.name} of NP: ${it.newspaper?.name}")
                             }
-                        } else if (pageParsingInterval.needRecalculation()) {
+                        } else if (pageParsingInterval.needRecalculation(getDatabaseSession())) {
                             val newInterval = PageParsingInterval.recalculate(it)
                             if(pageParsingInterval.parsingIntervalMS == newInterval.parsingIntervalMS){
                                 newInterval.parsingIntervalMS = newInterval.parsingIntervalMS!!+1
