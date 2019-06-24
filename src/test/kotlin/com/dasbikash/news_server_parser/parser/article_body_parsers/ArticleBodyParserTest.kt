@@ -1,7 +1,14 @@
 package com.dasbikash.news_server_parser.parser.article_body_parsers
 
+import com.dasbikash.news_server_parser.database.DatabaseUtils
+import com.dasbikash.news_server_parser.database.DbSessionManager
+import com.dasbikash.news_server_parser.model.Article
+import com.dasbikash.news_server_parser.utils.FileUtils
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import java.io.File
+import java.util.*
 
 internal class ArticleBodyParserTest {
 
@@ -13,52 +20,29 @@ internal class ArticleBodyParserTest {
     fun tearDown() {
     }
 
-    /*@Test
-    fun readFirstPageArticles() {
-
-        val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"
-        val session = DbSessionManager.getNewSession()
-        val query = session.createQuery(hql,Newspaper::class.java)
-        val newsPapers = query.list() as List<Newspaper>
-
-        //session.close()
-
-        newsPapers.filter {
-            true//it.id == NEWS_PAPER_ID.THE_TIMES_OF_INDIA.id
-        }
-        .asSequence()
-        .map {
-            println("Newspaper: ${it.name}")
-            Thread.sleep(500)
-            //println("Page: ${it.pageList?.get(0)?.name}")
-            it.pageList?.filter {
-                it.hasData()
-            }?.get(Random(Random(it.pageList!!.size).nextInt()).nextInt(it.pageList!!.size))
-        }.map {
-            println("Page: ${it?.name}")
-            Thread.sleep(500)
-            it?.let {
-                val articleList = PreviewPageParser.parsePreviewPageForArticles(it, 1)
-                it.articleList = articleList.first
-                it.articleList
-                        ?.forEach {
-                            //session.persist(it)
-                            println("Article  ${it}")
-                        }
-            }
-            it
-        }.map {
-//            Thread.sleep(2000)
-            it?.let {
-                println("Article Data before parsing:" + it.articleList?.first())
-                Thread.sleep(500)
-                println("Article Data after parsing:" + ArticleBodyParser.getArticleBody(it.articleList?.get(Random(Random(10).nextInt()).nextInt(it.articleList?.size!!))))
-//                println(ArticleBodyParser.getArticleBody(it.articleList?.first()))
-            }
-            Thread.sleep(2000)
-
-        }
-        .iterator().forEach {  }
-
-    }*/
+//    @Test
+//    fun getArticleBody(){
+//        val session = DbSessionManager.getNewSession()
+//
+//        val docName = StringBuilder(System.getProperty("user.home")).append("/").append("Documents").append("/").append("gurdian_art.txt").toString()
+//        /*File(docName).useLines {
+//            it.asSequence().filter { it.contains("<p>") }.forEach { println(it) }
+//        }
+//
+//        return*/
+//        val articleBodyBuilder = StringBuilder()
+//        File(docName).useLines {
+//            it.asSequence().forEach { articleBodyBuilder.append(it) }
+//        }
+//
+//
+//        DatabaseUtils.getAllPages(session).find { it.id=="PAGE_ID_142" }?.let {
+//            val article = Article(serial = 281878,id="-1842655999385206261",publicationTS = Date(),page = it,modified = Date(),
+//                                    articleLink = "https://www.theguardian.com/technology/2019/jun/23/facebook-libra-cryptocurrency-poses-risks-to-global-banking")
+//
+//            ArticleBodyParser.getArticleBody(article/*,articleBodyBuilder.toString()*/)
+//
+//            println(article.articleText)
+//        }
+//    }
 }

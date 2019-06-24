@@ -19,13 +19,12 @@ import org.jsoup.nodes.Document
 
 object JsoupConnector {
 
-    private val TAG = "URLCon"
-    val CONNECTION_TIMEOUT_MILLIS = 60000
+    private val CONNECTION_TIMEOUT_MILLIS = 60000
+    private val MAX_BODY_SIZE = 5*1024*1024 // 5 MB
 
-    fun getDocument(pageUrl: String): Document? {
-        var newDocument: Document?
-        newDocument = Jsoup.connect(pageUrl).timeout(CONNECTION_TIMEOUT_MILLIS).followRedirects(true).get()
-        return newDocument
-    }
+    fun getDocument(pageUrl: String) =
+            Jsoup.connect(pageUrl).timeout(CONNECTION_TIMEOUT_MILLIS)
+                    .maxBodySize(MAX_BODY_SIZE).followRedirects(true)
+                    .get()
 
 }
