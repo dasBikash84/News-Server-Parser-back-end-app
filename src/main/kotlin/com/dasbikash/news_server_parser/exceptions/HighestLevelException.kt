@@ -11,9 +11,9 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_parser.exceptions
+package com.dasbikash.news_server_parser.exceptions.generic
 
-open class HighestLevelException:ParserException {
+open class HighestLevelException: ParserException {
     constructor() : super()
     constructor(message: String?) : super(message)
     constructor(message: String?, cause: Throwable?) : super(message, cause)

@@ -11,12 +11,16 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_parser.exceptions.generic
+package com.dasbikash.news_server_parser.exceptions
 
-open class MediumLevelException: ParserException {
+import com.dasbikash.news_server_parser.model.Newspaper
+
+class ParserExitException:HighestLevelException {
+
+    constructor(newspaper: Newspaper,ex:Throwable) : super(causePreamble+"${newspaper.name} with id: ${newspaper.id}",ex)
     constructor() : super()
-    constructor(message: String?) : super(message)
-    constructor(message: String?, cause: Throwable?) : super(message, cause)
-    constructor(cause: Throwable?) : super(cause)
-    constructor(message: String?, cause: Throwable?, enableSuppression: Boolean, writableStackTrace: Boolean) : super(message, cause, enableSuppression, writableStackTrace)
+
+    companion object {
+        val causePreamble = "Parser Exit Exception for Newspaper: ";
+    }
 }

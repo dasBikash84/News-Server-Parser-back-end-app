@@ -15,6 +15,8 @@ package com.dasbikash.news_server_parser.parser
 
 import com.dasbikash.news_server_parser.database.DatabaseUtils
 import com.dasbikash.news_server_parser.database.DbSessionManager
+import com.dasbikash.news_server_parser.exceptions.ParserExitException
+import com.dasbikash.news_server_parser.exceptions.handler.ParserExceptionHandler
 import com.dasbikash.news_server_parser.model.*
 import com.dasbikash.news_server_parser.utils.LoggerUtils
 import org.hibernate.Session
@@ -89,66 +91,68 @@ abstract class ArticleDataFetcherForNewsPaper(
             i++
         }
 
-        do {
-
-            LoggerUtils.logOnConsole("Going to parse ${pageListForParsing.size} pages for Np: ${newspaper.name}")
-
-            try {
-
-                doParsingForPages(pageListForParsing.toList())
-
+        try {
+            do {
+                LoggerUtils.logOnConsole("Going to parse ${pageListForParsing.size} pages for Np: ${newspaper.name}")
                 try {
-                    sleep(DELEY_BETWEEN_ITERATION)
-                } catch (ex: InterruptedException) {
-                    throw ex
-                }
 
-            } catch (ex: InterruptedException) {
-                ex.printStackTrace()
-                LoggerUtils.logOnConsole("Exiting ${this::class.java.simpleName} for ${newspaper.name}")
-                return
-            }
-            //Mark pages with articles as active
-            pageListForParsing.asSequence()
-                    .forEach {
-                        if (!it.active) {
-                            if (!it.isTopLevelPage()) {
-                                it.active = DatabaseUtils.getArticleCountForPage(getDatabaseSession(), it.id) > 0
-                            } else {
-                                it.active = true
-                            }
-                            if (it.active) {
-                                DatabaseUtils.runDbTransection(getDatabaseSession()) {
-                                    getDatabaseSession().update(it)
+                    doParsingForPages(pageListForParsing.toList())
+
+                    try {
+                        sleep(DELEY_BETWEEN_ITERATION)
+                    } catch (ex: InterruptedException) {
+                        throw ex
+                    }
+
+                } catch (ex: InterruptedException) {
+                    ex.printStackTrace()
+                    LoggerUtils.logOnConsole("Exiting ${this::class.java.simpleName} for ${newspaper.name}")
+                    return
+                }
+                //Mark pages with articles as active
+                pageListForParsing.asSequence()
+                        .forEach {
+                            if (!it.active) {
+                                if (!it.isTopLevelPage()) {
+                                    it.active = DatabaseUtils.getArticleCountForPage(getDatabaseSession(), it.id) > 0
+                                } else {
+                                    it.active = true
+                                }
+                                if (it.active) {
+                                    DatabaseUtils.runDbTransection(getDatabaseSession()) {
+                                        getDatabaseSession().update(it)
+                                    }
                                 }
                             }
                         }
-                    }
-            //Recalculate Page parsing intervals if necessary
-            pageListForParsing.asSequence()
-                    .forEach {
-                        var pageParsingInterval = DatabaseUtils.getPageParsingIntervalForPage(getDatabaseSession(), it)
-                        if (pageParsingInterval == null) {
-                            pageParsingInterval = PageParsingInterval.recalculate(it)
-                            DatabaseUtils.runDbTransection(getDatabaseSession()) {
-                                getDatabaseSession().save(pageParsingInterval)
-                                LoggerUtils.logOnConsole("PageParsingInterval set to: ${pageParsingInterval.parsingIntervalMS} " +
-                                        "for page ${it.name} of NP: ${it.newspaper?.name}")
-                            }
-                        } else if (pageParsingInterval.needRecalculation(getDatabaseSession())) {
-                            val newInterval = PageParsingInterval.recalculate(it)
-                            if(pageParsingInterval.parsingIntervalMS == newInterval.parsingIntervalMS){
-                                newInterval.parsingIntervalMS = newInterval.parsingIntervalMS!!+1
-                            }
-                            pageParsingInterval.parsingIntervalMS = newInterval.parsingIntervalMS!!
-                            DatabaseUtils.runDbTransection(getDatabaseSession()) {
-                                getDatabaseSession().update(pageParsingInterval)
-                                LoggerUtils.logOnConsole("PageParsingInterval updated to: ${pageParsingInterval.parsingIntervalMS} " +
-                                        "for page ${it.name} of NP: ${it.newspaper?.name}")
+                //Recalculate Page parsing intervals if necessary
+                pageListForParsing.asSequence()
+                        .forEach {
+                            var pageParsingInterval = DatabaseUtils.getPageParsingIntervalForPage(getDatabaseSession(), it)
+                            if (pageParsingInterval == null) {
+                                pageParsingInterval = PageParsingInterval.recalculate(it)
+                                DatabaseUtils.runDbTransection(getDatabaseSession()) {
+                                    getDatabaseSession().save(pageParsingInterval)
+                                    LoggerUtils.logOnConsole("PageParsingInterval set to: ${pageParsingInterval.parsingIntervalMS} " +
+                                            "for page ${it.name} of NP: ${it.newspaper?.name}")
+                                }
+                            } else if (pageParsingInterval.needRecalculation(getDatabaseSession())) {
+                                val newInterval = PageParsingInterval.recalculate(it)
+                                if(pageParsingInterval.parsingIntervalMS == newInterval.parsingIntervalMS){
+                                    newInterval.parsingIntervalMS = newInterval.parsingIntervalMS!!+1
+                                }
+                                pageParsingInterval.parsingIntervalMS = newInterval.parsingIntervalMS!!
+                                DatabaseUtils.runDbTransection(getDatabaseSession()) {
+                                    getDatabaseSession().update(pageParsingInterval)
+                                    LoggerUtils.logOnConsole("PageParsingInterval updated to: ${pageParsingInterval.parsingIntervalMS} " +
+                                            "for page ${it.name} of NP: ${it.newspaper?.name}")
+                                }
                             }
                         }
-                    }
-        } while (pageListForParsing.size > 0)
+            } while (pageListForParsing.size > 0)
+        }catch (ex:Throwable){
+            ParserExceptionHandler.handleException(ParserExitException(newspaper,ex))
+        }
     }
 
     abstract protected fun doParsingForPages(pageListForParsing: List<Page>)

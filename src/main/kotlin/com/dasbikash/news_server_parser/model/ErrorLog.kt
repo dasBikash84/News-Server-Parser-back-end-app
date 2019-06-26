@@ -49,4 +49,10 @@ class ErrorLog(exception: Throwable) {
         } while (true)
         this.stackTrace = stackTraceBuilder.toString()
     }
+
+    override fun toString(): String {
+        return "ErrorLog(exceptionClassFullName='$exceptionClassFullName'\n exceptionClassSimpleName='$exceptionClassSimpleName'\n " +
+                "exceptionCause='$exceptionCause'\n exceptionMessage='$exceptionMessage'\n stackTrace='$stackTrace')"
+    }
+
 }

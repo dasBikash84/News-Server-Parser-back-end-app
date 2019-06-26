@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-package com.dasbikash.news_server_parser.exceptions
+package com.dasbikash.news_server_parser.exceptions.generic
 
 open class ParserException:Exception {
     constructor() : super()
