@@ -13,9 +13,10 @@
 
 package com.dasbikash.news_server_parser.exceptions
 
+import com.dasbikash.news_server_parser.exceptions.generic.HighestLevelException
 import java.net.URI
 
-class EmptyJsoupDocumentException:HighestLevelException {
+class EmptyJsoupDocumentException: HighestLevelException {
 
     constructor(uri: URI) : super(causePreamble+ uri.path)
     constructor(cause: String) : super(cause)

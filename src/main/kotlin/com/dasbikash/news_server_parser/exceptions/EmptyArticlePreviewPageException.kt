@@ -13,9 +13,10 @@
 
 package com.dasbikash.news_server_parser.exceptions
 
+import com.dasbikash.news_server_parser.exceptions.generic.MediumLevelException
 import java.net.URI
 
-class EmptyArticlePreviewPageException:MediumLevelException {
+class EmptyArticlePreviewPageException: MediumLevelException {
 
     constructor(uri: URI) : super(causePreamble+ uri.path)
     constructor(cause: String) : super(cause)

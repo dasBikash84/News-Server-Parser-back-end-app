@@ -13,9 +13,10 @@
 
 package com.dasbikash.news_server_parser.exceptions
 
+import com.dasbikash.news_server_parser.exceptions.generic.HighestLevelException
 import com.dasbikash.news_server_parser.model.Newspaper
 
-class ParserExitException:HighestLevelException {
+class ParserExitException: HighestLevelException {
 
     constructor(newspaper: Newspaper,ex:Throwable) : super(causePreamble+"${newspaper.name} with id: ${newspaper.id}",ex)
     constructor() : super()

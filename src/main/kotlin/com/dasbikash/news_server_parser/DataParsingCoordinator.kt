@@ -18,7 +18,7 @@ package com.dasbikash.news_server_parser
 
 import com.dasbikash.news_server_parser.database.DatabaseUtils
 import com.dasbikash.news_server_parser.database.DbSessionManager
-import com.dasbikash.news_server_parser.exceptions.HighestLevelException
+import com.dasbikash.news_server_parser.exceptions.generic.HighestLevelException
 import com.dasbikash.news_server_parser.exceptions.ParserRestartedException
 import com.dasbikash.news_server_parser.exceptions.ParserStoppedException
 import com.dasbikash.news_server_parser.exceptions.ReportGenerationException

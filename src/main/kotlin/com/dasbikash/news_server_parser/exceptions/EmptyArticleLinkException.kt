@@ -13,9 +13,10 @@
 
 package com.dasbikash.news_server_parser.exceptions
 
+import com.dasbikash.news_server_parser.exceptions.generic.MediumLevelException
 import com.dasbikash.news_server_parser.model.Article
 
-class EmptyArticleLinkException:MediumLevelException {
+class EmptyArticleLinkException: MediumLevelException {
 
     constructor(article: Article) : super(causePreamble+"${article.title} with id: ${article.id}")
     constructor() : super()

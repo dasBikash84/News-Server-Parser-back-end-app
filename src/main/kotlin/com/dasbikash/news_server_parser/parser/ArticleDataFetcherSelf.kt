@@ -15,7 +15,7 @@ package com.dasbikash.news_server_parser.parser
 
 import com.dasbikash.news_server_parser.database.DatabaseUtils
 import com.dasbikash.news_server_parser.exceptions.NewsPaperNotFoundForPageException
-import com.dasbikash.news_server_parser.exceptions.ParserException
+import com.dasbikash.news_server_parser.exceptions.generic.ParserException
 import com.dasbikash.news_server_parser.exceptions.ParserNotFoundException
 import com.dasbikash.news_server_parser.exceptions.handler.ParserExceptionHandler
 import com.dasbikash.news_server_parser.model.Article

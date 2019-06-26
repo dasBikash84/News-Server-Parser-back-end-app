@@ -13,7 +13,9 @@
 
 package com.dasbikash.news_server_parser.exceptions
 
-class ReportGenerationException:HighestLevelException {
+import com.dasbikash.news_server_parser.exceptions.generic.HighestLevelException
+
+class ReportGenerationException: HighestLevelException {
     constructor() : super()
     constructor(message: String?) : super(message)
     constructor(message: String?, cause: Throwable?) : super(message, cause)

@@ -14,10 +14,10 @@
 package com.dasbikash.news_server_parser.exceptions.handler
 
 import com.dasbikash.news_server_parser.database.DbSessionManager
-import com.dasbikash.news_server_parser.exceptions.HighestLevelException
-import com.dasbikash.news_server_parser.exceptions.LowLevelException
-import com.dasbikash.news_server_parser.exceptions.MediumLevelException
-import com.dasbikash.news_server_parser.exceptions.ParserException
+import com.dasbikash.news_server_parser.exceptions.generic.HighestLevelException
+import com.dasbikash.news_server_parser.exceptions.generic.LowLevelException
+import com.dasbikash.news_server_parser.exceptions.generic.MediumLevelException
+import com.dasbikash.news_server_parser.exceptions.generic.ParserException
 import com.dasbikash.news_server_parser.model.ErrorLog
 import com.dasbikash.news_server_parser.utils.EmailUtils
 import com.dasbikash.news_server_parser.utils.LoggerUtils
@@ -31,9 +31,9 @@ object ParserExceptionHandler {
                 .subscribeOn(Schedulers.io())
                 .map {
                     when (it) {
-                        is HighestLevelException    -> highestLevelExceptionHandler(it)
-                        is MediumLevelException     -> mediumLevelExceptionHandler(it)
-                        is LowLevelException        -> lowLevelExceptionHandler(it)
+                        is HighestLevelException -> highestLevelExceptionHandler(it)
+                        is MediumLevelException -> mediumLevelExceptionHandler(it)
+                        is LowLevelException -> lowLevelExceptionHandler(it)
                         else                        -> exceptionHandler(it)
                     }
                 }

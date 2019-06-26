@@ -13,9 +13,10 @@
 
 package com.dasbikash.news_server_parser.exceptions
 
+import com.dasbikash.news_server_parser.exceptions.generic.MediumLevelException
 import com.dasbikash.news_server_parser.model.Article
 
-class EmptyArticleBodyException: MediumLevelException{
+class EmptyArticleBodyException: MediumLevelException {
 
     constructor(article: Article) : super("For article: ${article.articleLink}")
     constructor() : super()
