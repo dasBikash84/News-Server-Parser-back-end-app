@@ -26,20 +26,21 @@ import com.dasbikash.news_server_parser.utils.LoggerUtils
 import com.dasbikash.news_server_parser.utils.PageDownloadRequestUtils
 import java.lang.IllegalStateException
 
-class ArticleDataFetcherThroughClient(
+class ArticleDataFetcherThroughClient private constructor(
         newspaper: Newspaper,
         opMode: ParserMode
 ) : ArticleDataFetcherForNewsPaper(newspaper, opMode) {
+
+    companion object{
+        fun getInstance(newspaper: Newspaper) =
+                ArticleDataFetcherThroughClient(newspaper,ParserMode.PARSE_THROUGH_CLIENT)
+    }
 
     init {
         FireStoreDataUtils.nop()
     }
 
     override fun doParsingForPages(pageListForParsing: List<Page>) {
-
-        if (opMode != ParserMode.PARSE_THROUGH_CLIENT) {
-            throw IllegalStateException()
-        }
 
         for (currentPage in pageListForParsing) {
 //            LoggerUtils.logOnConsole("Running Parser for page ${currentPage.name} of Np: ${newspaper.name}")

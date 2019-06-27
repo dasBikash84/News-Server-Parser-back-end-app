@@ -1,7 +1,11 @@
 package com.dasbikash.news_server_parser.parser
 
+import com.dasbikash.news_server_parser.database.DatabaseUtils
+import com.dasbikash.news_server_parser.database.DbSessionManager
+import com.dasbikash.news_server_parser.model.ParserMode
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class ArticleDataFetcherForNewsPaperTest {
 
@@ -36,4 +40,16 @@ class ArticleDataFetcherForNewsPaperTest {
         //while (true)
         //return
     }*/
+
+//    @Test
+//    fun testRun(){
+//        val session = DbSessionManager.getNewSession()
+//        val newsPaper = DatabaseUtils.getAllNewspapers(session).find { it.id=="NP_ID_6" }
+//        newsPaper?.let {
+//            session.detach(it)
+//            val articleDataFetcherThroughClient = ArticleDataFetcherSelf.getInstanceForRunning(it)
+//            articleDataFetcherThroughClient.start()
+//            articleDataFetcherThroughClient.join()
+//        }
+//    }
 }

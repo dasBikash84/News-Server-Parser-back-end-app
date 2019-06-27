@@ -31,6 +31,7 @@ import com.dasbikash.news_server_parser.parser.ArticleDataFetcherThroughClient
 import com.dasbikash.news_server_parser.utils.DateUtils
 import com.dasbikash.news_server_parser.utils.ReportGenerationUtils
 import org.hibernate.Session
+import java.lang.IllegalStateException
 import java.util.*
 
 
@@ -142,9 +143,13 @@ object DataParsingCoordinator {
         val articleDataFetcherForNewsPaper: ArticleDataFetcherForNewsPaper
 
         if (currentOpMode==ParserMode.PARSE_THROUGH_CLIENT){
-            articleDataFetcherForNewsPaper = ArticleDataFetcherThroughClient(newspaper, currentOpMode)
-        }else {
-            articleDataFetcherForNewsPaper = ArticleDataFetcherSelf(newspaper, currentOpMode)
+            articleDataFetcherForNewsPaper = ArticleDataFetcherThroughClient.getInstance(newspaper)
+        }else if (currentOpMode==ParserMode.RUNNING){
+            articleDataFetcherForNewsPaper = ArticleDataFetcherSelf.getInstanceForRunning(newspaper)
+        }else if (currentOpMode==ParserMode.GET_SYNCED){
+            articleDataFetcherForNewsPaper = ArticleDataFetcherSelf.getInstanceForSync(newspaper)
+        }else{
+            throw IllegalArgumentException()
         }
 
         articleDataFetcherMap.put(newspaper.id, articleDataFetcherForNewsPaper)

@@ -137,6 +137,9 @@ abstract class ArticleDataFetcherForNewsPaper(
                                             "for page ${it.name} of NP: ${it.newspaper?.name}")
                                 }
                             } else if (pageParsingInterval.needRecalculation(getDatabaseSession())) {
+                                DatabaseUtils.runDbTransection(getDatabaseSession()){
+                                    getDatabaseSession().saveOrUpdate(it)
+                                }
                                 val newInterval = PageParsingInterval.recalculate(it)
                                 if(pageParsingInterval.parsingIntervalMS == newInterval.parsingIntervalMS){
                                     newInterval.parsingIntervalMS = newInterval.parsingIntervalMS!!+1

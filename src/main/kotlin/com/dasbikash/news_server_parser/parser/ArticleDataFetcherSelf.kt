@@ -27,14 +27,18 @@ import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageP
 import com.dasbikash.news_server_parser.utils.LoggerUtils
 import java.lang.IllegalStateException
 
-class ArticleDataFetcherSelf(newspaper: Newspaper,opMode: ParserMode)
+class ArticleDataFetcherSelf private constructor(newspaper: Newspaper,opMode: ParserMode)
     : ArticleDataFetcherForNewsPaper(newspaper, opMode) {
 
-    override fun doParsingForPages(pageListForParsing: List<Page>) {
+    companion object{
+        fun getInstanceForRunning(newspaper: Newspaper) =
+                ArticleDataFetcherSelf(newspaper,ParserMode.RUNNING)
 
-        if (opMode !=ParserMode.GET_SYNCED && opMode!=ParserMode.RUNNING){
-            throw IllegalStateException()
-        }
+        fun getInstanceForSync(newspaper: Newspaper) =
+                ArticleDataFetcherSelf(newspaper,ParserMode.GET_SYNCED)
+    }
+
+    override fun doParsingForPages(pageListForParsing: List<Page>) {
 
         for (currentPage in pageListForParsing) {
 
@@ -88,7 +92,7 @@ class ArticleDataFetcherSelf(newspaper: Newspaper,opMode: ParserMode)
                             .filter {
                                 DatabaseUtils.findArticleById(getDatabaseSession(), it.id) == null
                             }
-                            .toCollection(mutableListOf())
+                            .toMutableList()
             //For Full repeat
             if (opMode != ParserMode.GET_SYNCED && parsableArticleList.size == 0) {
                 allArticleRepeatAction(currentPage, parsingResult?.second ?: "")
