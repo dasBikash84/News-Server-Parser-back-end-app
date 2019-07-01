@@ -16,15 +16,10 @@ package com.dasbikash.news_server_parser.firebase
 import com.dasbikash.news_server_parser.database.DatabaseUtils
 import com.dasbikash.news_server_parser.database.DbSessionManager
 import com.dasbikash.news_server_parser.model.PageDownLoadRequestResponse
-import com.dasbikash.news_server_parser.model.PageDownloadRequest
-import com.dasbikash.news_server_parser.model.PageDownloadRequestEntry
 import com.dasbikash.news_server_parser.utils.LoggerUtils
 import com.google.cloud.firestore.DocumentChange
 import com.google.cloud.firestore.FirestoreException
 import com.google.cloud.firestore.QuerySnapshot
-import java.lang.IllegalStateException
-import java.util.*
-import java.util.concurrent.TimeUnit
 
 
 object FireStoreDataUtils {

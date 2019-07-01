@@ -23,6 +23,7 @@ import com.dasbikash.news_server_parser.exceptions.ParserRestartedException
 import com.dasbikash.news_server_parser.exceptions.ParserStoppedException
 import com.dasbikash.news_server_parser.exceptions.ReportGenerationException
 import com.dasbikash.news_server_parser.exceptions.handler.ParserExceptionHandler
+import com.dasbikash.news_server_parser.firebase.RealTimeDbAdminTaskUtils
 import com.dasbikash.news_server_parser.model.Newspaper
 import com.dasbikash.news_server_parser.model.ParserMode
 import com.dasbikash.news_server_parser.parser.ArticleDataFetcherForNewsPaper
@@ -100,6 +101,7 @@ object DataParsingCoordinator {
 
 
                 session.close()
+                RealTimeDbAdminTaskUtils.init()
                 Thread.sleep(ITERATION_DELAY)
             } catch (ex: InterruptedException) {
                 ex.printStackTrace()
