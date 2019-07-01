@@ -19,9 +19,9 @@ import org.junit.jupiter.api.Assertions.*
 
 internal class RealTimeDbAdminTaskUtilsTest {
 
-    @Test
-    fun init() {
-        RealTimeDbAdminTaskUtils.init()
-        while (true){}
-    }
+//    @Test
+//    fun init() {
+//        RealTimeDbAdminTaskUtils.init()
+//        while (true){}
+//    }
 }
