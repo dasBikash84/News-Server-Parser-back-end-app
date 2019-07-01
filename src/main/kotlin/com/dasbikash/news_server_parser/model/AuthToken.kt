@@ -63,7 +63,7 @@ data class TokenGenerationRequest(var timeStamp: TimeStamp? = null){
     }
 
     companion object{
-        private const val MAX_ALLOWED_AGE_MINUTE = 6*60
+        private const val MAX_ALLOWED_AGE_MINUTE = 5
         private const val MAX_ALLOWED_AGE_MS = MAX_ALLOWED_AGE_MINUTE*60*1000L
     }
 }
