@@ -24,4 +24,5 @@ object DatabaseTableNames {
     const val PAGE_PARSING_INTERVAL_TABLE_NAME = "page_parsing_interval"
     const val PAGE_PARSING_HISTORY_TABLE_NAME = "page_parsing_history"
     const val PAGE_DOWNLOAD_REQUEST_ENTRY_TABLE_NAME = "page_download_request"
+    const val AUTH_TOKEN_TABLE_NAME = "tokens"
 }

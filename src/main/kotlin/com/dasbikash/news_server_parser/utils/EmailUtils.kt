@@ -15,6 +15,7 @@ package com.dasbikash.news_server_parser.utils
 
 import com.dasbikash.news_server_data_coordinator.model.EmailAuth
 import com.dasbikash.news_server_data_coordinator.model.EmailTargets
+import com.dasbikash.news_server_parser.model.AuthToken
 import java.io.File
 import java.util.*
 import javax.activation.DataHandler
@@ -41,6 +42,10 @@ object EmailUtils {
     init {
         emailAuth = FileReaderUtils.jsonFileToEntityList(EMAIL_AUTH_FILE_LOCATION,EmailAuth::class.java)
         emailTargets = FileReaderUtils.jsonFileToEntityList(EMAIL_TARGET_DETAILS_FILE_LOCATION,EmailTargets::class.java)
+    }
+
+    fun  emailAuthTokenToAdmin(authToken: AuthToken){
+        sendEmail("New Token for Parser App.","Token:\t${authToken.token}\nExpires on:\t${authToken.expiresOn}")
     }
 
     private fun getProperties():Properties{

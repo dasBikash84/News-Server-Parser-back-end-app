@@ -13,20 +13,15 @@
 
 package com.dasbikash.news_server_parser.firebase
 
-import com.google.firebase.database.DatabaseReference
+import org.junit.jupiter.api.Test
 
-internal object RealTimeDbRefUtils {
+import org.junit.jupiter.api.Assertions.*
 
-    private const val PAGE_DOWNLOAD_REQUEST_NODE = "page_download_request"
-    private const val ADMIN_TASK_DATA_NODE = "admin_task_data"
+internal class RealTimeDbAdminTaskUtilsTest {
 
-    private val mRootReference:DatabaseReference
-
-    init{
-        mRootReference = FireBaseConUtils.mFirebaseDatabaseCon.reference
+    @Test
+    fun init() {
+        RealTimeDbAdminTaskUtils.init()
+        while (true){}
     }
-
-    fun getPageDownloadRequestRef():DatabaseReference = mRootReference.child(PAGE_DOWNLOAD_REQUEST_NODE)
-    fun getAdminTaskDataNode():DatabaseReference = mRootReference.child(ADMIN_TASK_DATA_NODE)
-
 }
