@@ -239,9 +239,17 @@ abstract public class PreviewPageParser {
                 modificationDate = modificationTS.getTime();
             }
 
+            StringBuilder articleIdBuilder = new StringBuilder(HashUtils.INSTANCE.hash(articleLink)).append("_");
+
+            if (mCurrentPage.isTopLevelPage()){
+                articleIdBuilder.append(mCurrentPage.getId());
+            }else {
+                articleIdBuilder.append(mCurrentPage.getParentPageId());
+            }
+
             articles.add(
                     new Article(
-                            null,HashUtils.INSTANCE.hash(articleLink).toString(),mCurrentPage,articleTitle,modificationDate,
+                            null,articleIdBuilder.toString(),mCurrentPage,articleTitle,modificationDate,
                             publicationDate,null,new ArrayList<>(),previewImageLink,articleLink,null
                     )
             );
