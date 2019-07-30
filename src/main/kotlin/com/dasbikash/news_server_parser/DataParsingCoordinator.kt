@@ -58,6 +58,9 @@ object DataParsingCoordinator {
                     if ((getNpCountWithRunningOpMode(session)+ getNpCountWithGetSyncedOpMode(session)) == 0){
                         articleDataFetcherForPageSelf!!.interrupt()
                         articleDataFetcherForPageSelf = null
+                    }else if (!articleDataFetcherForPageSelf!!.isAlive){
+                        articleDataFetcherForPageSelf = ArticleDataFetcherForPageSelf()
+                        articleDataFetcherForPageSelf!!.start()
                     }
                 }
 
@@ -70,6 +73,9 @@ object DataParsingCoordinator {
                     if ((getNpCountWithParseThroughClientOpMode(session)) == 0){
                         articleDataFetcherForPageThroughClient!!.interrupt()
                         articleDataFetcherForPageThroughClient = null
+                    }else if (!articleDataFetcherForPageThroughClient!!.isAlive){
+                        articleDataFetcherForPageThroughClient = ArticleDataFetcherForPageThroughClient()
+                        articleDataFetcherForPageThroughClient!!.start()
                     }
                 }
 
