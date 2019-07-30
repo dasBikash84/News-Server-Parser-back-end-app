@@ -15,8 +15,8 @@ package com.dasbikash.news_server_parser.parser
 
 import com.dasbikash.news_server_parser.database.DatabaseUtils
 import com.dasbikash.news_server_parser.exceptions.NewsPaperNotFoundForPageException
-import com.dasbikash.news_server_parser.exceptions.generic.ParserException
 import com.dasbikash.news_server_parser.exceptions.ParserNotFoundException
+import com.dasbikash.news_server_parser.exceptions.generic.ParserException
 import com.dasbikash.news_server_parser.exceptions.handler.ParserExceptionHandler
 import com.dasbikash.news_server_parser.model.Article
 import com.dasbikash.news_server_parser.model.Newspaper
@@ -25,7 +25,6 @@ import com.dasbikash.news_server_parser.model.ParserMode
 import com.dasbikash.news_server_parser.parser.article_body_parsers.ArticleBodyParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser
 import com.dasbikash.news_server_parser.utils.LoggerUtils
-import java.lang.IllegalStateException
 
 class ArticleDataFetcherSelf private constructor(newspaper: Newspaper,opMode: ParserMode)
     : ArticleDataFetcherForNewsPaper(newspaper, opMode) {
@@ -77,11 +76,13 @@ class ArticleDataFetcherSelf private constructor(newspaper: Newspaper,opMode: Pa
             } catch (e: Throwable) {
                 LoggerUtils.logOnConsole("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
                 when (e) {
-                    is ParserException -> ParserExceptionHandler.handleException(e)
+                    is ParserException -> {
+                        ParserExceptionHandler.handleException(e)
+                        if (opMode != ParserMode.GET_SYNCED ) {
+                            emptyPageAction(currentPage, parsingResult?.second ?: "")
+                        }
+                    }
                     else -> ParserExceptionHandler.handleException(ParserException(e))
-                }
-                if (opMode != ParserMode.GET_SYNCED && (e is ParserException)) {
-                    emptyPageAction(currentPage, parsingResult?.second ?: "")
                 }
                 continue
             }

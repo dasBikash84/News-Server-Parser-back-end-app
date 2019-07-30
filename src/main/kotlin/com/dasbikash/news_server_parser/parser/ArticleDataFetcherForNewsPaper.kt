@@ -130,7 +130,7 @@ abstract class ArticleDataFetcherForNewsPaper(
                         .forEach {
                             var pageParsingInterval = DatabaseUtils.getPageParsingIntervalForPage(getDatabaseSession(), it)
                             if (pageParsingInterval == null) {
-                                pageParsingInterval = PageParsingInterval.recalculate(it)
+                                pageParsingInterval = PageParsingInterval.recalculate(getDatabaseSession(),it)
                                 DatabaseUtils.runDbTransection(getDatabaseSession()) {
                                     getDatabaseSession().save(pageParsingInterval)
                                     LoggerUtils.logOnConsole("PageParsingInterval set to: ${pageParsingInterval.parsingIntervalMS} " +
@@ -140,7 +140,7 @@ abstract class ArticleDataFetcherForNewsPaper(
                                 DatabaseUtils.runDbTransection(getDatabaseSession()){
                                     getDatabaseSession().saveOrUpdate(it)
                                 }
-                                val newInterval = PageParsingInterval.recalculate(it)
+                                val newInterval = PageParsingInterval.recalculate(getDatabaseSession(),it)
                                 if(pageParsingInterval.parsingIntervalMS == newInterval.parsingIntervalMS){
                                     newInterval.parsingIntervalMS = newInterval.parsingIntervalMS!!+1
                                 }

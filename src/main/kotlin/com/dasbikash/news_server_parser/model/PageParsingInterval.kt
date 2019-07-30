@@ -43,6 +43,7 @@ data class PageParsingInterval(
     }
 
     companion object{
+        const val ONE_DAY_IN_MS = 24*60*60*1000L //1 Day
         const val MINIMUM_RECALCULATE_INTERVAL = 24*60*60*1000L //1 Day
         const val MINIMUM_SUCCESIVE_ARTICLE_PARSING_INTERVAL = 5*60*1000L //5 min
         const val WEEKLY_ARTICLE_PARSING_INTERVAL = 3*60*60*1000L //3hr
@@ -54,34 +55,42 @@ data class PageParsingInterval(
             return PageParsingInterval(page = page,parsingIntervalMS = parsingIntervalMS)
         }
 
-        fun recalculate(page: Page):PageParsingInterval {
+        fun recalculate(session: Session,page: Page):PageParsingInterval {
+
             if (page.weekly){
                 return getInstanceForPage(page,WEEKLY_ARTICLE_PARSING_INTERVAL.toInt())
-            }else if (page.articleList!!.isEmpty() || page.articleList!!.size==1){
+            }
+
+            val articlePublicationTimes = DatabaseUtils.getArticlePublicationTimeListForPage(session, page)
+
+            if (articlePublicationTimes.isEmpty() || articlePublicationTimes.size==1){
                 return getInstanceForPage(page,MAX_ARTICLE_PARSING_INTERVAL.toInt())
             }else{
                 val articlePublicationTimeList =
-                        page.articleList!!.map {
-                            if (it.publicationTS!=null){
-                                return@map it.publicationTS!!
-                            }else if (it.modificationTS!=null){
-                                return@map it.modificationTS!!
-                            }else{
-                                return@map it.modified!!
-                            }
-                        }.sortedBy { it }.toList()
+                        articlePublicationTimes.filter { it.publicationTS!=null || it.modificationTS!=null }
+                                .map {
+                                    if (it.publicationTS!=null){
+                                        return@map it.publicationTS!!
+                                    }else{
+                                        return@map it.modificationTS!!
+                                    }
+                                }
+                                .sorted()
 
-
-                val sortedArticles: List<Article>
-                sortedArticles = page.articleList!!.sortedBy { it.modified }.toList()
                 var totalParsingIntervalMs = 0.0f
                 var totalItemsConsidered = 0
-                for (index in sortedArticles.indices){
+                for (index in articlePublicationTimeList.indices){
                     if (index == 0){
                         continue
                     }else {
                         if (articlePublicationTimeList[index].time - articlePublicationTimeList[index-1].time > MINIMUM_SUCCESIVE_ARTICLE_PARSING_INTERVAL) {
-                            totalParsingIntervalMs += (articlePublicationTimeList[index].time - articlePublicationTimeList[index - 1].time).toFloat()
+                            (articlePublicationTimeList[index].time - articlePublicationTimeList[index - 1].time).toFloat().apply {
+                                if(this<ONE_DAY_IN_MS){
+                                    totalParsingIntervalMs +=this
+                                }else{
+                                    totalParsingIntervalMs += ONE_DAY_IN_MS
+                                }
+                            }
                             totalItemsConsidered += 1
                         }
                     }
@@ -104,3 +113,8 @@ data class PageParsingInterval(
     }
 
 }
+
+data class ArticlePublicationTime(
+        var publicationTS: Date? = null,
+        var modificationTS: Date? = null
+)

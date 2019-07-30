@@ -81,4 +81,15 @@ internal class DatabaseUtilsTest {
 //        }
 //    }
 
+//    @Test
+//    fun getArticlePublicationTimeListForPageTest(){
+//        val session = DbSessionManager.getNewSession()
+//        DatabaseUtils.getAllPages(session).findLast { it.id=="PAGE_ID_10" }?.let {
+//            println(it)
+//            DatabaseUtils.getArticlePublicationTimeListForPage(session,it).asSequence().forEach {
+//                println(it)
+//            }
+//        }
+//    }
+
 }

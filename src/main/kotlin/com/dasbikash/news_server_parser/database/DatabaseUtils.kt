@@ -17,7 +17,6 @@ import com.dasbikash.news_server_parser.model.*
 import com.dasbikash.news_server_parser.utils.DateUtils
 import com.dasbikash.news_server_parser.utils.LoggerUtils
 import org.hibernate.Session
-import java.lang.StringBuilder
 import java.math.BigInteger
 import java.util.*
 
@@ -60,11 +59,13 @@ object DatabaseUtils {
         return false
     }
 
-    fun getAllActiveNewspapers(session: Session): List<Newspaper> {
-        val hql = "FROM ${EntityClassNames.NEWSPAPER} where active=true"
-        val query = session.createQuery(hql, Newspaper::class.java)
-        return query.list() as List<Newspaper>
-    }
+    fun getAllActiveNewspapers(session: Session) =
+            getAllNewspapers(session)
+                    .map {
+                        session.refresh(it)
+                        it
+                    }
+                    .filter { it.active }
 
     fun getAllLanguages(session: Session): List<Language> {
         val hql = "FROM ${EntityClassNames.LANGUAGE}"
@@ -157,7 +158,7 @@ object DatabaseUtils {
         return null
     }
 
-    fun getNewspaperOpModeEntry(session: Session, newspaper: Newspaper): NewspaperOpModeEntry? {
+    private fun getNewspaperOpModeEntry(session: Session, newspaper: Newspaper): NewspaperOpModeEntry? {
         val sql = "SELECT * FROM ${DatabaseTableNames.NEWS_PAPER_OP_MODE_ENTRY_NAME} WHERE " +
                 "newsPaperId='${newspaper.id}' order by created desc"
         try {
@@ -170,6 +171,9 @@ object DatabaseUtils {
         }
         return insertDefaultEntryForNewspaper(session, newspaper)
     }
+
+    fun getOpModeForNewsPaper(session: Session, newspaper: Newspaper) =
+            getNewspaperOpModeEntry(session, newspaper)!!.opMode!!
 
     fun getArticleCountForPageOfYesterday(session: Session, page: Page, today: Date): Int {
         val yesterday = DateUtils.getYesterDay(today)
@@ -199,7 +203,7 @@ object DatabaseUtils {
 
     fun findPageDownloadRequestEntryBYServerNodeName(session: Session, responseDocumentId: String): PageDownloadRequestEntry? {
         val sql = "SELECT * FROM ${DatabaseTableNames.PAGE_DOWNLOAD_REQUEST_ENTRY_TABLE_NAME} WHERE " +
-                            "responseDocumentId='${responseDocumentId}' limit 1"
+                "responseDocumentId='${responseDocumentId}' limit 1"
         try {
             val result = session.createNativeQuery(sql, PageDownloadRequestEntry::class.java).resultList as List<PageDownloadRequestEntry>
             if (result.size > 0) {
@@ -213,7 +217,7 @@ object DatabaseUtils {
 
     fun findActivePageDownloadRequestEntryForPage(session: Session, page: Page): List<PageDownloadRequestEntry> {
         val sql = "SELECT * FROM ${DatabaseTableNames.PAGE_DOWNLOAD_REQUEST_ENTRY_TABLE_NAME} WHERE " +
-                                "pageId='${page.id}' and active=true"
+                "pageId='${page.id}' and active=true"
         try {
             return session.createNativeQuery(sql, PageDownloadRequestEntry::class.java).resultList as List<PageDownloadRequestEntry>
         } catch (ex: Exception) {
@@ -222,7 +226,7 @@ object DatabaseUtils {
         return emptyList()
     }
 
-    fun getPageDownloadRequestEntries(session: Session, limit:Int = 10): List<PageDownloadRequestEntry> {
+    fun getPageDownloadRequestEntries(session: Session, limit: Int = 10): List<PageDownloadRequestEntry> {
 
         val sql = "SELECT * FROM ${DatabaseTableNames.PAGE_DOWNLOAD_REQUEST_ENTRY_TABLE_NAME} limit ${limit} "
 
@@ -232,5 +236,27 @@ object DatabaseUtils {
             ex.printStackTrace()
         }
         return emptyList()
+    }
+
+    fun getArticlePublicationTimeListForPage(session: Session, page: Page): List<ArticlePublicationTime> {
+        val sqlBuilder1 = StringBuilder("SELECT publicationTS FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
+                                        .append(" WHERE pageId='${page.id}' ")
+                                        .append(" ORDER BY modified ASC")
+//        println(sqlBuilder1.toString())
+        val sqlBuilder2 = StringBuilder("SELECT modificationTS FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
+                                        .append(" WHERE pageId='${page.id}' ")
+                                        .append(" ORDER BY modified ASC")
+//        println(sqlBuilder2.toString())
+        val articlePublicationTimeList = mutableListOf<ArticlePublicationTime>()
+        try {
+            val publicationTSList = session.createNativeQuery(sqlBuilder1.toString()).resultList as List<Date?>
+            val modificationTSList = session.createNativeQuery(sqlBuilder2.toString()).resultList as List<Date?>
+            publicationTSList.forEachIndexed({i,data ->
+                articlePublicationTimeList.add(ArticlePublicationTime(publicationTS = data,modificationTS = modificationTSList[i]))
+            })
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+        return articlePublicationTimeList.toList()
     }
 }
