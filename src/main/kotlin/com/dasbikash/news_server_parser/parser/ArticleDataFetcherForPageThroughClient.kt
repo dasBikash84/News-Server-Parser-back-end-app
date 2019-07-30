@@ -25,7 +25,7 @@ import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageP
 import com.dasbikash.news_server_parser.utils.LoggerUtils
 import com.dasbikash.news_server_parser.utils.PageDownloadRequestUtils
 
-class ArticleDataFetcherForPageThroughClient :ArticleDataFetcherBase(ParserMode.PARSE_THROUGH_CLIENT) {
+class ArticleDataFetcherForPageThroughClient : ArticleDataFetcherBase(ParserMode.PARSE_THROUGH_CLIENT) {
 
     init {
         FireStoreDataUtils.nop()
@@ -33,9 +33,9 @@ class ArticleDataFetcherForPageThroughClient :ArticleDataFetcherBase(ParserMode.
 
     override fun doParsingForPage(currentPage: Page) {
 
-        val opMode = DatabaseUtils.getOpModeForNewsPaper(getDatabaseSession(),currentPage.newspaper!!)
+        val opMode = DatabaseUtils.getOpModeForNewsPaper(getDatabaseSession(), currentPage.newspaper!!)
 
-        if (opMode!=ParserMode.PARSE_THROUGH_CLIENT){
+        if (opMode != ParserMode.PARSE_THROUGH_CLIENT) {
             return
         }
 //            LoggerUtils.logOnConsole("Running Parser for page ${currentPage.name} of Np: ${newspaper.name}")
@@ -47,7 +47,7 @@ class ArticleDataFetcherForPageThroughClient :ArticleDataFetcherBase(ParserMode.
         if (activePageDownloadRequestEntries.isNotEmpty()) {
 //                LoggerUtils.logOnConsole("activePageDownloadRequestEntries.size for page ${currentPage.name} of Np: ${activePageDownloadRequestEntries.size}")
 
-            if (activePageDownloadRequestEntries.filter { it.pageDownloadRequestMode == PageDownloadRequestMode.ARTICLE_PREVIEW_PAGE }.count() ==1) {
+            if (activePageDownloadRequestEntries.filter { it.pageDownloadRequestMode == PageDownloadRequestMode.ARTICLE_PREVIEW_PAGE }.count() == 1) {
 
                 val articlePreviewPageDownloadRequestEntry =
                         activePageDownloadRequestEntries.find { it.pageDownloadRequestMode == PageDownloadRequestMode.ARTICLE_PREVIEW_PAGE }!!
@@ -72,7 +72,8 @@ class ArticleDataFetcherForPageThroughClient :ArticleDataFetcherBase(ParserMode.
                     } catch (e: ParserNotFoundException) {
                         LoggerUtils.logOnConsole("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
                         ParserExceptionHandler.handleException(e)
-                        return                    } catch (e: Throwable) {
+                        return
+                    } catch (e: Throwable) {
                         LoggerUtils.logOnConsole("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
                         when (e) {
                             is ParserException -> ParserExceptionHandler.handleException(e)
@@ -86,8 +87,11 @@ class ArticleDataFetcherForPageThroughClient :ArticleDataFetcherBase(ParserMode.
 
                     val parsableArticleList =
                             articleList.asSequence()
-                                    .filter { DatabaseUtils.findArticleById(getDatabaseSession(), it.id) == null }
-                                    .toCollection(mutableListOf())
+                                    .filter {
+                                        (DatabaseUtils.findArticleById(getDatabaseSession(), it.id)) == null &&
+                                        (DatabaseUtils.findArticleById(getDatabaseSession(), Article.getStripedArticleId(it.id))) == null
+                                    }
+                                    .toMutableList()
                     //For Full repeat
 //                        LoggerUtils.logOnConsole("${parsableArticleList.size} new article preview found for page ${currentPage.name} of Np: ${newspaper.name}")
 
@@ -105,7 +109,7 @@ class ArticleDataFetcherForPageThroughClient :ArticleDataFetcherBase(ParserMode.
                         }
                     }
                     deactivatePageDownloadRequestEntry(articlePreviewPageDownloadRequestEntry)
-                }else{
+                } else {
 //                        LoggerUtils.logOnConsole("No Preview page content for page ${currentPage.name} of Np: ${newspaper.name}")
                 }
             } else /*if (activePageDownloadRequestEntries.filter { it.pageDownloadRequestMode == PageDownloadRequestMode.ARTICLE_BODY }.count() > 0)*/ {
@@ -117,10 +121,10 @@ class ArticleDataFetcherForPageThroughClient :ArticleDataFetcherBase(ParserMode.
                         .asSequence().forEach {
                             //parse and save articles
 //                                LoggerUtils.logOnConsole(it.toString())
-                            var article: Article?=null
+                            var article: Article? = null
                             try {
-                                article = DatabaseUtils.findArticleById(getDatabaseSession(),it.responseDocumentId!!)!!
-                                ArticleBodyParser.getArticleBody(article,it.getResponseContentAsString()!!)
+                                article = DatabaseUtils.findArticleById(getDatabaseSession(), it.responseDocumentId!!)!!
+                                ArticleBodyParser.getArticleBody(article, it.getResponseContentAsString()!!)
                             } catch (ex: ParserException) {
                                 ex.printStackTrace()
                                 ParserExceptionHandler.handleException(ex)

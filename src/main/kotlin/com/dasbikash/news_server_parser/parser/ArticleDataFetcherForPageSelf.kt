@@ -85,7 +85,8 @@ class ArticleDataFetcherForPageSelf :ArticleDataFetcherBase(ParserMode.RUNNING) 
                 articleList
                         .asSequence()
                         .filter {
-                            DatabaseUtils.findArticleById(getDatabaseSession(), it.id) == null
+                            (DatabaseUtils.findArticleById(getDatabaseSession(), it.id)) == null &&
+                            (DatabaseUtils.findArticleById(getDatabaseSession(), Article.getStripedArticleId(it.id))) == null
                         }
                         .toMutableList()
         //For Full repeat

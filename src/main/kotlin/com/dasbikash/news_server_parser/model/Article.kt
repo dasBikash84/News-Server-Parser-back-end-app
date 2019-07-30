@@ -14,6 +14,7 @@
 package com.dasbikash.news_server_parser.model
 
 import com.dasbikash.news_server_parser.database.DbNamedNativeQueries
+import com.dasbikash.news_server_parser.utils.HashUtils
 import java.util.*
 import javax.persistence.*
 import kotlin.collections.ArrayList
@@ -78,5 +79,20 @@ data class Article(
                 "publicationTS=$publicationTS, articleText=${articleText?.length}, imageLinkList=${imageLinkList.size}, " +
                 "previewImageLink=$previewImageLink, articleLink=$articleLink)"
     }
+    companion object{
+        fun getArticleIdFromArticleLink(articleLink: String,page: Page):String{
+            val articleIdBuilder = StringBuilder(HashUtils.hash(articleLink)).append("_")
 
+            if (page.isTopLevelPage()) {
+                articleIdBuilder.append(page.id)
+            } else {
+                articleIdBuilder.append(page.parentPageId)
+            }
+            return articleIdBuilder.toString()
+        }
+
+        fun getStripedArticleId(articleId: String):String{
+            return articleId.split(Regex("_")).get(0)
+        }
+    }
 }
