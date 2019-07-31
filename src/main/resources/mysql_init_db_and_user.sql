@@ -228,6 +228,55 @@ CREATE TABLE `news_server_parser2`.`page_download_request`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+CREATE TABLE `news_server_parser2`.`news_categories`
+(
+    `id`       VARCHAR(50)  NOT NULL,
+    `name`     VARCHAR(255) NOT NULL,
+    `created`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `modified` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `name_UNIQUE` (`name` ASC)
+)ENGINE = InnoDB
+DEFAULT CHARSET = utf8mb4;
+
+INSERT INTO `news_server_parser2`.`news_categories`
+(`id`,`name`)
+VALUES
+('NEWS_CAT_001','Latest (সর্বশেষ)'),
+('NEWS_CAT_002','Sports (খেলার খবর)'),
+('NEWS_CAT_003','Lifestyle (জীবনযাপন)'),
+('NEWS_CAT_004','Cricket (ক্রিকেট)'),
+('NEWS_CAT_005','Football (ফুটবল)'),
+('NEWS_CAT_006','Politics (রাজনীতি)'),
+('NEWS_CAT_007','Editorial (সম্পাদকীয়)'),
+('NEWS_CAT_008','Business & Economy (অর্থনীতি/বাণিজ্য)'),
+('NEWS_CAT_009','Entertainment (বিনোদন)'),
+('NEWS_CAT_010','Travel (পর্যটন)'),
+('NEWS_CAT_011','Food (খাবারদাবার)'),
+('NEWS_CAT_012','Style & Fashion (স্টাইল ও ফ্যাশন)'),
+('NEWS_CAT_013','Bangladesh (বাংলাদেশ)'),
+('NEWS_CAT_014','International (আন্তর্জাতিক)'),
+('NEWS_CAT_015','Stock Markets (শেয়ার বাজার)'),
+('NEWS_CAT_016','Picture Gallery (ছবি)'),
+('NEWS_CAT_017','North America (উত্তর আমেরিকা)'),
+('NEWS_CAT_018','US News (আমেরিকা)'),
+('NEWS_CAT_019','IT (বিজ্ঞান ও প্রযুক্তি)'),
+('NEWS_CAT_020','Art & Literature (শিল্প ও সাহিত্য)'),
+('NEWS_CAT_021','Magazine (ফিচার)'),
+('NEWS_CAT_022','Environment (পরিবেশ)'),
+('NEWS_CAT_023','Dhaka (রাজধানী)'),
+('NEWS_CAT_024','Miscellaneous (বিবিধ)'),
+('NEWS_CAT_025','UK news (যুক্তরাজ্য)'),
+('NEWS_CAT_026','Asia (এশিয়া)'),
+('NEWS_CAT_027','Europe (ইউরোপ)'),
+('NEWS_CAT_028','Interview (সাক্ষাৎকার)'),
+('NEWS_CAT_029','Opinion (মতামত)'),
+('NEWS_CAT_030','Obituaries'),
+('NEWS_CAT_031','Law (আইন-আদালত)'),
+('NEWS_CAT_032','Hollywood (হলিউড)'),
+('NEWS_CAT_033','Bollywood (বলিউড)'),
+('NEWS_CAT_034','Dhallywood (ঢালিউড)');
+
 drop user if exists 'nsp_app_user'@'localhost';
 drop user if exists 'nsp_rest_user'@'localhost';
 

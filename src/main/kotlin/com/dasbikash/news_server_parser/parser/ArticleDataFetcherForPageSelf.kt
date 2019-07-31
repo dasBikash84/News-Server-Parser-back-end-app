@@ -70,13 +70,11 @@ class ArticleDataFetcherForPageSelf :ArticleDataFetcherBase(ParserMode.RUNNING) 
         } catch (e: Throwable) {
             LoggerUtils.logOnConsole("${e::class.java.simpleName} for page: ${currentPage.name} Np: ${currentPage.newspaper?.name}")
             when (e) {
-                is ParserException -> {
-                    ParserExceptionHandler.handleException(e)
-                    if (opMode != ParserMode.GET_SYNCED ) {
-                        emptyPageAction(currentPage, parsingResult?.second ?: "")
-                    }
-                }
+                is ParserException -> {ParserExceptionHandler.handleException(e)}
                 else -> ParserExceptionHandler.handleException(ParserException(e))
+            }
+            if (opMode != ParserMode.GET_SYNCED ) {
+                emptyPageAction(currentPage, parsingResult?.second ?: "")
             }
             return
         }
