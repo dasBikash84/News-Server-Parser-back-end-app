@@ -407,7 +407,8 @@ CREATE TABLE `news_server_parser2`.`news_category_entry`
             REFERENCES `news_server_parser2`.`pages` (`id`)
             ON DELETE NO ACTION
             ON UPDATE NO ACTION
-);
+)ENGINE = InnoDB
+ DEFAULT CHARSET = utf8mb4;
 
 INSERT INTO `news_server_parser2`.`news_category_entry`
 (`newsCategoryId`,`pageId`)
