@@ -35,23 +35,23 @@ internal class DataParsingCoordinatorTest {
 //        session.close()
     }
 
-    @Test
-    fun getAllActiveNps() {
+//    @Test
+//    fun getAllActiveNps() {
 //        println("getAllActiveNps:${DataParsingCoordinator.getAllActiveNps(session)}")
-    }
+//    }
 
-    @Test
-    fun getNpCountWithRunningOpMode() {
+//    @Test
+//    fun getNpCountWithRunningOpMode() {
 //        println("getNpCountWithRunningOpMode:${DataParsingCoordinator.getNpCountWithRunningOpMode(session)}")
-    }
+//    }
 
-    @Test
-    fun getNpCountWithGetSyncedOpMode() {
+//    @Test
+//    fun getNpCountWithGetSyncedOpMode() {
 //        println("getNpCountWithGetSyncedOpMode:${DataParsingCoordinator.getNpCountWithGetSyncedOpMode(session)}")
-    }
+//    }
 
-    @Test
-    fun getNpCountWithParseThroughClientOpMode() {
+//    @Test
+//    fun getNpCountWithParseThroughClientOpMode() {
 //        println("getNpCountWithParseThroughClientOpMode:${DataParsingCoordinator.getNpCountWithParseThroughClientOpMode(session)}")
-    }
+//    }
 }

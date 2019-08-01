@@ -34,13 +34,13 @@ internal class PageDownloadRequestUtilsTest {
     @AfterEach
     fun tearDown() {
     }
-    @Test
-    fun pageDownloadRequestRDbWriteTest(){
-        val session = DbSessionManager.getNewSession()
-        DatabaseUtils.getPageDownloadRequestEntries(session,50).asSequence().forEach {
-                    println(RealTimeDbDataUtils.addPageDownloadRequest(it))
-                }
-    }
+//    @Test
+//    fun pageDownloadRequestRDbWriteTest(){
+//        val session = DbSessionManager.getNewSession()
+//        DatabaseUtils.getPageDownloadRequestEntries(session,50).asSequence().forEach {
+//                    println(RealTimeDbDataUtils.addPageDownloadRequest(it))
+//                }
+//    }
 
 //    @Test
 //    fun findPageDownloadRequestEntryBYServerNodeName() {
