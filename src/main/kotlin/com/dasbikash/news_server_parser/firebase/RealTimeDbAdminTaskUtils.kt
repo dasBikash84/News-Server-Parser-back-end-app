@@ -75,6 +75,11 @@ object RealTimeDbAdminTaskUtils {
                                     val newspaper = session.get(Newspaper::class.java, newsPaperStatusChangeRequest.targetNewspaperId)
                                     if (newspaper != null) {
                                         if (newsPaperStatusChangeRequest.isOnRequest() && !newspaper.active) {
+                                            newspaper.pageList?.filter { it.hasData() && it.isPaginated() }?.asSequence()?.forEach {
+                                                val pageParsingHistory =
+                                                        PageParsingHistory.getEmptyParsingHistoryForPage(it)
+                                                DatabaseUtils.runDbTransection(session) { session.save(pageParsingHistory) }
+                                            }
                                             newspaper.active = true
                                             DatabaseUtils.runDbTransection(session) { session.update(newspaper) }
                                             LoggerUtils.logOnDb("Np ${newspaper.name} activated", session)
