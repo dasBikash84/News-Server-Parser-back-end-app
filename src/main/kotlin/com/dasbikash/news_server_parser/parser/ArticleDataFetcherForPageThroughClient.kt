@@ -24,6 +24,7 @@ import com.dasbikash.news_server_parser.parser.article_body_parsers.ArticleBodyP
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser
 import com.dasbikash.news_server_parser.utils.LoggerUtils
 import com.dasbikash.news_server_parser.utils.PageDownloadRequestUtils
+import java.util.*
 
 class ArticleDataFetcherForPageThroughClient : ArticleDataFetcherBase(ParserMode.PARSE_THROUGH_CLIENT) {
 
@@ -138,6 +139,12 @@ class ArticleDataFetcherForPageThroughClient : ArticleDataFetcherBase(ParserMode
                                             article.previewImageLink = article.imageLinkList.first { it.link != null }.link
                                         } catch (ex: Throwable) {
                                         }
+                                    }
+                                    if (article.publicationTS !=null && article.publicationTS!! > Date()){
+                                        article.publicationTS = Date()
+                                    }
+                                    if (article.modificationTS !=null && article.modificationTS!! > Date()){
+                                        article.modificationTS = Date()
                                     }
                                     DatabaseUtils.runDbTransection(getDatabaseSession()) {
                                         getDatabaseSession().update(article)

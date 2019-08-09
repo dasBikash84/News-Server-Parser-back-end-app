@@ -24,6 +24,7 @@ import com.dasbikash.news_server_parser.model.ParserMode
 import com.dasbikash.news_server_parser.parser.article_body_parsers.ArticleBodyParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser
 import com.dasbikash.news_server_parser.utils.LoggerUtils
+import java.util.*
 
 class ArticleDataFetcherForPageSelf :ArticleDataFetcherBase(ParserMode.RUNNING) {
 
@@ -115,6 +116,12 @@ class ArticleDataFetcherForPageSelf :ArticleDataFetcherBase(ParserMode.RUNNING) 
                     try {
                         article.previewImageLink = article.imageLinkList.first { it.link!=null }.link
                     }catch (ex:Throwable){}
+                }
+                if (article.publicationTS !=null && article.publicationTS!! > Date()){
+                    article.publicationTS = Date()
+                }
+                if (article.modificationTS !=null && article.modificationTS!! > Date()){
+                    article.modificationTS = Date()
                 }
                 DatabaseUtils.runDbTransection(getDatabaseSession()) {
                     getDatabaseSession().save(article)
