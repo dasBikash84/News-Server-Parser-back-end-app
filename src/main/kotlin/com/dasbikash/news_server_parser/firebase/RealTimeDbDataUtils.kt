@@ -46,4 +46,14 @@ object RealTimeDbDataUtils {
     fun deleteRequest(requestId:String){
         RealTimeDbRefUtils.getPageDownloadRequestRef().child(requestId).setValueAsync(null)
     }
+
+
+    fun clearData(databaseReference: DatabaseReference):Boolean {
+        val task = databaseReference.setValueAsync(null)
+        val startTime = System.currentTimeMillis()
+        while (!task.isDone || (System.currentTimeMillis()-startTime < 2*MAX_WAITING_TIME)){
+            Thread.sleep(10L)
+        }
+        return (System.currentTimeMillis()-startTime) < 2*MAX_WAITING_TIME
+    }
 }
