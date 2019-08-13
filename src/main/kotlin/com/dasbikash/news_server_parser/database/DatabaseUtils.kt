@@ -59,13 +59,13 @@ object DatabaseUtils {
         return false
     }
 
-    fun getAllActiveNewspapers(session: Session) =
-            getAllNewspapers(session)
-                    .map {
-                        session.refresh(it)
-                        it
-                    }
-                    .filter { it.active }
+//    fun getAllActiveNewspapers(session: Session) =
+//            getAllNewspapers(session)
+//                    .map {
+//                        session.refresh(it)
+//                        it
+//                    }
+//                    .filter { it.active }
 
     fun getAllLanguages(session: Session): List<Language> {
         val hql = "FROM ${EntityClassNames.LANGUAGE}"

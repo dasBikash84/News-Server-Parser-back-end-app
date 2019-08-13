@@ -22,7 +22,6 @@ import com.dasbikash.news_server_parser.exceptions.ReportGenerationException
 import com.dasbikash.news_server_parser.exceptions.generic.HighestLevelException
 import com.dasbikash.news_server_parser.exceptions.handler.ParserExceptionHandler
 import com.dasbikash.news_server_parser.firebase.RealTimeDbAdminTaskUtils
-import com.dasbikash.news_server_parser.model.Newspaper
 import com.dasbikash.news_server_parser.model.ParserMode
 import com.dasbikash.news_server_parser.parser.ArticleDataFetcherForPageSelf
 import com.dasbikash.news_server_parser.parser.ArticleDataFetcherForPageThroughClient
@@ -135,17 +134,14 @@ object DataParsingCoordinator {
         println("Monthly article parsing report distributed.")
     }
 
-    private fun getAllActiveNps(session: Session):List<Newspaper> =
-            DatabaseUtils.getAllNewspapers(session).filter { it.active }
-
     private fun getNpCountWithRunningOpMode(session: Session)=
-        getAllActiveNps(session).map { DatabaseUtils.getOpModeForNewsPaper(session,it) }.count { it==ParserMode.RUNNING }
+            DatabaseUtils.getAllNewspapers(session).count { it.getOpMode(session) == ParserMode.RUNNING }
 
     private fun getNpCountWithGetSyncedOpMode(session: Session)=
-            getAllActiveNps(session).map { DatabaseUtils.getOpModeForNewsPaper(session,it) }.count { it==ParserMode.GET_SYNCED }
+            DatabaseUtils.getAllNewspapers(session).count { it.getOpMode(session)==ParserMode.GET_SYNCED }
 
     private fun getNpCountWithParseThroughClientOpMode(session: Session)=
-            getAllActiveNps(session).map { DatabaseUtils.getOpModeForNewsPaper(session,it) }.count { it==ParserMode.PARSE_THROUGH_CLIENT }
+            DatabaseUtils.getAllNewspapers(session).count { it.getOpMode(session)==ParserMode.PARSE_THROUGH_CLIENT }
 
     private fun handleException(ex: InterruptedException) {
         ParserExceptionHandler.handleException(HighestLevelException(ex))

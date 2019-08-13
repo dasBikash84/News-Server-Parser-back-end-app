@@ -30,9 +30,9 @@ class ArticleDataFetcherForPageSelf :ArticleDataFetcherBase(ParserMode.RUNNING) 
 
     override fun doParsingForPage(currentPage: Page) {
 
-        val opMode = DatabaseUtils.getOpModeForNewsPaper(getDatabaseSession(),currentPage.newspaper!!)
+        val opMode = currentPage.newspaper!!.getOpMode(getDatabaseSession())//DatabaseUtils.getOpModeForNewsPaper(getDatabaseSession(),currentPage.newspaper!!)
 
-        if (opMode==ParserMode.PARSE_THROUGH_CLIENT){
+        if (opMode==ParserMode.PARSE_THROUGH_CLIENT || opMode==ParserMode.OFF){
             return
         }
 

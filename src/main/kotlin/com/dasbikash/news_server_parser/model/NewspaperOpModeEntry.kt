@@ -23,9 +23,9 @@ data class NewspaperOpModeEntry(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         var id: Int? = null,
-        @Column(columnDefinition = "enum('RUNNING','GET_SYNCED','PARSE_THROUGH_CLIENT')")
+        @Column(columnDefinition = "enum('OFF','RUNNING','GET_SYNCED','PARSE_THROUGH_CLIENT')")
         @Enumerated(EnumType.STRING)
-        var opMode: ParserMode? = null,
+        var opMode: ParserMode = DEFAULT_PARSER_MODE,
 
         @ManyToOne(targetEntity = Newspaper::class, fetch = FetchType.EAGER)
         @JoinColumn(name = "newsPaperId")
@@ -34,10 +34,10 @@ data class NewspaperOpModeEntry(
         var created: Date? = null
 ){
         companion object{
-                private val DEFAULT_PARSER_MODE = ParserMode.RUNNING
+                private val DEFAULT_PARSER_MODE = ParserMode.OFF
 
                 fun getDefaultEntryForNewspaper(newspaper: Newspaper):NewspaperOpModeEntry{
-                        return NewspaperOpModeEntry(opMode = DEFAULT_PARSER_MODE,newspaper = newspaper)
+                        return NewspaperOpModeEntry(newspaper = newspaper)
                 }
         }
 

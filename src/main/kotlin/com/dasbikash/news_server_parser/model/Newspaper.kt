@@ -15,6 +15,8 @@ package com.dasbikash.news_server_parser.model
 
 import com.dasbikash.news_server_parser.bootstrap.Countries
 import com.dasbikash.news_server_parser.bootstrap.Languages
+import com.dasbikash.news_server_parser.database.DatabaseUtils
+import org.hibernate.Session
 import javax.persistence.*
 
 @Entity
@@ -31,7 +33,7 @@ data class Newspaper(
         @JoinColumn(name = "languageId")
         var language: Language? = null,
 
-        var active: Boolean = true,
+//        var active: Boolean = true,
 
         @OneToMany(fetch = FetchType.LAZY, mappedBy = "newspaper", targetEntity = Page::class)
         var pageList: List<Page>? = null
@@ -43,8 +45,18 @@ data class Newspaper(
     @Transient
     var languageId:String?=null
 
+    @Transient
+    fun getOpMode(session: Session):ParserMode{
+        return DatabaseUtils.getOpModeForNewsPaper(session,this)
+    }
+
+//    @Transient
+//    fun isActive(session: Session):Boolean{
+//        return DatabaseUtils.getOpModeForNewsPaper(session,this) != ParserMode.OFF
+//    }
+
     override fun toString(): String {
-        return "Newspaper(id='$id', name=$name, country=${country?.name}, language=${language?.name}, active=$active)"
+        return "Newspaper(id='$id', name=$name, country=${country?.name}, language=${language?.name})"
     }
     fun setCountryData(countries: List<Country>){
         countries.asSequence().forEach {

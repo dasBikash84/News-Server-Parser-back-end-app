@@ -25,24 +25,23 @@ abstract class ArticleDataFetcherBase constructor(opMode: ParserMode) : Thread()
     private val isSelfParser: Boolean
 
     init {
-        isSelfParser = (opMode != ParserMode.PARSE_THROUGH_CLIENT)
+        isSelfParser = ((opMode == ParserMode.GET_SYNCED) || (opMode == ParserMode.RUNNING))
     }
 
-    private var lastNetworkRequestTSMap = mutableMapOf<String,Long>()
+    private var lastNetworkRequestTSMap = mutableMapOf<String, Long>()
     private val MIN_START_DELAY = 1 * 1000L //1 secs
     private val MIN_DELAY_BETWEEN_NETWORK_REQUESTS = 5 * 1000L //5 secs
     protected val PAGE_NUMBER_NOT_APPLICABLE = 0
     lateinit var dbSession: Session
 
-    private val DELEY_BETWEEN_ITERATION =  60 * 1000L //60 secs
+    private val DELEY_BETWEEN_ITERATION = 60 * 1000L //60 secs
 
     override fun run() {
-        LoggerUtils.logOnDb("Starting ${this::class.java.simpleName}",getDatabaseSession())
+        LoggerUtils.logOnDb("Starting ${this::class.java.simpleName}", getDatabaseSession())
 
         sleep(MIN_START_DELAY + Random(System.currentTimeMillis()).nextLong(MIN_START_DELAY))
 
-        val newsPapers = mutableListOf<Newspaper>()
-        newsPapers.addAll(getReleventNewsPapers())
+        val newsPapers = getReleventNewsPapers().toMutableList()
 
         do {
             val pageListForParsing = mutableListOf<Page>()
@@ -55,73 +54,70 @@ abstract class ArticleDataFetcherBase constructor(opMode: ParserMode) : Thread()
 
                 getDatabaseSession().refresh(it.newspaper)
 
-                if (it.newspaper?.active!!) {
+                try {
+                    doParsingForPage(it)
 
-                    try {
-                        doParsingForPage(it)
-
-                        //Mark pages with articles as active
-                        if (!it.active) {
-                            if (DatabaseUtils.getArticleCountForPage(getDatabaseSession(), it.id) > 0) {
-                                it.active = true
-                                DatabaseUtils.runDbTransection(getDatabaseSession()) {
-                                    getDatabaseSession().update(it)
-                                }
+                    //Mark pages with articles as active
+                    if (!it.active) {
+                        if (DatabaseUtils.getArticleCountForPage(getDatabaseSession(), it.id) > 0) {
+                            it.active = true
+                            DatabaseUtils.runDbTransection(getDatabaseSession()) {
+                                getDatabaseSession().update(it)
                             }
                         }
-
-                        //Recalculate Page parsing intervals if necessary
-
-                        var pageParsingInterval = DatabaseUtils.getPageParsingIntervalForPage(getDatabaseSession(), it)
-
-                        if (pageParsingInterval == null) {
-                            pageParsingInterval = PageParsingInterval.recalculate(getDatabaseSession(), it)
-                            DatabaseUtils.runDbTransection(getDatabaseSession()) {
-                                getDatabaseSession().save(pageParsingInterval)
-                                LoggerUtils.logOnConsole("PageParsingInterval set to: ${pageParsingInterval.parsingIntervalMS} " +
-                                        "for page ${it.name} of NP: ${it.newspaper?.name}")
-                            }
-                        } else if (pageParsingInterval.needRecalculation(getDatabaseSession())) {
-                            val newInterval = PageParsingInterval.recalculate(getDatabaseSession(), it)
-                            if (pageParsingInterval.parsingIntervalMS == newInterval.parsingIntervalMS) {
-                                newInterval.parsingIntervalMS = newInterval.parsingIntervalMS!! + 1
-                            }
-                            pageParsingInterval.parsingIntervalMS = newInterval.parsingIntervalMS!!
-                            DatabaseUtils.runDbTransection(getDatabaseSession()) {
-                                getDatabaseSession().update(pageParsingInterval)
-                                LoggerUtils.logOnConsole("PageParsingInterval updated to: ${pageParsingInterval.parsingIntervalMS} " +
-                                        "for page ${it.name} of NP: ${it.newspaper?.name}")
-                            }
-                        }
-
-                    } catch (ex: InterruptedException) {
-                        ex.printStackTrace()
-                        LoggerUtils.logOnDb("Exiting ${this::class.java.simpleName}",getDatabaseSession())
-                        getDatabaseSession().close()
-                        return
-                    } catch (ex: Throwable) {
-                        ex.printStackTrace()
-                        LoggerUtils.logError(ex, getDatabaseSession())
                     }
+
+                    //Recalculate Page parsing intervals if necessary
+
+                    var pageParsingInterval = DatabaseUtils.getPageParsingIntervalForPage(getDatabaseSession(), it)
+
+                    if (pageParsingInterval == null) {
+                        pageParsingInterval = PageParsingInterval.recalculate(getDatabaseSession(), it)
+                        DatabaseUtils.runDbTransection(getDatabaseSession()) {
+                            getDatabaseSession().save(pageParsingInterval)
+                            LoggerUtils.logOnConsole("PageParsingInterval set to: ${pageParsingInterval.parsingIntervalMS} " +
+                                    "for page ${it.name} of NP: ${it.newspaper?.name}")
+                        }
+                    } else if (pageParsingInterval.needRecalculation(getDatabaseSession())) {
+                        val newInterval = PageParsingInterval.recalculate(getDatabaseSession(), it)
+                        if (pageParsingInterval.parsingIntervalMS == newInterval.parsingIntervalMS) {
+                            newInterval.parsingIntervalMS = newInterval.parsingIntervalMS!! + 1
+                        }
+                        pageParsingInterval.parsingIntervalMS = newInterval.parsingIntervalMS!!
+                        DatabaseUtils.runDbTransection(getDatabaseSession()) {
+                            getDatabaseSession().update(pageParsingInterval)
+                            LoggerUtils.logOnConsole("PageParsingInterval updated to: ${pageParsingInterval.parsingIntervalMS} " +
+                                    "for page ${it.name} of NP: ${it.newspaper?.name}")
+                        }
+                    }
+
+                } catch (ex: InterruptedException) {
+                    ex.printStackTrace()
+                    LoggerUtils.logOnDb("Exiting ${this::class.java.simpleName}", getDatabaseSession())
+                    getDatabaseSession().close()
+                    return
+                } catch (ex: Throwable) {
+                    ex.printStackTrace()
+                    LoggerUtils.logError(ex, getDatabaseSession())
                 }
             }
             sleep(DELEY_BETWEEN_ITERATION)
             newsPapers.clear()
             getDatabaseSession().close()
             newsPapers.addAll(getReleventNewsPapers())
-        }while (newsPapers.isNotEmpty())
+        } while (newsPapers.isNotEmpty())
     }
 
     abstract fun doParsingForPage(currentPage: Page)
 
     private fun getReleventNewsPapers() =
-            DatabaseUtils.getAllActiveNewspapers(getDatabaseSession())
+            DatabaseUtils.getAllNewspapers(getDatabaseSession())
                     .filter {
-                        val opMode = DatabaseUtils.getOpModeForNewsPaper(getDatabaseSession(), it)
                         if (isSelfParser) {
-                            return@filter opMode != ParserMode.PARSE_THROUGH_CLIENT
+                            val opMode = it.getOpMode(getDatabaseSession())
+                            return@filter ((opMode == ParserMode.RUNNING) || (opMode == ParserMode.GET_SYNCED))
                         } else {
-                            return@filter opMode == ParserMode.PARSE_THROUGH_CLIENT
+                            return@filter it.getOpMode(getDatabaseSession()) == ParserMode.PARSE_THROUGH_CLIENT
                         }
                     }
 
@@ -190,7 +186,7 @@ abstract class ArticleDataFetcherBase constructor(opMode: ParserMode) : Thread()
         }
 
         sleep(delayPeriod)
-        lastNetworkRequestTSMap.put(page.newspaper!!.id,System.currentTimeMillis())
+        lastNetworkRequestTSMap.put(page.newspaper!!.id, System.currentTimeMillis())
     }
 
     protected fun getLastParsedPageNumber(page: Page): Int {

@@ -31,6 +31,15 @@ data class NewsPaperParserModeChangeRequest (
     fun isParseThroughClientRequest():Boolean{
         return parserMode.equals(ParserMode.PARSE_THROUGH_CLIENT.name)
     }
+    fun isOffRequest():Boolean{
+        return parserMode.equals(ParserMode.OFF.name)
+    }
+    fun hasValidMode():Boolean{
+        return parserMode.equals(ParserMode.OFF.name) ||
+                parserMode.equals(ParserMode.GET_SYNCED.name) ||
+                parserMode.equals(ParserMode.PARSE_THROUGH_CLIENT.name) ||
+                parserMode.equals(ParserMode.RUNNING.name)
+    }
 }
 
 data class NewsPaperStatusChangeRequest(
