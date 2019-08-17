@@ -237,11 +237,7 @@ abstract public class ArticleBodyParser {
                                         if (getFeaturedImageCaptionSelectorAttr() != null) {
                                             imageCaption = featuredImage.attr(getFeaturedImageCaptionSelectorAttr());
                                         } else if (getFeaturedImageCaptionSelector() != null) {
-
-                                            Elements featuredImageCaptionElements = mDocument.select(getFeaturedImageCaptionSelector());
-                                            if (featuredImageCaptionElements.size() > 0) {
-                                                imageCaption = featuredImageCaptionElements.get(getReqFeaturedImageIndex()).text();
-                                            }
+                                            imageCaption = mDocument.select(getFeaturedImageCaptionSelector()).get(featuredImageElements.indexOf(featuredImage)).text();
                                         }
                                     } catch (Exception ex) {}
                                     mArticle.getImageLinkList().add(new ArticleImage(featuredImageLink, imageCaption));
