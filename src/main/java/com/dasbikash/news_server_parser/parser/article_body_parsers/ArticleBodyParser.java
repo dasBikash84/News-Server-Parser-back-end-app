@@ -38,6 +38,7 @@ abstract public class ArticleBodyParser {
 
     private static final int DEFAULT_REQUIRED_FEATURED_IMAGE_COUNT = 1;
     private static final int DEFAULT_FEATURED_IMAGE_INDEX = 0;
+    protected static final int FEATURED_IMAGE_COUNT_FOR_MUILIPLE_IMAGE = -1;
 
     protected final ArrayList<String> mParagraphInvalidatorText =
             new ArrayList<>();
@@ -70,6 +71,7 @@ abstract public class ArticleBodyParser {
     private StringBuilder mArticleTextBuilder = new StringBuilder();
 
     protected abstract String[] getArticleModificationDateStringFormats();
+
     protected abstract String getArticleModificationDateString();
 
     protected abstract String getSiteBaseAddress();
@@ -77,24 +79,33 @@ abstract public class ArticleBodyParser {
     protected abstract Elements getArticleFragmentBlocks();
 
     protected abstract String getParagraphImageSelector();
+
     protected abstract String getParagraphImageLinkSelectorAttr();
+
     protected abstract String getParagraphImageCaptionSelector();
+
     protected abstract String getParagraphImageCaptionSelectorAttr();
 
-    protected abstract String  getFeaturedImageSelector();
+    protected abstract String getFeaturedImageSelector();
+
     protected abstract String getFeaturedImageLinkSelectorAttr();
+
     protected abstract String getFeaturedImageCaptionSelector();
+
     protected abstract String getFeaturedImageCaptionSelectorAttr();
 
 
-    protected int getReqFeaturedImageCount(){
+    protected int getReqFeaturedImageCount() {
         return DEFAULT_REQUIRED_FEATURED_IMAGE_COUNT;
     }
-    protected int getReqFeaturedImageIndex(){ return DEFAULT_FEATURED_IMAGE_INDEX;}
 
-    protected String processLink(String linkText){
+    protected int getReqFeaturedImageIndex() {
+        return DEFAULT_FEATURED_IMAGE_INDEX;
+    }
+
+    protected String processLink(String linkText) {
         String siteBaseAddress = getSiteBaseAddress();
-        return LinkProcessUtils.INSTANCE.processLink(linkText,siteBaseAddress);
+        return LinkProcessUtils.INSTANCE.processLink(linkText, siteBaseAddress);
     }
 
     public static void getArticleBody(Article article)
@@ -108,20 +119,21 @@ abstract public class ArticleBodyParser {
 
         ArticleBodyParser articleBodyParser =
                 ArticleBodyParserFactory.INSTANCE.getArticleBodyParserForArticle(article);
-        if (articleBodyParser==null) throw new ParserNotFoundException(Objects.requireNonNull(article.getPage().getNewspaper()));
+        if (articleBodyParser == null)
+            throw new ParserNotFoundException(Objects.requireNonNull(article.getPage().getNewspaper()));
 
         articleBodyParser.mArticle = article;
 
         articleBodyParser.mDocument = JsoupConnector.INSTANCE.getDocument(Objects.requireNonNull(articleBodyParser.mArticle.getArticleLink()));
 
         if (articleBodyParser.mDocument == null) {
-            throw new EmptyJsoupDocumentException("For article: "+articleBodyParser.mArticle.getArticleLink());
+            throw new EmptyJsoupDocumentException("For article: " + articleBodyParser.mArticle.getArticleLink());
         }
 
         articleBodyParser.parseArticleBody();
     }
 
-    public static void getArticleBody(Article article,String articlePageContent) throws
+    public static void getArticleBody(Article article, String articlePageContent) throws
             EmptyArticleLinkException, ParserNotFoundException, EmptyJsoupDocumentException,
             ArticleModificationTimeNotFoundException, EmptyArticleBodyException, URISyntaxException {
 
@@ -131,15 +143,15 @@ abstract public class ArticleBodyParser {
 
         ArticleBodyParser articleBodyParser =
                 ArticleBodyParserFactory.INSTANCE.getArticleBodyParserForArticle(article);
-        if (articleBodyParser==null) throw new ParserNotFoundException(Objects.requireNonNull(article.getPage().getNewspaper()));
+        if (articleBodyParser == null)
+            throw new ParserNotFoundException(Objects.requireNonNull(article.getPage().getNewspaper()));
 
         articleBodyParser.mArticle = article;
 
-//        articleBodyParser.mDocument = JsoupConnector.INSTANCE.getDocument(Objects.requireNonNull(articleBodyParser.mArticle.getArticleLink()));
-        articleBodyParser.mDocument = Jsoup.parse(articlePageContent,articleBodyParser.mArticle.getArticleLink());
+        articleBodyParser.mDocument = Jsoup.parse(articlePageContent, articleBodyParser.mArticle.getArticleLink());
 
         if (articleBodyParser.mDocument == null) {
-            throw new EmptyJsoupDocumentException("For article: "+articleBodyParser.mArticle.getArticleLink());
+            throw new EmptyJsoupDocumentException("For article: " + articleBodyParser.mArticle.getArticleLink());
         }
 
         articleBodyParser.parseArticleBody();
@@ -147,28 +159,11 @@ abstract public class ArticleBodyParser {
 
     private void parseArticleBody() throws URISyntaxException, EmptyJsoupDocumentException, EmptyArticleBodyException, ArticleModificationTimeNotFoundException {
 
-        //System.out.println("Start of parsing");
-
-        /*mArticle = article;
-
-        mDocument = JsoupConnector.INSTANCE.getDocument(Objects.requireNonNull(mArticle.getArticleLink()));
-
-        if (mDocument == null) {
-//            throw new EmptyJsoupDocumentException(new URI(mArticle.getArticleLink()));
-            throw new EmptyJsoupDocumentException("For article: "+mArticle.getArticleLink());
-        }*/
-
-        //System.out.println("Article document title: "+mDocument.title());
-
-        if (mArticle.getPublicationTS()==null && getArticleModificationDateStringFormats()!= null){
+        if (mArticle.getPublicationTS() == null && getArticleModificationDateStringFormats() != null) {
 
             String modificationDateString = getArticleModificationDateString();
 
-//            if (mArticle.getPage().getNewspaper().getId().equals("NP_ID_18")) {
-//                System.out.println("modificationDateString: " + modificationDateString);
-//            }
-
-            if (modificationDateString !=null && modificationDateString.length()>0){
+            if (modificationDateString != null && modificationDateString.length() > 0) {
 
                 Country country = mArticle.getPage().getNewspaper().getCountry();
                 Calendar articleModificationTime = Calendar.getInstance(TimeZone.getTimeZone(country.getTimeZone()));
@@ -184,7 +179,7 @@ abstract public class ArticleBodyParser {
                         simpleDateFormat = new SimpleDateFormat(modificationDateStringFormats[i]);
                         simpleDateFormat.setTimeZone(TimeZone.getTimeZone(country.getTimeZone()));
                         articleModificationTime.setTime(simpleDateFormat.parse(modificationDateString));
-                        if (articleModificationTime.getTimeInMillis() !=0L) {
+                        if (articleModificationTime.getTimeInMillis() != 0L) {
                             mArticle.setModificationTs(articleModificationTime.getTimeInMillis());
                             break;
                         }
@@ -198,51 +193,71 @@ abstract public class ArticleBodyParser {
             }
         }
 
-        if (getFeaturedImageSelector()!=null) {
+        if (getFeaturedImageSelector() != null) {
 
-            try{
+            try {
                 Elements featuredImageElements = mDocument.select(getFeaturedImageSelector());
                 //System.out.println("featuredImageElements.size(): "+featuredImageElements.size());
+                if (featuredImageElements != null) {
+                    if (getReqFeaturedImageCount() != FEATURED_IMAGE_COUNT_FOR_MUILIPLE_IMAGE) {
+                        if (featuredImageElements.size() == getReqFeaturedImageCount()) {
+                            Element featuredImage = featuredImageElements.get(getReqFeaturedImageIndex());
+                            if (getFeaturedImageLinkSelectorAttr() != null) {
 
-                if (featuredImageElements!=null && featuredImageElements.size() == getReqFeaturedImageCount()) {
+                                String featuredImageLink = featuredImage.attr(getFeaturedImageLinkSelectorAttr());
+                                if (featuredImageLink.trim().length() > 0) {
+                                    featuredImageLink = processLink(featuredImageLink);
 
-                    //System.out.println("featuredImageElements!=null && featuredImageElements.size() == getReqFeaturedImageCount()");
+                                    String imageCaption = "";
+                                    try {
+                                        if (getFeaturedImageCaptionSelectorAttr() != null) {
+                                            imageCaption = featuredImage.attr(getFeaturedImageCaptionSelectorAttr());
+                                        } else if (getFeaturedImageCaptionSelector() != null) {
 
-                    Element featuredImage = featuredImageElements.get(getReqFeaturedImageIndex());
-//                    System.out.println("featuredImage.text(): "+featuredImage.text());
-                    if (getFeaturedImageLinkSelectorAttr() !=null) {
-
-                        String featuredImageLink = featuredImage.attr(getFeaturedImageLinkSelectorAttr());
-                        if (featuredImageLink.trim().length() > 0) {
-                            featuredImageLink = processLink(featuredImageLink);
-
-                            String imageCaption = "";
-                            try {
-                                if (getFeaturedImageCaptionSelectorAttr() !=null) {
-                                    imageCaption = featuredImage.attr(getFeaturedImageCaptionSelectorAttr());
-                                } else if(getFeaturedImageCaptionSelector() !=null) {
-
-                                    Elements featuredImageCaptionElements = mDocument.select(getFeaturedImageCaptionSelector());
-                                    if (featuredImageCaptionElements.size()>0){
-                                        imageCaption = featuredImageCaptionElements.get(getReqFeaturedImageIndex()).text();
-                                    }
+                                            Elements featuredImageCaptionElements = mDocument.select(getFeaturedImageCaptionSelector());
+                                            if (featuredImageCaptionElements.size() > 0) {
+                                                imageCaption = featuredImageCaptionElements.get(getReqFeaturedImageIndex()).text();
+                                            }
+                                        }
+                                    } catch (Exception ex) {}
+                                    mArticle.getImageLinkList().add(new ArticleImage(featuredImageLink, imageCaption));
                                 }
-                            } catch (Exception ex){
-//                                ex.printStackTrace();
                             }
-//                            System.out.println("Article featured Image found: "+featuredImageLink);
-                            mArticle.getImageLinkList().add(new ArticleImage(featuredImageLink,imageCaption));
+                        }
+                    }else {
+                        for (Element featuredImage : featuredImageElements){
+                            if (getFeaturedImageLinkSelectorAttr() != null) {
+
+                                String featuredImageLink = featuredImage.attr(getFeaturedImageLinkSelectorAttr());
+                                if (featuredImageLink.trim().length() > 0) {
+                                    featuredImageLink = processLink(featuredImageLink);
+
+                                    String imageCaption = "";
+                                    try {
+                                        if (getFeaturedImageCaptionSelectorAttr() != null) {
+                                            imageCaption = featuredImage.attr(getFeaturedImageCaptionSelectorAttr());
+                                        } else if (getFeaturedImageCaptionSelector() != null) {
+
+                                            Elements featuredImageCaptionElements = mDocument.select(getFeaturedImageCaptionSelector());
+                                            if (featuredImageCaptionElements.size() > 0) {
+                                                imageCaption = featuredImageCaptionElements.get(getReqFeaturedImageIndex()).text();
+                                            }
+                                        }
+                                    } catch (Exception ex) {}
+                                    mArticle.getImageLinkList().add(new ArticleImage(featuredImageLink, imageCaption));
+                                }
+                            }
                         }
                     }
                 }
-            } catch (Exception ex){
+            } catch (Exception ex) {
 //                ex.printStackTrace();
             }
         }
 
         Elements articleFragments = getArticleFragmentBlocks();
 
-        if (articleFragments!=null && articleFragments.size()>0) {
+        if (articleFragments != null && articleFragments.size() > 0) {
 
             articleFragmentLooper:
 
@@ -251,7 +266,7 @@ abstract public class ArticleBodyParser {
                 String paraText = articleFragment.html();
                 if (paraText.trim().length() == 0) continue;
 
-                if (getParagraphImageSelector() !=null) {
+                if (getParagraphImageSelector() != null) {
 
                     try {
                         Elements imageChildren = articleFragment.select(getParagraphImageSelector());
@@ -266,7 +281,7 @@ abstract public class ArticleBodyParser {
 
                                 String articleImageLink = imageChild.attr(getParagraphImageLinkSelectorAttr());
 
-                                if (articleImageLink.length() > 0 && articleImageLink.length()<1000) {
+                                if (articleImageLink.length() > 0 && articleImageLink.length() < 1000) {
                                     articleImageLink = processLink(articleImageLink);
                                     String imageCaption = "";
                                     try {
@@ -284,18 +299,14 @@ abstract public class ArticleBodyParser {
 //                                        ex.printStackTrace();
                                     }
 //                                    System.out.println("Article Image found: "+articleImageLink);
-                                    mArticle.getImageLinkList().add(new ArticleImage(articleImageLink,imageCaption));
+                                    mArticle.getImageLinkList().add(new ArticleImage(articleImageLink, imageCaption));
                                 }
                             }
                         }
                         if (imageCaptionFound) {
                             continue;
-                        }/*
-                        paraText = paraText.replaceAll(
-                                ARTICLE_IMAGE_BLOCK_REMOVER_REGEX,
-                                ARTICLE_IMAGE_BLOCK_REPLACER_REGEX
-                        );*/
-                    }catch (Exception ex){
+                        }
+                    } catch (Exception ex) {
 //                        ex.printStackTrace();
                     }
                 }
@@ -305,29 +316,29 @@ abstract public class ArticleBodyParser {
                         ARTICLE_IMAGE_BLOCK_REPLACER_REGEX
                 );
 
-                if (paraText.trim().length()==0) continue;
+                if (paraText.trim().length() == 0) continue;
 
-                for (String paragraphQuiterText:
+                for (String paragraphQuiterText :
                         mParagraphQuiterText) {
                     if (paraText.contains(paragraphQuiterText)) break articleFragmentLooper;
                 }
 
-                for (String paragraphInvalidatorText:
+                for (String paragraphInvalidatorText :
                         mParagraphInvalidatorText) {
                     if (paraText.contains(paragraphInvalidatorText)) continue articleFragmentLooper;
                 }
 
-                for (String unwantedArticleText:
+                for (String unwantedArticleText :
                         mUnwantedArticleText) {
-                    paraText = paraText.replaceAll(unwantedArticleText,"");
+                    paraText = paraText.replaceAll(unwantedArticleText, "");
                 }
 //                System.out.println("New Para: "+paraText);
-                mArticleTextBuilder.append(paraText+"<br><br>");
+                mArticleTextBuilder.append(paraText + "<br><br>");
 
             }
         }
 
-        if (mArticleTextBuilder.toString().isEmpty()){
+        if (mArticleTextBuilder.toString().isEmpty()) {
             throw new EmptyArticleBodyException(mArticle);
         }
 
@@ -335,7 +346,7 @@ abstract public class ArticleBodyParser {
 
 //        System.out.println("Article text before processing: "+mArticle.getArticleText());
         //noinspection ConstantConditions
-        mArticle.setArticleText(mArticle.getArticleText().replaceAll("<a.+?>","").replace("</a>",""));
+        mArticle.setArticleText(mArticle.getArticleText().replaceAll("<a.+?>", "").replace("</a>", ""));
         mArticle.setArticleText(mArticle.getArticleText().trim());
 //        System.out.println("Article text after processing: "+mArticle.getArticleText());
     }

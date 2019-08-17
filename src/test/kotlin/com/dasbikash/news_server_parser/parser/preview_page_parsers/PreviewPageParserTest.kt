@@ -16,6 +16,7 @@ package com.dasbikash.news_server_parser.parser.preview_page_parsers
 import com.dasbikash.news_server_parser.database.DatabaseUtils
 import com.dasbikash.news_server_parser.database.DbSessionManager
 import com.dasbikash.news_server_parser.model.ErrorLog
+import com.dasbikash.news_server_parser.parser.article_body_parsers.ArticleBodyParser
 import com.dasbikash.news_server_parser.utils.LoggerUtils
 import org.hibernate.Session
 import org.junit.jupiter.api.AfterEach
@@ -57,26 +58,34 @@ internal class PreviewPageParserTest {
         }
     }*/
 
-    @Test
+    /*@Test
     fun indianExpressParserTest() {
-        DatabaseUtils.getAllPages(session).filter { it.newspaper!!.id == "NP_ID_5" }.asSequence().forEach {
+        DatabaseUtils.getAllPages(session).filter { it.newspaper!!.id == "NP_ID_10" }.asSequence()*//*.take(1)*//*.forEach {
             println()
             println(it.toString())
             try {
                 PreviewPageParser.parsePreviewPageForArticles(it, 1).apply {
-//                    first.asSequence().forEach { println(it.toString()) }
+                    //                    first.asSequence().forEach { println(it.toString()) }
                     LoggerUtils.logOnConsole("${first.size} articles found")
-                    LoggerUtils.logOnConsole("Articles: ${first.get(0).toString()}")
                     LoggerUtils.logOnConsole("Message:$second")
-//                    println(second)
+
+                    val firstArticle = first.get(0)
+                    ArticleBodyParser.getArticleBody(firstArticle)
+                    LoggerUtils.logOnConsole("articleText:${firstArticle.articleText}")
+                    firstArticle.imageLinkList.apply {
+                        if (isNotEmpty()) {
+                            this.asSequence().forEach { LoggerUtils.logOnConsole("Article imageLink:${it.toString()}") }
+                        }
+                    }
                 }
             } catch (ex: Throwable) {
+                println(ErrorLog(ex).toString())
                 println(ErrorLog(ex).exceptionMessage)
                 println(ErrorLog(ex).exceptionCause)
 //                    ex.printStackTrace()
             }
             Thread.sleep(3000L)
         }
-    }
+    }*/
 
 }
