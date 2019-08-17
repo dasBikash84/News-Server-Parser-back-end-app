@@ -20,7 +20,6 @@ import org.jsoup.select.Elements
 
 
 class TheIndianExpressPreviewPageParser : PreviewPageParser() {
-    private var mArticleParserIndex = GENERAL_ARTICLE_PARSER_INDEX
 
     private val mSiteBaseAddress = "https://indianexpress.com"
 
@@ -28,58 +27,31 @@ class TheIndianExpressPreviewPageParser : PreviewPageParser() {
         return mSiteBaseAddress
     }
 
-
-    override fun calculatePageLink(): String? {
-
-        if (mCurrentPage.linkFormat!!.matches(REGEX_FOR_OP_ED_LINK.toRegex())) {
-            mArticleParserIndex = OP_ED_ARTICLE_PARSER_INDEX
-        } else if (mCurrentPage.linkFormat!!.matches(REGEX_FOR_TRENDING_LINK.toRegex())) {
-            mArticleParserIndex = TRENDING_ARTICLE_PARSER_INDEX
-        }
-
-        if (mCurrentPage.linkFormat!!.matches(REGEX_FOR_CITY_LINK.toRegex())) {
-            mCurrentPageNumber++
-        }
-
-        return super.calculatePageLink()
-    }
-
     override fun getArticlePublicationDatetimeFormat(): String {
-        return TheIndianExpressPreviewPageParserInfo.ARTICLE_PUBLICATION_DATE_TIME_FORMAT[mArticleParserIndex]
+        return TheIndianExpressPreviewPageParserInfo.ARTICLE_PUBLICATION_DATE_TIME_FORMAT
     }
 
     override fun getPreviewBlocks(): Elements {
-        return mDocument.select(TheIndianExpressPreviewPageParserInfo.ARTICLE_PREVIEW_BLOCK_SELECTOR[mArticleParserIndex])
+        return mDocument.select(TheIndianExpressPreviewPageParserInfo.ARTICLE_PREVIEW_BLOCK_SELECTOR)
     }
 
     override fun getArticleLink(previewBlock: Element): String {
         return previewBlock.select(
-                TheIndianExpressPreviewPageParserInfo.ARTICLE_TITLE_ELEMENT_SELECTOR[mArticleParserIndex])[0].select(TheIndianExpressPreviewPageParserInfo.ARTICLE_LINK_ELEMENT_SELECTOR[mArticleParserIndex])[0].attr(TheIndianExpressPreviewPageParserInfo.ARTICLE_LINK_TEXT_SELECTOR_TAG[mArticleParserIndex]
+                TheIndianExpressPreviewPageParserInfo.ARTICLE_TITLE_ELEMENT_SELECTOR)[0].select(TheIndianExpressPreviewPageParserInfo.ARTICLE_LINK_ELEMENT_SELECTOR)[0].attr(TheIndianExpressPreviewPageParserInfo.ARTICLE_LINK_TEXT_SELECTOR_TAG
         )
     }
 
     override fun getArticlePreviewImageLink(previewBlock: Element): String {
-        return previewBlock.select(TheIndianExpressPreviewPageParserInfo.ARTICLE_PREVIEW_IMAGE_LINK_ELEMENT_SELECTOR[mArticleParserIndex])[0].attr(TheIndianExpressPreviewPageParserInfo.ARTICLE_PREVIEW_IMAGE_LINK_TEXT_SELECTOR_TAG[mArticleParserIndex])
+        return previewBlock.select(TheIndianExpressPreviewPageParserInfo.ARTICLE_PREVIEW_IMAGE_LINK_ELEMENT_SELECTOR)[0].attr(TheIndianExpressPreviewPageParserInfo.ARTICLE_PREVIEW_IMAGE_LINK_TEXT_SELECTOR_TAG)
     }
 
     override fun getArticleTitle(previewBlock: Element): String {
-        return previewBlock.select(TheIndianExpressPreviewPageParserInfo.ARTICLE_TITLE_ELEMENT_SELECTOR[mArticleParserIndex])[0].text()
+        return previewBlock.select(TheIndianExpressPreviewPageParserInfo.ARTICLE_TITLE_ELEMENT_SELECTOR)[0].text()
     }
 
     override fun getArticlePublicationDateString(previewBlock: Element): String {
-        return previewBlock.select(TheIndianExpressPreviewPageParserInfo.ARTICLE_PUBLICATION_DATE_ELEMENT_SELECTOR[mArticleParserIndex])[0].text()
-    }
-
-    companion object {
-
-
-        private val REGEX_FOR_CITY_LINK = ".+?/cities/.+?/page.+"
-        private val REGEX_FOR_OP_ED_LINK = ".+?/opinion/.+?"
-        private val REGEX_FOR_TRENDING_LINK = ".+?/trending/.+?"
-        private val REGEX_FOR_LINK_WITH_HTTPS = "^https:.+"
-        private val GENERAL_ARTICLE_PARSER_INDEX = 0
-        private val OP_ED_ARTICLE_PARSER_INDEX = 1
-        private val TRENDING_ARTICLE_PARSER_INDEX = 2
+        return previewBlock.select(TheIndianExpressPreviewPageParserInfo.ARTICLE_PUBLICATION_DATE_ELEMENT_SELECTOR)[0]
+                .attr(TheIndianExpressPreviewPageParserInfo.ARTICLE_PUBLICATION_DATE_ELEMENT_SELECTOR_TAG)
     }
 
 }
