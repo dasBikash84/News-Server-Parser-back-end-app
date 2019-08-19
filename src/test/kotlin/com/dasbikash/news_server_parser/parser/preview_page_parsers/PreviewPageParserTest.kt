@@ -58,9 +58,9 @@ internal class PreviewPageParserTest {
         }
     }*/
 
-    @Test
+    /*@Test
     fun indianExpressParserTest() {
-        DatabaseUtils.getAllPages(session).filter { it.id == "PAGE_ID_318" }.asSequence().forEach {
+        DatabaseUtils.getAllPages(session).filter { it.id == "PAGE_ID_373" }.asSequence().forEach {
             println()
             println(it.toString())
             try {
@@ -69,9 +69,10 @@ internal class PreviewPageParserTest {
                     LoggerUtils.logOnConsole("${first.size} articles found")
                     LoggerUtils.logOnConsole("Message:$second")
 
-                    val firstArticle = first.get(4)
+                    val firstArticle = first.get(0)
                     ArticleBodyParser.getArticleBody(firstArticle)
                     LoggerUtils.logOnConsole("articleText:${firstArticle.articleText}")
+                    LoggerUtils.logOnConsole("articleText:${firstArticle}")
                     firstArticle.imageLinkList.apply {
                         if (isNotEmpty()) {
                             this.asSequence().forEach { LoggerUtils.logOnConsole("Article imageLink:${it.toString()}") }
@@ -86,6 +87,6 @@ internal class PreviewPageParserTest {
             }
             Thread.sleep(3000L)
         }
-    }
+    }*/
 
 }

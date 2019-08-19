@@ -34,6 +34,7 @@ import java.util.TimeZone;
 abstract public class ArticleBodyParser {
 
     private static final String ARTICLE_IMAGE_BLOCK_REMOVER_REGEX = "<img.+?>";
+    private static final String  HTML_WITH_LINK = "<a.+a>";
     private static final String ARTICLE_IMAGE_BLOCK_REPLACER_REGEX = "";
 
     private static final int DEFAULT_REQUIRED_FEATURED_IMAGE_COUNT = 1;
@@ -328,7 +329,10 @@ abstract public class ArticleBodyParser {
                         mUnwantedArticleText) {
                     paraText = paraText.replaceAll(unwantedArticleText, "");
                 }
-//                System.out.println("New Para: "+paraText);
+                //Remove links to other pages
+                if (paraText.replaceAll(HTML_WITH_LINK,"").length() < paraText.length()*0.25){
+                    continue;
+                }
                 mArticleTextBuilder.append(paraText + "<br><br>");
 
             }
