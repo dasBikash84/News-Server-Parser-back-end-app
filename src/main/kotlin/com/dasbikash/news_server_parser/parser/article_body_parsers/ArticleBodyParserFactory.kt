@@ -20,6 +20,7 @@ import com.dasbikash.news_server_parser.parser.article_body_parsers.bd_pratidin.
 import com.dasbikash.news_server_parser.parser.article_body_parsers.bhorer_kagoj.BhorerKagojArticleParser
 import com.dasbikash.news_server_parser.parser.article_body_parsers.bonik_barta.BonikBartaArticleParser
 import com.dasbikash.news_server_parser.parser.article_body_parsers.daily_mirror.DailyMirrorArticleParser
+import com.dasbikash.news_server_parser.parser.article_body_parsers.daily_observer.DailyObserverArticleParser
 import com.dasbikash.news_server_parser.parser.article_body_parsers.daily_sun.DailySunArticleParser
 import com.dasbikash.news_server_parser.parser.article_body_parsers.dainik_amader_shomoy.AmaderSomoyArticleParser
 import com.dasbikash.news_server_parser.parser.article_body_parsers.dawn.DawnArticleParser
@@ -61,6 +62,7 @@ internal object ArticleBodyParserFactory {
             NEWS_PAPER_ID.BANGLADESH_PROTIDIN.id -> BdPratidinArticleParser()
             NEWS_PAPER_ID.JAI_JAI_DIN.id -> JaiJaiDinArticleParser()
             NEWS_PAPER_ID.AMADER_SOMOY.id -> AmaderSomoyArticleParser()
+            NEWS_PAPER_ID.DAILY_OBSERVER.id -> DailyObserverArticleParser()
             else-> null
         }
     }

@@ -153,4 +153,40 @@ internal class PreviewPageParserTest {
         }
     }*/
 
+    /*@Test
+    fun dailyObserverParserTest() {
+        DatabaseUtils.getAllPages(session).filter { it.newspaper!!.id == "NP_ID_21" && it.hasData() *//*&& it.id=="PAGE_ID_1196"*//* }*//*.take(1)*//*.asSequence().forEach {
+            println()
+            println()
+            println(it.toString())
+            try {
+                PreviewPageParser.parsePreviewPageForArticles(it, 1).apply {
+                    //                    first.asSequence().forEach { println(it.toString()) }
+                    LoggerUtils.logOnConsole("${first.size} articles found")
+                    LoggerUtils.logOnConsole("Message:$second")
+
+                    val firstArticle = first.shuffled().get(0)
+                    LoggerUtils.logOnConsole("firstArticle:${firstArticle}")
+//                    first.asSequence().forEach {
+//                        val firstArticle = it
+                        ArticleBodyParser.getArticleBody(firstArticle)
+                        LoggerUtils.logOnConsole("articleText:${firstArticle.articleText}")
+                        LoggerUtils.logOnConsole("firstArticle:${firstArticle}")
+                        firstArticle.imageLinkList.apply {
+                            if (isNotEmpty()) {
+                                this.asSequence().forEach { LoggerUtils.logOnConsole("Article imageLink:${it.toString()}") }
+                            }
+                        }
+//                    }
+                }
+            } catch (ex: Throwable) {
+                println(ErrorLog(ex).toString())
+                println(ErrorLog(ex).exceptionMessage)
+                println(ErrorLog(ex).exceptionCause)
+//                    ex.printStackTrace()
+            }
+            Thread.sleep(3000L)
+        }
+    }*/
+
 }
