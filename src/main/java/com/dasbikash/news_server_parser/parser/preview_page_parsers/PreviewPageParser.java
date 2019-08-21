@@ -168,8 +168,9 @@ abstract public class PreviewPageParser {
                 if (articleLink == null) continue;
                 articleLink = articleLink.trim();
                 articleLink = processArticleLink(articleLink);
-                //System.out.println("articleLink: "+articleLink);
+//                System.out.println("articleLink: "+articleLink);
             } catch (Exception e) {
+//                System.out.println("articleLink == null");
                 parsingLogMessage.append("articleLink == null");
 //                e.printStackTrace();
                 continue;
@@ -177,19 +178,22 @@ abstract public class PreviewPageParser {
 
             try {
                 previewImageLink = getArticlePreviewImageLink(previewBlock);
+                if (previewImageLink.isEmpty()){throw new IllegalStateException();}
                 previewImageLink = processArticlePreviewImageLink(previewImageLink);
-                //System.out.println("previewImageLink: "+previewImageLink);
+//                System.out.println("previewImageLink: "+previewImageLink);
             } catch (Exception e) {
                 previewImageLink = null;
 //                e.printStackTrace();
+//                System.out.println("previewImageLink = null");
                 parsingLogMessage.append("previewImageLink = null");
             }
 
             try {
                 articleTitle = getArticleTitle(previewBlock);
                 if (articleTitle == null) continue;
-                //System.out.println("articleTitle: "+articleTitle);
+//                System.out.println("articleTitle: "+articleTitle);
             } catch (Exception e) {
+//                System.out.println("articleTitle = null");
                 parsingLogMessage.append("articleTitle = null");
 //                e.printStackTrace();
                 continue;
@@ -205,10 +209,11 @@ abstract public class PreviewPageParser {
                     //System.out.println("mSimpleDateFormat.toPattern(): "+mSimpleDateFormat.toPattern());
                     articlePublicationDateTimeStamp = mSimpleDateFormat.parse(getArticlePublicationDateString(previewBlock)).getTime();
                 }
-                //System.out.println("articlePublicationDateTimeStamp: "+articlePublicationDateTimeStamp);
+//                System.out.println("articlePublicationDateTimeStamp: "+articlePublicationDateTimeStamp);
             } catch (Exception e) {
                 articlePublicationDateTimeStamp = 0L;
 //                e.printStackTrace();
+//                System.out.println("Publication TimeStamp not found");
                 parsingLogMessage.append("Publication TimeStamp not found");
             }
 
