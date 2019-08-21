@@ -57,9 +57,10 @@ abstract class ArticleDataFetcherBase constructor(opMode: ParserMode) : Thread()
                 try {
                     doParsingForPage(it)
 
-                    //Mark pages with articles as active
+                    //Mark pages with articles or if top-level, as active
                     if (!it.active) {
-                        if (DatabaseUtils.getArticleCountForPage(getDatabaseSession(), it.id) > 0) {
+                        if (it.isTopLevelPage() ||
+                                DatabaseUtils.getArticleCountForPage(getDatabaseSession(), it.id) > 0) {
                             it.active = true
                             DatabaseUtils.runDbTransection(getDatabaseSession()) {
                                 getDatabaseSession().update(it)
