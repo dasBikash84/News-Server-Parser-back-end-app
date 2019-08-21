@@ -24,6 +24,7 @@ import com.dasbikash.news_server_parser.parser.article_body_parsers.daily_sun.Da
 import com.dasbikash.news_server_parser.parser.article_body_parsers.dawn.DawnArticleParser
 import com.dasbikash.news_server_parser.parser.article_body_parsers.dhaka_tribune.DhakaTribuneArticleParser
 import com.dasbikash.news_server_parser.parser.article_body_parsers.doinick_ittefaq.DoinickIttefaqArticleParser
+import com.dasbikash.news_server_parser.parser.article_body_parsers.jaijaidin.JaiJaiDinArticleParser
 import com.dasbikash.news_server_parser.parser.article_body_parsers.jugantor.JugantorArticleParser
 import com.dasbikash.news_server_parser.parser.article_body_parsers.kaler_kantho.KalerKanthoArticleParser
 import com.dasbikash.news_server_parser.parser.article_body_parsers.new_age.NewAgeArticleParser
@@ -57,6 +58,7 @@ internal object ArticleBodyParserFactory {
             NEWS_PAPER_ID.DAILY_SUN.id -> DailySunArticleParser()
             NEWS_PAPER_ID.THE_INDIAN_EXPRESS.id -> TheIndianExpressArticleParser()
             NEWS_PAPER_ID.BANGLADESH_PROTIDIN.id -> BdPratidinArticleParser()
+            NEWS_PAPER_ID.JAI_JAI_DIN.id -> JaiJaiDinArticleParser()
             else-> null
         }
     }

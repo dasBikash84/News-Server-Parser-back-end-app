@@ -89,4 +89,36 @@ internal class PreviewPageParserTest {
         }
     }*/
 
+    /*@Test
+    fun jaiJaiDinParserTest() {
+        DatabaseUtils.getAllPages(session).filter { it.newspaper!!.id == "NP_ID_19" && it.hasData() }.asSequence().forEach {
+            println()
+            println()
+            println(it.toString())
+            try {
+                PreviewPageParser.parsePreviewPageForArticles(it, 1).apply {
+                    //                    first.asSequence().forEach { println(it.toString()) }
+                    LoggerUtils.logOnConsole("${first.size} articles found")
+                    LoggerUtils.logOnConsole("Message:$second")
+
+                    val firstArticle = first.get(0)
+                    LoggerUtils.logOnConsole("firstArticle:${firstArticle}")
+                    ArticleBodyParser.getArticleBody(firstArticle)
+                    LoggerUtils.logOnConsole("articleText:${firstArticle.articleText}")
+                    firstArticle.imageLinkList.apply {
+                        if (isNotEmpty()) {
+                            this.asSequence().forEach { LoggerUtils.logOnConsole("Article imageLink:${it.toString()}") }
+                        }
+                    }
+                }
+            } catch (ex: Throwable) {
+                println(ErrorLog(ex).toString())
+                println(ErrorLog(ex).exceptionMessage)
+                println(ErrorLog(ex).exceptionCause)
+//                    ex.printStackTrace()
+            }
+            Thread.sleep(3000L)
+        }
+    }*/
+
 }
