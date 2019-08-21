@@ -33,6 +33,7 @@ object NewsPaperDetails {
     val NEW_AGE_ID = "NP_ID_17"
     val DAILY_SUN_ID = "NP_ID_18"
     val JAI_JAI_DIN_ID = "NP_ID_19"
+    val AMADER_SOMOY_ID = "NP_ID_20"
 }
 
 enum class NEWS_PAPER_ID private constructor(val id: String) {
@@ -54,6 +55,7 @@ enum class NEWS_PAPER_ID private constructor(val id: String) {
     BHORER_KAGOJ(NewsPaperDetails.BHORER_KAGOJ_ID),
     NEW_AGE(NewsPaperDetails.NEW_AGE_ID),
     DAILY_SUN(NewsPaperDetails.DAILY_SUN_ID),
-    JAI_JAI_DIN(NewsPaperDetails.JAI_JAI_DIN_ID)
+    JAI_JAI_DIN(NewsPaperDetails.JAI_JAI_DIN_ID),
+    AMADER_SOMOY(NewsPaperDetails.AMADER_SOMOY_ID)
 }
 

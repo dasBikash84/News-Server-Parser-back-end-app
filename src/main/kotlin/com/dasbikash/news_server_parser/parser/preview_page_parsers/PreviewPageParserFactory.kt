@@ -21,6 +21,7 @@ import com.dasbikash.news_server_parser.parser.preview_page_parsers.bhorer_kagoj
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.bonik_barta.BonikBartaPreviewPageParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.daily_mirror.DailyMirrorPreviewPageParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.daily_sun.DailySunPreviewPageParser
+import com.dasbikash.news_server_parser.parser.preview_page_parsers.dainik_amader_shomoy.AmaderSomoyPreviewPageParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.dawn.DawnPreviewPageParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.dhaka_tribune.DhakaTribunePreviewPageParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.doinick_ittefaq.DoinickIttefaqPreviewPageParser
@@ -59,6 +60,7 @@ internal object PreviewPageParserFactory {
             NEWS_PAPER_ID.NEW_AGE.id-> NewAgePreviewPageParser()
             NEWS_PAPER_ID.DAILY_SUN.id-> DailySunPreviewPageParser()
             NEWS_PAPER_ID.JAI_JAI_DIN.id-> JaiJaiDinPreviewPageParser()
+            NEWS_PAPER_ID.AMADER_SOMOY.id-> AmaderSomoyPreviewPageParser()
             else-> null
         }
     }
