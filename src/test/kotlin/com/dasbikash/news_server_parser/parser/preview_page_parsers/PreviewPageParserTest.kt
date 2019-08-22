@@ -191,29 +191,26 @@ internal class PreviewPageParserTest {
 
     /*@Test
     fun banglaNews24BnTest() {
-        DatabaseUtils.getAllPages(session).filter { it.newspaper!!.id == "NP_ID_22" && it.hasData() *//*&& it.id=="PAGE_ID_1249"*//*}*//*.take(1)*//*.asSequence().forEach {
+        DatabaseUtils.getAllPages(session).filter { it.newspaper!!.id == "NP_ID_23" && it.hasData()}*//*.take(1)*//*.asSequence().forEach {
             println()
             println()
             println(it.toString())
             try {
                 PreviewPageParser.parsePreviewPageForArticles(it, 1).apply {
-                    //                    first.asSequence().forEach { println(it.toString()) }
+
                     LoggerUtils.logOnConsole("${first.size} articles found")
                     LoggerUtils.logOnConsole("Message:$second")
 
                     val firstArticle = first.shuffled().get(0)
                     LoggerUtils.logOnConsole("firstArticle:${firstArticle}")
-//                    first.asSequence().forEach {
-//                        val firstArticle = it
-                        ArticleBodyParser.getArticleBody(firstArticle)
-                        LoggerUtils.logOnConsole("articleText:${firstArticle.articleText}")
-//                        LoggerUtils.logOnConsole("firstArticle:${firstArticle}")
-                        firstArticle.imageLinkList.apply {
-                            if (isNotEmpty()) {
-                                this.asSequence().forEach { LoggerUtils.logOnConsole("Article imageLink:${it.toString()}") }
-                            }
+
+                    ArticleBodyParser.getArticleBody(firstArticle)
+                    LoggerUtils.logOnConsole("articleText:${firstArticle.articleText}")
+                    firstArticle.imageLinkList.apply {
+                        if (isNotEmpty()) {
+                            this.asSequence().forEach { LoggerUtils.logOnConsole("Article imageLink:${it.toString()}") }
                         }
-//                    }
+                    }
                 }
             } catch (ex: Throwable) {
                 println(ErrorLog(ex).toString())
