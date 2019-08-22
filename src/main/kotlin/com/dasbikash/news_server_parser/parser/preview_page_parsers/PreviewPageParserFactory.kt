@@ -31,6 +31,7 @@ import com.dasbikash.news_server_parser.parser.preview_page_parsers.doinick_itte
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.jaijaidin.JaiJaiDinPreviewPageParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.jugantor.JugantorPreviewPageParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.kaler_kantho.KalerKanthoPreviewPageParser
+import com.dasbikash.news_server_parser.parser.preview_page_parsers.manob_zamin.ManobZaminPreviewPageParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.new_age.NewAgePreviewPageParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.prothom_alo.ProthomaloPreviewPageParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.the_daily_star.TheDailyStarPreviewPageParser
@@ -67,6 +68,7 @@ internal object PreviewPageParserFactory {
             NEWS_PAPER_ID.DAILY_OBSERVER.id-> DailyObserverPreviewPageParser()
             NEWS_PAPER_ID.BANGLA_NEWS_24_BN.id-> BanglaNews24BnPreviewPageParser()
             NEWS_PAPER_ID.BANGLA_NEWS_24_EN.id-> BanglaNews24EnPreviewPageParser()
+            NEWS_PAPER_ID.MANOB_ZAMIN.id-> ManobZaminPreviewPageParser()
             else-> null
         }
     }
