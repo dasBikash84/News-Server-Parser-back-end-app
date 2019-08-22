@@ -118,7 +118,7 @@ object DatabaseUtils {
     }
 
     fun getLatestPageParsingHistoryForPage(session: Session, page: Page): PageParsingHistory? {
-        val sql = "SELECT * FROM ${DatabaseTableNames.PAGE_PARSING_HISTORY_TABLE_NAME} WHERE pageId='${page.id}' order by created desc limit 1"
+        val sql = "SELECT * FROM ${DatabaseTableNames.PAGE_PARSING_HISTORY_TABLE_NAME} WHERE pageId='${page.id}' order by id desc limit 1"
         try {
             @Suppress("UNCHECKED_CAST")
             val result = session.createNativeQuery(sql, PageParsingHistory::class.java).resultList as List<PageParsingHistory>

@@ -36,7 +36,7 @@ class ArticleDataFetcherForPageSelf :ArticleDataFetcherBase(ParserMode.RUNNING) 
             return
         }
 
-        if (!goForPageParsing(currentPage)) {
+        if (opMode!=ParserMode.GET_SYNCED && !goForPageParsing(currentPage)) {
             return
         }
 

@@ -46,6 +46,15 @@ abstract class ArticleDataFetcherBase constructor(opMode: ParserMode) : Thread()
         do {
             val pageListForParsing = mutableListOf<Page>()
 
+            DatabaseUtils.getAllPages(getDatabaseSession())
+                    .filter { it.isTopLevelPage() && !it.active }
+                    .forEach {
+                        it.active = true
+                        DatabaseUtils.runDbTransection(getDatabaseSession()) {
+                            getDatabaseSession().update(it)
+                        }
+                    }
+
             newsPapers.asSequence().forEach {
                 it.pageList?.filter { it.hasData() }?.forEach { pageListForParsing.add(it) }
             }
@@ -87,7 +96,7 @@ abstract class ArticleDataFetcherBase constructor(opMode: ParserMode) : Thread()
                         pageParsingInterval.parsingIntervalMS = newInterval.parsingIntervalMS!!
                         DatabaseUtils.runDbTransection(getDatabaseSession()) {
                             getDatabaseSession().update(pageParsingInterval)
-                            LoggerUtils.logOnConsole("PageParsingInterval updated to: ${pageParsingInterval.parsingIntervalMS} " +
+                            LoggerUtils.logOnConsole("PageParsingInterval updated to: ${pageParsingInterval.parsingIntervalMS!!/1000/60} mins " +
                                     "for page ${it.name} of NP: ${it.newspaper?.name}")
                         }
                     }
@@ -123,25 +132,15 @@ abstract class ArticleDataFetcherBase constructor(opMode: ParserMode) : Thread()
                     }
 
     protected fun goForPageParsing(currentPage: Page): Boolean {
-
         val pageParsingInterval =
                 DatabaseUtils.getPageParsingIntervalForPage(getDatabaseSession(), currentPage)
-
         if (pageParsingInterval == null) {
             return true
         }
-
-        DatabaseUtils.runDbTransection(getDatabaseSession()) {
-            getDatabaseSession().refresh(pageParsingInterval)
-        }
-
         val pageParsingHistory =
                 DatabaseUtils.getLatestPageParsingHistoryForPage(getDatabaseSession(), currentPage)
         if (pageParsingHistory == null) {
             return true
-        }
-        DatabaseUtils.runDbTransection(getDatabaseSession()) {
-            getDatabaseSession().refresh(pageParsingHistory)
         }
         return (System.currentTimeMillis() - pageParsingHistory.created!!.time) > pageParsingInterval.parsingIntervalMS!!
     }
