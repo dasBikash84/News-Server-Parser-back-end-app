@@ -16,6 +16,7 @@ package com.dasbikash.news_server_parser.parser.preview_page_parsers
 import com.dasbikash.news_server_parser.model.Newspaper
 import com.dasbikash.news_server_parser.parser.NEWS_PAPER_ID
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.anando_bazar.AnandoBazarPreviewPageParser
+import com.dasbikash.news_server_parser.parser.preview_page_parsers.bangla_news_24_bn.BanglaNews24BnPreviewPageParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.bd_pratidin.BdPratidinPreviewPageParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.bhorer_kagoj.BhorerKagojPreviewPageParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.bonik_barta.BonikBartaPreviewPageParser
@@ -63,6 +64,7 @@ internal object PreviewPageParserFactory {
             NEWS_PAPER_ID.JAI_JAI_DIN.id-> JaiJaiDinPreviewPageParser()
             NEWS_PAPER_ID.AMADER_SOMOY.id-> AmaderSomoyPreviewPageParser()
             NEWS_PAPER_ID.DAILY_OBSERVER.id-> DailyObserverPreviewPageParser()
+            NEWS_PAPER_ID.BANGLA_NEWS_24_BN.id-> BanglaNews24BnPreviewPageParser()
             else-> null
         }
     }
