@@ -191,7 +191,7 @@ internal class PreviewPageParserTest {
 
     /*@Test
     fun banglaNews24BnTest() {
-        DatabaseUtils.getAllPages(session).filter { it.newspaper!!.id == "NP_ID_23" && it.hasData()}*//*.take(1)*//*.asSequence().forEach {
+        DatabaseUtils.getAllPages(session).filter { it.newspaper!!.id == "NP_ID_24" && it.hasData()}/*.take(1)*/.asSequence().forEach {
             println()
             println()
             println(it.toString())
@@ -201,7 +201,7 @@ internal class PreviewPageParserTest {
                     LoggerUtils.logOnConsole("${first.size} articles found")
                     LoggerUtils.logOnConsole("Message:$second")
 
-                    val firstArticle = first.shuffled().get(0)
+                    val firstArticle = first/*.shuffled()*/.get(0)
                     LoggerUtils.logOnConsole("firstArticle:${firstArticle}")
 
                     ArticleBodyParser.getArticleBody(firstArticle)
