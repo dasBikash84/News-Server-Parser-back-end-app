@@ -24,21 +24,26 @@ import com.dasbikash.news_server_parser.model.ParserMode
 import com.dasbikash.news_server_parser.parser.article_body_parsers.ArticleBodyParser
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser
 import com.dasbikash.news_server_parser.utils.LoggerUtils
+import org.hibernate.Session
 import java.util.*
 
 class ArticleDataFetcherForPageSelf :ArticleDataFetcherBase(ParserMode.RUNNING) {
 
-    override fun doParsingForPage(currentPage: Page) {
+    override fun doParsingForPage(currentPage: Page,session: Session) {
 
-        val opMode = currentPage.newspaper!!.getOpMode(getDatabaseSession())//DatabaseUtils.getOpModeForNewsPaper(getDatabaseSession(),currentPage.newspaper!!)
+        val opMode = currentPage.newspaper!!.getOpMode(session)//DatabaseUtils.getOpModeForNewsPaper(session,currentPage.newspaper!!)
 
         if (opMode==ParserMode.PARSE_THROUGH_CLIENT || opMode==ParserMode.OFF){
             return
         }
 
-        if (opMode!=ParserMode.GET_SYNCED && !goForPageParsing(currentPage)) {
+        if (opMode!=ParserMode.GET_SYNCED && !goForPageParsing(currentPage,session)) {
             return
         }
+
+        LoggerUtils.logOnConsole("doParsingForPage currentPage: $currentPage")
+        sleep(5000L)
+        return
 
         try {
             waitForFareNetworkUsage(currentPage)
@@ -49,7 +54,7 @@ class ArticleDataFetcherForPageSelf :ArticleDataFetcherBase(ParserMode.RUNNING) 
         val currentPageNumber: Int
 
         if (currentPage.isPaginated()) {
-            currentPageNumber = getLastParsedPageNumber(currentPage) + 1
+            currentPageNumber = getLastParsedPageNumber(currentPage,session) + 1
         } else {
             currentPageNumber = PAGE_NUMBER_NOT_APPLICABLE
         }
@@ -75,7 +80,7 @@ class ArticleDataFetcherForPageSelf :ArticleDataFetcherBase(ParserMode.RUNNING) 
                 else -> ParserExceptionHandler.handleException(ParserException(e))
             }
             if (opMode != ParserMode.GET_SYNCED ) {
-                emptyPageAction(currentPage, parsingResult?.second ?: "")
+                emptyPageAction(currentPage, parsingResult?.second ?: "",session = session)
             }
             return
         }
@@ -84,13 +89,13 @@ class ArticleDataFetcherForPageSelf :ArticleDataFetcherBase(ParserMode.RUNNING) 
                 articleList
                         .asSequence()
                         .filter {
-                            (DatabaseUtils.findArticleById(getDatabaseSession(), it.id)) == null &&
-                            (DatabaseUtils.findArticleById(getDatabaseSession(), Article.getStripedArticleId(it.id))) == null
+                            (DatabaseUtils.findArticleById(session, it.id)) == null &&
+                            (DatabaseUtils.findArticleById(session, Article.getStripedArticleId(it.id))) == null
                         }
                         .toMutableList()
         //For Full repeat
         if (opMode != ParserMode.GET_SYNCED && parsableArticleList.size == 0) {
-            allArticleRepeatAction(currentPage, parsingResult?.second ?: "")
+            allArticleRepeatAction(currentPage, parsingResult?.second ?: "",session=session)
             return
         }
 
@@ -123,14 +128,14 @@ class ArticleDataFetcherForPageSelf :ArticleDataFetcherBase(ParserMode.RUNNING) 
                 if (article.modificationTS !=null && article.modificationTS!! > Date()){
                     article.modificationTS = Date()
                 }
-                DatabaseUtils.runDbTransection(getDatabaseSession()) {
-                    getDatabaseSession().save(article)
+                DatabaseUtils.runDbTransection(session) {
+                    session.save(article)
                     newArticleCount++
                 }
             }
         }
 
         savePageParsingHistory(
-                currentPage, currentPageNumber, newArticleCount, parsingResult?.second ?: "")
+                currentPage, currentPageNumber, newArticleCount, parsingResult?.second ?: "",session = session)
     }
 }

@@ -24,6 +24,7 @@ import com.dasbikash.news_server_parser.parser.article_body_parsers.ArticleBodyP
 import com.dasbikash.news_server_parser.parser.preview_page_parsers.PreviewPageParser
 import com.dasbikash.news_server_parser.utils.LoggerUtils
 import com.dasbikash.news_server_parser.utils.PageDownloadRequestUtils
+import org.hibernate.Session
 import java.util.*
 
 class ArticleDataFetcherForPageThroughClient : ArticleDataFetcherBase(ParserMode.PARSE_THROUGH_CLIENT) {
@@ -32,9 +33,9 @@ class ArticleDataFetcherForPageThroughClient : ArticleDataFetcherBase(ParserMode
         FireStoreDataUtils.nop()
     }
 
-    override fun doParsingForPage(currentPage: Page) {
+    override fun doParsingForPage(currentPage: Page,session: Session) {
 
-        val opMode = DatabaseUtils.getOpModeForNewsPaper(getDatabaseSession(), currentPage.newspaper!!)
+        val opMode = DatabaseUtils.getOpModeForNewsPaper(session, currentPage.newspaper!!)
 
         if (opMode != ParserMode.PARSE_THROUGH_CLIENT) {
             return
@@ -42,8 +43,8 @@ class ArticleDataFetcherForPageThroughClient : ArticleDataFetcherBase(ParserMode
 //            LoggerUtils.logOnConsole("Running Parser for page ${currentPage.name} of Np: ${newspaper.name}")
 
         val activePageDownloadRequestEntries =
-                DatabaseUtils.findActivePageDownloadRequestEntryForPage(getDatabaseSession(), currentPage)
-        activePageDownloadRequestEntries.asSequence().forEach { getDatabaseSession().refresh(it) }
+                DatabaseUtils.findActivePageDownloadRequestEntryForPage(session, currentPage)
+        activePageDownloadRequestEntries.asSequence().forEach { session.refresh(it) }
 
         if (activePageDownloadRequestEntries.isNotEmpty()) {
 //                LoggerUtils.logOnConsole("activePageDownloadRequestEntries.size for page ${currentPage.name} of Np: ${activePageDownloadRequestEntries.size}")
@@ -57,7 +58,7 @@ class ArticleDataFetcherForPageThroughClient : ArticleDataFetcherBase(ParserMode
                     //parse preview page and place article download request if needed
 //                        LoggerUtils.logOnConsole("Preview page content found for page ${currentPage.name} of Np: ${newspaper.name}")
 
-                    val currentPageNumber = getCurrentPageNumber(currentPage)
+                    val currentPageNumber = getCurrentPageNumber(currentPage,session)
                     val articleList: MutableList<Article> = mutableListOf()
 
                     var parsingResult: Pair<MutableList<Article>, String>? = null
@@ -80,8 +81,8 @@ class ArticleDataFetcherForPageThroughClient : ArticleDataFetcherBase(ParserMode
                             is ParserException -> ParserExceptionHandler.handleException(e)
                             else -> ParserExceptionHandler.handleException(ParserException(e))
                         }
-                        deactivatePageDownloadRequestEntry(articlePreviewPageDownloadRequestEntry)
-                        emptyPageAction(currentPage, parsingResult?.second ?: "")
+                        deactivatePageDownloadRequestEntry(articlePreviewPageDownloadRequestEntry,session)
+                        emptyPageAction(currentPage, parsingResult?.second ?: "",session=session)
                         return
                     }
 //                        LoggerUtils.logOnConsole("${articleList.size} article preview found for page ${currentPage.name} of Np: ${newspaper.name}")
@@ -89,8 +90,8 @@ class ArticleDataFetcherForPageThroughClient : ArticleDataFetcherBase(ParserMode
                     val parsableArticleList =
                             articleList.asSequence()
                                     .filter {
-                                        (DatabaseUtils.findArticleById(getDatabaseSession(), it.id)) == null &&
-                                        (DatabaseUtils.findArticleById(getDatabaseSession(), Article.getStripedArticleId(it.id))) == null
+                                        (DatabaseUtils.findArticleById(session, it.id)) == null &&
+                                        (DatabaseUtils.findArticleById(session, Article.getStripedArticleId(it.id))) == null
                                     }
                                     .toMutableList()
                     //For Full repeat
@@ -98,18 +99,18 @@ class ArticleDataFetcherForPageThroughClient : ArticleDataFetcherBase(ParserMode
 
 
                     if (parsableArticleList.size == 0) {
-                        allArticleRepeatAction(currentPage, parsingResult?.second ?: "")
+                        allArticleRepeatAction(currentPage, parsingResult?.second ?: "",session)
                     } else {
                         parsableArticleList.asSequence().forEach {
-                            DatabaseUtils.runDbTransection(getDatabaseSession()) {
-                                getDatabaseSession().save(it)
+                            DatabaseUtils.runDbTransection(session) {
+                                session.save(it)
 //                                    LoggerUtils.logOnConsole("New article saved: ${it.id}")
                             }
                             PageDownloadRequestUtils
-                                    .addArticleBodyDownloadRequestEntryForPage(getDatabaseSession(), currentPage, it)
+                                    .addArticleBodyDownloadRequestEntryForPage(session, currentPage, it)
                         }
                     }
-                    deactivatePageDownloadRequestEntry(articlePreviewPageDownloadRequestEntry)
+                    deactivatePageDownloadRequestEntry(articlePreviewPageDownloadRequestEntry,session)
                 } else {
 //                        LoggerUtils.logOnConsole("No Preview page content for page ${currentPage.name} of Np: ${newspaper.name}")
                 }
@@ -124,7 +125,7 @@ class ArticleDataFetcherForPageThroughClient : ArticleDataFetcherBase(ParserMode
 //                                LoggerUtils.logOnConsole(it.toString())
                             var article: Article? = null
                             try {
-                                article = DatabaseUtils.findArticleById(getDatabaseSession(), it.responseDocumentId!!)!!
+                                article = DatabaseUtils.findArticleById(session, it.responseDocumentId!!)!!
                                 ArticleBodyParser.getArticleBody(article, it.getResponseContentAsString()!!)
                             } catch (ex: ParserException) {
                                 ex.printStackTrace()
@@ -146,51 +147,51 @@ class ArticleDataFetcherForPageThroughClient : ArticleDataFetcherBase(ParserMode
                                     if (article.modificationTS !=null && article.modificationTS!! > Date()){
                                         article.modificationTS = Date()
                                     }
-                                    DatabaseUtils.runDbTransection(getDatabaseSession()) {
-                                        getDatabaseSession().update(article)
+                                    DatabaseUtils.runDbTransection(session) {
+                                        session.update(article)
 //                                            LoggerUtils.logOnConsole("New article body saved for article with id: ${it.id}")
                                         newArticleCount++
                                     }
                                 }
                             }
                             processedArticleCount++
-                            deactivatePageDownloadRequestEntry(it)
+                            deactivatePageDownloadRequestEntry(it,session)
                         }
 
                 if (activePageDownloadRequestEntries.filter { it.pageDownloadRequestMode == PageDownloadRequestMode.ARTICLE_BODY }.count() ==
                         processedArticleCount) {
-                    savePageParsingHistory(currentPage, getCurrentPageNumber(currentPage), newArticleCount, "")
+                    savePageParsingHistory(currentPage, getCurrentPageNumber(currentPage,session), newArticleCount, "",session = session)
                 }
             }
         } else {
-            if (goForPageParsing(currentPage)) {
+            if (goForPageParsing(currentPage,session)) {
 
-                val currentPageNumber = getCurrentPageNumber(currentPage)
+                val currentPageNumber = getCurrentPageNumber(currentPage,session)
                 //place preview page download request.
                 val pageLink = PreviewPageParser.getPageLinkByPageNumber(currentPage, currentPageNumber)
                 if (pageLink != null) {
-                    PageDownloadRequestUtils.addArticlePreviewPageDownloadRequestEntryForPage(getDatabaseSession(), currentPage, pageLink)
+                    PageDownloadRequestUtils.addArticlePreviewPageDownloadRequestEntryForPage(session, currentPage, pageLink)
                 } else {
-                    emptyPageAction(currentPage, "")
+                    emptyPageAction(currentPage, "",session = session)
                 }
             }
         }
     }
 
-    private fun getCurrentPageNumber(currentPage: Page): Int {
+    private fun getCurrentPageNumber(currentPage: Page,session: Session): Int {
         val currentPageNumber: Int
 
         if (currentPage.isPaginated()) {
-            currentPageNumber = getLastParsedPageNumber(currentPage) + 1
+            currentPageNumber = getLastParsedPageNumber(currentPage,session) + 1
         } else {
             currentPageNumber = PAGE_NUMBER_NOT_APPLICABLE
         }
         return currentPageNumber
     }
 
-    private fun deactivatePageDownloadRequestEntry(articlePreviewPagepageDownloadRequestEntry: PageDownloadRequestEntry) {
-        DatabaseUtils.runDbTransection(getDatabaseSession()) {
-            getDatabaseSession().delete(articlePreviewPagepageDownloadRequestEntry)
+    private fun deactivatePageDownloadRequestEntry(articlePreviewPagepageDownloadRequestEntry: PageDownloadRequestEntry,session: Session) {
+        DatabaseUtils.runDbTransection(session) {
+            session.delete(articlePreviewPagepageDownloadRequestEntry)
         }
     }
 }
