@@ -35,7 +35,7 @@ abstract class ArticleDataFetcherBase constructor(opMode: ParserMode) : Thread()
     protected val PAGE_NUMBER_NOT_APPLICABLE = 0
     lateinit var dbSession: Session
 
-    private val DELEY_BETWEEN_PARSER_LAUNCH_RETRY = 5*1000L //5 secs
+    private val DELEY_BETWEEN_PARSER_LAUNCH_RETRY = 1000L //1 secs
     private val ACTIVE_PARSER_COUNT = 2
 
     private val activeNewsPapers = mutableListOf<Newspaper>()
@@ -55,14 +55,14 @@ abstract class ArticleDataFetcherBase constructor(opMode: ParserMode) : Thread()
                     }
 
             val pageListForParsing = mutableListOf<Page>()
-            val newspapers = getReleventNewsPapers()
+            val newspapers = getReleventNewsPapers(getDatabaseSession())
             newspapers
                     .flatMap {it.pageList?.filter { it.hasData() } ?: emptyList()}
                     .forEach { pageListForParsing.add(it) }
 
             while (pageListForParsing.isNotEmpty()){
                 val currentPage = pageListForParsing.shuffled().get(0)
-                if(!launchParserForPage(currentPage)){
+                if(!launchParserForPage(currentPage,getDatabaseSession())){
                     sleep(DELEY_BETWEEN_PARSER_LAUNCH_RETRY)
                 }else{
                     pageListForParsing.remove(currentPage)
@@ -72,25 +72,41 @@ abstract class ArticleDataFetcherBase constructor(opMode: ParserMode) : Thread()
         } while (newspapers.isNotEmpty())
     }
 
-    private fun launchParserForPage(page:Page):Boolean{
+    private fun launchParserForPage(page:Page,session: Session):Boolean{
         synchronized(activeNewsPapers){
             if (activeNewsPapers.size >= ACTIVE_PARSER_COUNT ||
                     activeNewsPapers.count { it.id == page.newspaper!!.id }>0){
                 return false
             }else{
                 activeNewsPapers.add(page.newspaper!!)
+                session.detach(page)
                 RxJavaUtils.doTaskInBackGround {
-                    parsePage(page,getDatabaseSession())
-                    synchronized(activeNewsPapers){
-                        activeNewsPapers.remove(page.newspaper!!)
-                    }
+                    parsePage(page,{it -> removeNewsPaperForActiveList(it)})
                 }
                 return true
             }
         }
     }
 
-    private fun parsePage(page: Page,session: Session) {
+    fun removeNewsPaperForActiveList(newpaperId:String){
+        synchronized(activeNewsPapers){
+            var newspaper:Newspaper? = null
+            activeNewsPapers.asSequence().forEach {
+                if (it.id == newpaperId){
+                    newspaper = it
+                    return@forEach
+                }
+            }
+            newspaper?.let {
+                activeNewsPapers.remove(it)
+            }
+        }
+    }
+
+    private fun parsePage(page: Page, removeNewsPaperForActiveList: (newspaperId:String)->Unit) {
+
+        val session = DbSessionManager.getNewSession()
+        session.saveOrUpdate(page)
 
         try {
             doParsingForPage(page,session)
@@ -107,7 +123,6 @@ abstract class ArticleDataFetcherBase constructor(opMode: ParserMode) : Thread()
             }
 
             //Recalculate Page parsing intervals if necessary
-
             var pageParsingInterval = DatabaseUtils.getPageParsingIntervalForPage(session, page)
 
             if (pageParsingInterval == null) {
@@ -138,18 +153,21 @@ abstract class ArticleDataFetcherBase constructor(opMode: ParserMode) : Thread()
             ex.printStackTrace()
             LoggerUtils.logError(ex, session)
         }
+
+        removeNewsPaperForActiveList(page.newspaper!!.id)
+        session.close()
     }
 
     abstract fun doParsingForPage(currentPage: Page,session: Session)
 
-    private fun getReleventNewsPapers() =
-            DatabaseUtils.getAllNewspapers(getDatabaseSession())
+    private fun getReleventNewsPapers(session: Session) =
+            DatabaseUtils.getAllNewspapers(session)
                     .filter {
                         if (isSelfParser) {
-                            val opMode = it.getOpMode(getDatabaseSession())
+                            val opMode = it.getOpMode(session)
                             return@filter ((opMode == ParserMode.RUNNING) || (opMode == ParserMode.GET_SYNCED))
                         } else {
-                            return@filter it.getOpMode(getDatabaseSession()) == ParserMode.PARSE_THROUGH_CLIENT
+                            return@filter it.getOpMode(session) == ParserMode.PARSE_THROUGH_CLIENT
                         }
                     }
 
@@ -220,7 +238,7 @@ abstract class ArticleDataFetcherBase constructor(opMode: ParserMode) : Thread()
 
     }
 
-    protected fun getDatabaseSession(): Session {
+    private fun getDatabaseSession(): Session {
         if (!::dbSession.isInitialized || !dbSession.isOpen || !dbSession.isConnected) {
             if (::dbSession.isInitialized) {
                 dbSession.close()

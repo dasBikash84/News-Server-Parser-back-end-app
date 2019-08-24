@@ -41,10 +41,6 @@ class ArticleDataFetcherForPageSelf :ArticleDataFetcherBase(ParserMode.RUNNING) 
             return
         }
 
-        LoggerUtils.logOnConsole("doParsingForPage currentPage: $currentPage")
-        sleep(5000L)
-        return
-
         try {
             waitForFareNetworkUsage(currentPage)
         } catch (ex: InterruptedException) {

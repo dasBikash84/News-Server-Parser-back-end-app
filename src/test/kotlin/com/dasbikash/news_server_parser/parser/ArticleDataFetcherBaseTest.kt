@@ -17,10 +17,10 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 internal class ArticleDataFetcherBaseTest{
-    @Test
-    fun ArticleDataFetcherForPageSelfTest(){
-        val articleDataFetcherForPageSelf = ArticleDataFetcherForPageSelf()
-        articleDataFetcherForPageSelf.start()
-        articleDataFetcherForPageSelf.join()
-    }
+//    @Test
+//    fun ArticleDataFetcherForPageSelfTest(){
+//        val articleDataFetcherForPageSelf = ArticleDataFetcherForPageSelf()
+//        articleDataFetcherForPageSelf.start()
+//        articleDataFetcherForPageSelf.join()
+//    }
 }

@@ -38,7 +38,7 @@ data class PageParsingInterval(
         return "PageParsingInterval(id=$id, Np=${page?.newspaper?.name},page=${page?.id}, pageName=${page?.name}, parsingIntervalMin=${parsingIntervalMS!!/ 60/1000}, modified=$modified)"
     }
     fun needRecalculation(session: Session):Boolean{
-        DatabaseUtils.runDbTransection(session){session.refresh(this)}
+        session.refresh(this)
         return (System.currentTimeMillis() - this.modified!!.time)>MINIMUM_RECALCULATE_INTERVAL
     }
 
