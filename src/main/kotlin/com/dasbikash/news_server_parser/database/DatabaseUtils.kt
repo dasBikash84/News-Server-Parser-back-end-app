@@ -193,12 +193,15 @@ object DatabaseUtils {
     }
 
     private fun getArticleCountForPageBetweenTwoDates(page: Page, startDate: Date, endDate: Date, session: Session): Int {
-        val sqlBuilder = StringBuilder("SELECT COUNT(*) FROM ${DatabaseTableNames.ARTICLE_TABLE_NAME}")
-                .append(" WHERE pageId='${page.id}' ")
-                .append("AND modified>='${DateUtils.getDateStringForDb(startDate)}'")
-                .append("AND modified<'${DateUtils.getDateStringForDb(endDate)}'")
-        val result = session.createNativeQuery(sqlBuilder.toString()).singleResult
-        return (result as BigInteger).toInt()
+        val sqlBuilder = StringBuilder("SELECT SUM(articleCount) FROM ${DatabaseTableNames.PAGE_PARSING_HISTORY_TABLE_NAME}")
+                                        .append(" WHERE pageId='${page.id}' ")
+                                        .append("AND created>='${DateUtils.getDateStringForDb(startDate)}'")
+                                        .append("AND created<'${DateUtils.getDateStringForDb(endDate)}'")
+        println(sqlBuilder)
+        try {
+            return (session.createNativeQuery(sqlBuilder.toString()).singleResult as Number).toInt()
+        } catch (ex: Exception) {}
+        return 0
     }
 
     fun findPageDownloadRequestEntryBYServerNodeName(session: Session, responseDocumentId: String): PageDownloadRequestEntry? {

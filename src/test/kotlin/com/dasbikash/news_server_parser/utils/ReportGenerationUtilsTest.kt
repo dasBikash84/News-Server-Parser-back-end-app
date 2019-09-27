@@ -29,30 +29,33 @@ internal class ReportGenerationUtilsTest {
     fun tearDown() {
     }
 
-//    @Test
-//    fun prepareDailyReportTest(){
-//        val session = DbSessionManager.getNewSession()
-//        val today = Date()
-//        ReportGenerationUtils.prepareDailyReport(today, session)
-//        ReportGenerationUtils.emailDailyReport(today)
-//    }
-//
-//    @Test
-//    fun prepareWeeklyReportTest(){
-//        val session = DbSessionManager.getNewSession()
-//        val today = Date()
-//        ReportGenerationUtils.prepareWeeklyReport(today, session)
-//        ReportGenerationUtils.emailWeeklyReport(today)
-//    }
-//
-//    @Test
-//    fun prepareMonthlyReportTest(){
-//        val session = DbSessionManager.getNewSession()
-//        val calendar = Calendar.getInstance()
-//        calendar.set(Calendar.MONTH, Calendar.JUNE)
-//        calendar.set(Calendar.DAY_OF_MONTH,15)
-//        val today = calendar.time
-//        ReportGenerationUtils.prepareMonthlyReport(today, session)
-//        ReportGenerationUtils.emailMonthlyReport(today)
-//    }
+    /*@Test
+    fun prepareDailyReportTest(){
+        val session = DbSessionManager.getNewSession()
+        val now = Calendar.getInstance()
+        now.set(Calendar.DAY_OF_MONTH,25)
+        val today = now.time
+        ReportGenerationUtils.prepareDailyReport(today, session)
+        ReportGenerationUtils.emailDailyReport(today)
+    }*/
+
+    /*@Test
+    fun prepareWeeklyReportTest(){
+        val session = DbSessionManager.getNewSession()
+        val now = Calendar.getInstance()
+        now.set(Calendar.DAY_OF_MONTH,23)
+        val today = now.time
+        ReportGenerationUtils.prepareWeeklyReport(today, session)
+        ReportGenerationUtils.emailWeeklyReport(today)
+    }*/
+
+    /*@Test
+    fun prepareMonthlyReportTest(){
+        val session = DbSessionManager.getNewSession()
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.DAY_OF_MONTH,1)
+        val today = calendar.time
+        ReportGenerationUtils.prepareMonthlyReport(today, session)
+        ReportGenerationUtils.emailMonthlyReport(today)
+    }*/
 }
