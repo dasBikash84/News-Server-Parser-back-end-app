@@ -41,7 +41,9 @@ data class Page(
         var articleList: List<Article>?=null,
 
         @OneToMany(fetch = FetchType.LAZY,mappedBy = "page",targetEntity = PageParsingHistory::class)
-        var pageParsingHistory: List<PageParsingHistory>?=null
+        var pageParsingHistory: List<PageParsingHistory>?=null,
+        @ManyToMany(mappedBy = "pageList",targetEntity = PageGroup::class)
+        var pageGroups:List<PageGroup>?=null
 
 ){
     companion object {

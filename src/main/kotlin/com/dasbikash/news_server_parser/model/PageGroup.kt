@@ -25,7 +25,7 @@ data class PageGroup(
         var name: String?=null
 ){
     var active: Boolean = true
-    @OneToMany(fetch = FetchType.LAZY,targetEntity = Page::class)
+    @ManyToMany(fetch = FetchType.LAZY,targetEntity = Page::class)
     @JoinTable(
             name="page_group_entries",
             joinColumns = arrayOf(JoinColumn(name = "pageGroupId")),
