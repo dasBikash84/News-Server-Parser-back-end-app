@@ -35,7 +35,7 @@ object DisplayUtils {
     private val ENGLISH_UNICODE_ZERO: Char = 0x0030.toChar()
     private val ENGLISH_UNICODE_NINE: Char = 0x0039.toChar()
 
-    private val MONTH_NAME_TABLE = arrayOf(arrayOf("জানুয়ারী", "Jan"), arrayOf("জানুয়ারি", "Jan"), arrayOf("জানুয়ারি", "Jan"), arrayOf("ফেব্রুয়ারী", "Feb"), arrayOf("ফেব্রুয়ারি", "Feb"), arrayOf("ফেব্রুয়ারি", "Feb"), arrayOf("মার্চ", "Mar"), arrayOf("এপ্রিল", "Apr"), arrayOf("এপ্রিল", "Apr"), arrayOf("মে", "May"), arrayOf("জুন", "Jun"), arrayOf("জুলাই", "Jul"), arrayOf("আগস্ট", "Aug"), arrayOf("আগষ্ট", "Aug"), arrayOf("অগস্ট", "Aug"), arrayOf("সেপ্টেম্বর", "Sep"), arrayOf("অক্টোবর", "Oct"), arrayOf("নভেম্বর", "Nov"), arrayOf("ডিসেম্বর", "Dec"))
+    private val MONTH_NAME_TABLE = arrayOf(arrayOf("জানুয়ারী", "Jan"), arrayOf("জানুয়ারি", "Jan"), arrayOf("জানুয়ারি", "Jan"), arrayOf("ফেব্রুয়ারী", "Feb"), arrayOf("ফেব্রুয়ারি", "Feb"), arrayOf("ফেব্রুয়ারি", "Feb"), arrayOf("মার্চ", "Mar"), arrayOf("এপ্রিল", "Apr"), arrayOf("এপ্রিল", "Apr"), arrayOf("মে", "May"), arrayOf("জুন", "Jun"), arrayOf("জুলাই", "Jul"), arrayOf("আগস্ট", "Aug"), arrayOf("আগষ্ট", "Aug"), arrayOf("অগস্ট", "Aug"), arrayOf("সেপ্টেম্বর", "Sep"), arrayOf("অক্টোবর", "Oct"), arrayOf("অক্টোবর", "Oct"), arrayOf("নভেম্বর", "Nov"), arrayOf("ডিসেম্বর", "Dec"))
     private val DAY_NAME_TABLE = arrayOf(arrayOf("শনিবার", "Sat"), arrayOf("রবিবার", "Sun"), arrayOf("সোমবার", "Mon"), arrayOf("মঙ্গলবার", "Tue"), arrayOf("বুধবার", "Wed"), arrayOf("বৃহস্পতিবার", "Thu"), arrayOf("শুক্রবার", "Fri"))
 
     private val AM_PM_MARKER_TABLE = arrayOf(arrayOf("পূর্বাহ্ণ", "AM"), arrayOf("অপরাহ্ণ", "PM"),
